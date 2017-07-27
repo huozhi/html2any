@@ -1,0 +1,15 @@
+{
+  "name": "html2any",
+  "version": "0.0.1",
+  "description": "convert html to anything from ast form",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "huozhi <gilesliu12@gmial.com>",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "react": "^15.6.1",
+    "react-dom": "^15.6.1"
+  }
+}
