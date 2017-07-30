@@ -5,4 +5,7 @@ const parser = require('../src/parser')
 const logJSON = (x) => console.log(JSON.stringify(x, null, 2))
 
 const ast = tokenizer(html1)
-logJSON(parser(ast))
+
+it('parse correctly', () => {
+  expect(parser(ast)).toMatchSnapshot()
+})

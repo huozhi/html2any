@@ -1,0 +1,49 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`parse correctly 1`] = `
+Array [
+  Object {
+    "attribues": Object {},
+    "children": Array [
+      Object {
+        "attribues": Object {},
+        "children": null,
+        "name": "hr",
+      },
+      Object {
+        "attribues": Object {
+          "data-index": "2",
+          "src": "a.jpg",
+        },
+        "children": null,
+        "name": "img",
+      },
+      Object {
+        "attribues": Object {
+          "id": "x34",
+        },
+        "children": "1234 &amp;",
+        "name": "p",
+      },
+      Object {
+        "attribues": Object {
+          "class": "d3 d2",
+          "id": "container",
+        },
+        "children": Array [
+          Object {
+            "attribues": Object {
+              "disabled": true,
+              "value": "123",
+            },
+            "children": null,
+            "name": "input",
+          },
+        ],
+        "name": "div",
+      },
+    ],
+    "name": "div",
+  },
+]
+`;

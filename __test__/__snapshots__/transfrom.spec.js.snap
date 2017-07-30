@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`transform works well with customized rule 1`] = `"<div><h1 id=\\"x34\\">1234 &amp;</h1><div id=\\"container\\" class=\\"d3 d2\\"></div></div>"`;

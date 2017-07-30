@@ -1,0 +1,65 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`tokenizer parse correctly 1`] = `
+Array [
+  Object {
+    "attribues": Object {},
+    "children": null,
+    "name": "div",
+    "type": "start",
+  },
+  Object {
+    "attribues": Object {},
+    "children": null,
+    "name": "hr",
+    "type": "self-close",
+  },
+  Object {
+    "attribues": Object {
+      "data-index": "2",
+      "src": "a.jpg",
+    },
+    "children": null,
+    "name": "img",
+    "type": "self-close",
+  },
+  Object {
+    "attribues": Object {
+      "id": "x34",
+    },
+    "children": "1234 &amp;",
+    "name": "p",
+    "type": "start",
+  },
+  Object {
+    "name": "p",
+    "type": "end",
+  },
+  Object {
+    "attribues": Object {
+      "class": "d3 d2",
+      "id": "container",
+    },
+    "children": null,
+    "name": "div",
+    "type": "start",
+  },
+  Object {
+    "attribues": Object {
+      "disabled": true,
+      "value": "123",
+    },
+    "children": null,
+    "name": "input",
+    "type": "self-close",
+  },
+  Object {
+    "name": "div",
+    "type": "end",
+  },
+  Object {
+    "name": "div",
+    "type": "end",
+  },
+]
+`;
