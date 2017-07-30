@@ -6,6 +6,9 @@
   "scripts": {
     "test": "jest"
   },
+  "engines": {
+    "node": ">=6.0"
+  },
   "author": "huozhi <gilesliu12@gmial.com>",
   "license": "UNLICENSED",
   "devDependencies": {
