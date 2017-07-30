@@ -53,4 +53,6 @@ function rule (node, children) {
 const ast = parser(tokenizer(html1))[0]
 const output = transform(ast, rule)
 
-console.log(ReactDOMServer.renderToStaticMarkup(output))
+it('transform works well with customized rule', () => {
+  expect(ReactDOMServer.renderToStaticMarkup(output)).toMatchSnapshot()
+})

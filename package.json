@@ -4,11 +4,12 @@
   "description": "convert html to anything from ast form",
   "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "author": "huozhi <gilesliu12@gmial.com>",
   "license": "UNLICENSED",
   "devDependencies": {
+    "jest": "^20.0.4",
     "react": "^15.6.1",
     "react-dom": "^15.6.1"
   }
