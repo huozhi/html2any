@@ -7,7 +7,7 @@ Array [
     "children": Array [
       Object {
         "attribues": Object {},
-        "children": null,
+        "children": undefined,
         "name": "hr",
       },
       Object {
@@ -15,14 +15,16 @@ Array [
           "data-index": "2",
           "src": "a.jpg",
         },
-        "children": null,
+        "children": undefined,
         "name": "img",
       },
       Object {
         "attribues": Object {
           "id": "x34",
         },
-        "children": "1234 &amp;",
+        "children": Array [
+          "1234 &amp;",
+        ],
         "name": "p",
       },
       Object {
@@ -36,11 +38,185 @@ Array [
               "disabled": true,
               "value": "123",
             },
-            "children": null,
+            "children": undefined,
             "name": "input",
           },
         ],
         "name": "div",
+      },
+    ],
+    "name": "div",
+  },
+]
+`;
+
+exports[`parse correctly 2`] = `
+Array [
+  Object {
+    "attribues": Object {},
+    "children": Array [
+      Object {
+        "attribues": Object {},
+        "children": Array [
+          Object {
+            "attribues": Object {},
+            "children": undefined,
+            "name": "br",
+          },
+        ],
+        "name": "p",
+      },
+      Object {
+        "attribues": Object {
+          "data-mce-style": "text-align: center; font-size: 15px;",
+          "style": "text-align: center; font-size: 15px;",
+        },
+        "children": Array [
+          Object {
+            "attribues": Object {
+              "src": "https",
+            },
+            "children": undefined,
+            "name": "img",
+          },
+        ],
+        "name": "p",
+      },
+      Object {
+        "attribues": Object {
+          "data-mce-style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;",
+          "style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;",
+        },
+        "children": Array [
+          "This demo includes these TinyMCE Premium",
+          Object {
+            "attribues": Object {
+              "class": "mce-spellchecker-word",
+              "data-mce-bogus": "1",
+              "data-mce-index": "0",
+              "data-mce-word": "Plugins",
+            },
+            "children": Array [
+              "Plugins",
+            ],
+            "name": "span",
+          },
+          ":",
+          Object {
+            "attribues": Object {
+              "href": "https",
+            },
+            "children": Array [
+              "PowerPaste",
+            ],
+            "name": "a",
+          },
+          "(improved Word paste),",
+          Object {
+            "attribues": Object {
+              "href": "https",
+            },
+            "children": Array [
+              "Accessibility Checker",
+            ],
+            "name": "a",
+          },
+          ",",
+          Object {
+            "attribues": Object {
+              "href": "https",
+            },
+            "children": Array [
+              "Spell Checker Pro",
+            ],
+            "name": "a",
+          },
+          "&amp; file management with",
+          Object {
+            "attribues": Object {
+              "href": "http",
+            },
+            "children": Array [
+              "MoxieManager",
+            ],
+            "name": "a",
+          },
+          ".",
+        ],
+        "name": "p",
+      },
+      Object {
+        "attribues": Object {
+          "": true,
+          "data-mce-style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;",
+          "style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;",
+        },
+        "children": Array [
+          "TinyMCE is a platform indepen",
+          Object {
+            "attribues": Object {},
+            "children": Array [
+              "dent web-",
+            ],
+            "name": "strong",
+          },
+          "based JavaScript HTML WYSIWYG",
+          Object {
+            "attribues": Object {},
+            "children": undefined,
+            "name": "br",
+          },
+          "editor control released as open source",
+          Object {
+            "attribues": Object {},
+            "children": Array [
+              "under",
+            ],
+            "name": "em",
+          },
+          "LGPL.",
+        ],
+        "name": "p",
+      },
+      Object {
+        "attribues": Object {
+          "data-mce-style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;",
+          "style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;",
+        },
+        "children": Array [
+          Object {
+            "attribues": Object {},
+            "children": Array [
+              "TinyMCE enables you to convert HTML",
+              Object {
+                "attribues": Object {
+                  "class": "mce-spellchecker-word",
+                  "data-mce-bogus": "1",
+                  "data-mce-index": "0",
+                  "data-mce-word": "textarea",
+                },
+                "children": Array [
+                  "textarea",
+                ],
+                "name": "span",
+              },
+              "fields or other HTML elements to editor instances.",
+            ],
+            "name": "em",
+          },
+        ],
+        "name": "p",
+      },
+      Object {
+        "attribues": Object {},
+        "children": Array [
+          Object {
+            "attribues": Object {},
+            "children": undefined,
+            "name": "br",
+          },
+        ],
+        "name": "p",
       },
     ],
     "name": "div",
