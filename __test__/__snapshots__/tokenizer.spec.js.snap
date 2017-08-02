@@ -4,13 +4,11 @@ exports[`tokenizer parse correctly 1`] = `
 Array [
   Object {
     "attribues": Object {},
-    "children": null,
     "name": "div",
     "type": "start",
   },
   Object {
     "attribues": Object {},
-    "children": null,
     "name": "hr",
     "type": "self-close",
   },
@@ -19,7 +17,6 @@ Array [
       "data-index": "2",
       "src": "a.jpg",
     },
-    "children": null,
     "name": "img",
     "type": "self-close",
   },
@@ -27,9 +24,12 @@ Array [
     "attribues": Object {
       "id": "x34",
     },
-    "children": "1234 &amp;",
     "name": "p",
     "type": "start",
+  },
+  Object {
+    "type": "string",
+    "value": "1234 &amp;",
   },
   Object {
     "name": "p",
@@ -40,7 +40,6 @@ Array [
       "class": "d3 d2",
       "id": "container",
     },
-    "children": null,
     "name": "div",
     "type": "start",
   },
@@ -49,12 +48,293 @@ Array [
       "disabled": true,
       "value": "123",
     },
-    "children": null,
     "name": "input",
     "type": "self-close",
   },
   Object {
     "name": "div",
+    "type": "end",
+  },
+  Object {
+    "name": "div",
+    "type": "end",
+  },
+]
+`;
+
+exports[`tokenizer parse correctly 2`] = `
+Array [
+  Object {
+    "attribues": Object {},
+    "name": "div",
+    "type": "start",
+  },
+  Object {
+    "attribues": Object {},
+    "name": "p",
+    "type": "start",
+  },
+  Object {
+    "attribues": Object {},
+    "name": "br",
+    "type": "self-close",
+  },
+  Object {
+    "name": "p",
+    "type": "end",
+  },
+  Object {
+    "attribues": Object {
+      "data-mce-style": "text-align: center; font-size: 15px;",
+      "style": "text-align: center; font-size: 15px;",
+    },
+    "name": "p",
+    "type": "start",
+  },
+  Object {
+    "attribues": Object {
+      "src": "https",
+    },
+    "name": "img",
+    "type": "self-close",
+  },
+  Object {
+    "name": "p",
+    "type": "end",
+  },
+  Object {
+    "attribues": Object {
+      "data-mce-style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;",
+      "style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;",
+    },
+    "name": "p",
+    "type": "start",
+  },
+  Object {
+    "type": "string",
+    "value": "This demo includes these TinyMCE Premium",
+  },
+  Object {
+    "attribues": Object {
+      "class": "mce-spellchecker-word",
+      "data-mce-bogus": "1",
+      "data-mce-index": "0",
+      "data-mce-word": "Plugins",
+    },
+    "name": "span",
+    "type": "start",
+  },
+  Object {
+    "type": "string",
+    "value": "Plugins",
+  },
+  Object {
+    "name": "span",
+    "type": "end",
+  },
+  Object {
+    "type": "string",
+    "value": ":",
+  },
+  Object {
+    "attribues": Object {
+      "href": "https",
+    },
+    "name": "a",
+    "type": "start",
+  },
+  Object {
+    "type": "string",
+    "value": "PowerPaste",
+  },
+  Object {
+    "name": "a",
+    "type": "end",
+  },
+  Object {
+    "type": "string",
+    "value": "(improved Word paste),",
+  },
+  Object {
+    "attribues": Object {
+      "href": "https",
+    },
+    "name": "a",
+    "type": "start",
+  },
+  Object {
+    "type": "string",
+    "value": "Accessibility Checker",
+  },
+  Object {
+    "name": "a",
+    "type": "end",
+  },
+  Object {
+    "type": "string",
+    "value": ",",
+  },
+  Object {
+    "attribues": Object {
+      "href": "https",
+    },
+    "name": "a",
+    "type": "start",
+  },
+  Object {
+    "type": "string",
+    "value": "Spell Checker Pro",
+  },
+  Object {
+    "name": "a",
+    "type": "end",
+  },
+  Object {
+    "type": "string",
+    "value": "&amp; file management with",
+  },
+  Object {
+    "attribues": Object {
+      "href": "http",
+    },
+    "name": "a",
+    "type": "start",
+  },
+  Object {
+    "type": "string",
+    "value": "MoxieManager",
+  },
+  Object {
+    "name": "a",
+    "type": "end",
+  },
+  Object {
+    "type": "string",
+    "value": ".",
+  },
+  Object {
+    "name": "p",
+    "type": "end",
+  },
+  Object {
+    "attribues": Object {
+      "": true,
+      "data-mce-style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;",
+      "style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;",
+    },
+    "name": "p",
+    "type": "start",
+  },
+  Object {
+    "type": "string",
+    "value": "TinyMCE is a platform indepen",
+  },
+  Object {
+    "attribues": Object {},
+    "name": "strong",
+    "type": "start",
+  },
+  Object {
+    "type": "string",
+    "value": "dent web-",
+  },
+  Object {
+    "name": "strong",
+    "type": "end",
+  },
+  Object {
+    "type": "string",
+    "value": "based JavaScript HTML WYSIWYG",
+  },
+  Object {
+    "attribues": Object {},
+    "name": "br",
+    "type": "self-close",
+  },
+  Object {
+    "type": "string",
+    "value": "editor control released as open source",
+  },
+  Object {
+    "attribues": Object {},
+    "name": "em",
+    "type": "start",
+  },
+  Object {
+    "type": "string",
+    "value": "under",
+  },
+  Object {
+    "name": "em",
+    "type": "end",
+  },
+  Object {
+    "type": "string",
+    "value": "LGPL.",
+  },
+  Object {
+    "name": "p",
+    "type": "end",
+  },
+  Object {
+    "attribues": Object {
+      "data-mce-style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;",
+      "style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;",
+    },
+    "name": "p",
+    "type": "start",
+  },
+  Object {
+    "attribues": Object {},
+    "name": "em",
+    "type": "start",
+  },
+  Object {
+    "type": "string",
+    "value": "TinyMCE enables you to convert HTML",
+  },
+  Object {
+    "attribues": Object {
+      "class": "mce-spellchecker-word",
+      "data-mce-bogus": "1",
+      "data-mce-index": "0",
+      "data-mce-word": "textarea",
+    },
+    "name": "span",
+    "type": "start",
+  },
+  Object {
+    "type": "string",
+    "value": "textarea",
+  },
+  Object {
+    "name": "span",
+    "type": "end",
+  },
+  Object {
+    "type": "string",
+    "value": "fields or other HTML elements to editor instances.",
+  },
+  Object {
+    "name": "em",
+    "type": "end",
+  },
+  Object {
+    "name": "p",
+    "type": "end",
+  },
+  Object {
+    "attribues": Object {},
+    "name": "p",
+    "type": "start",
+  },
+  Object {
+    "attribues": Object {},
+    "name": "br",
+    "type": "self-close",
+  },
+  Object {
+    "name": "p",
     "type": "end",
   },
   Object {

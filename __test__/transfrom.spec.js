@@ -1,4 +1,5 @@
 const html1 = require('./mock/html1')
+const html2 = require('./mock/html2')
 const tokenizer = require('../src/tokenizer')
 const parser = require('../src/parser')
 const transform = require('../src/transform')
@@ -7,10 +8,13 @@ const ReactDOMServer = require('react-dom/server')
 
 function rule (node, children) {
   if (typeof node === 'string') {
-    return node.replace(/&amp;/, '&')
+    return node
   }
   const {name, attribues} = node
-  if (attribues.hasOwnProperty('class')) {
+  if (attribues && attribues.hasOwnProperty('style')) {
+    delete attribues.style
+  }
+  if (attribues && attribues.hasOwnProperty('class')) {
     attribues.className = attribues.class
     delete attribues.class
   }
@@ -37,6 +41,12 @@ function rule (node, children) {
       }
       break
     }
+    default: {
+      elem = {
+        tag: name,
+        props: attribues,
+      }
+    }
   }
 
   if (!elem || !elem.tag) {
@@ -50,9 +60,15 @@ function rule (node, children) {
   return React.createElement(elem.tag, elem.props, children)
 }
 
-const ast = parser(tokenizer(html1))[0]
-const output = transform(ast, rule)
 
-it('transform works well with customized rule', () => {
+it('transform works well on html1 with customized rule', () => {
+  const ast = parser(tokenizer(html1))[0]
+  const output = transform(ast, rule)
+  expect(ReactDOMServer.renderToStaticMarkup(output)).toMatchSnapshot()
+})
+
+it('transform works well on html2 with customized rule', () => {
+  const ast = parser(tokenizer(html2))[0]
+  const output = transform(ast, rule)
   expect(ReactDOMServer.renderToStaticMarkup(output)).toMatchSnapshot()
 })
