@@ -16,6 +16,9 @@ function appendChild(node, child) {
 }
 
 function filterProps(node) {
+  if (typeof node === 'string') {
+    return node
+  }
   return [
     'name', 'children', 'attribues'
   ].reduce((r, c) => (
@@ -34,7 +37,10 @@ function parse(tokens) {
   while (!isEmpty(stack) && !isEmpty(tokens)) {
     const curr = tokens.shift()
     const top = getTop(stack)
-    if (utils.isPair(top, curr)) {
+
+    if (curr.type === 'string') {
+      appendChild(top, curr.value)
+    } else if (utils.isPair(top, curr)) {
       const node = stack.pop()
       if (!isEmpty(stack)) {
         appendChild(getTop(stack), node)
