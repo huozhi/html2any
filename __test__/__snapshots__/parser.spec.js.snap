@@ -20,7 +20,7 @@ Array [
       },
       Object {
         "attribues": Object {
-          "id": "x34",
+          "id": "x3",
         },
         "children": Array [
           "1234 &amp;",
@@ -29,8 +29,7 @@ Array [
       },
       Object {
         "attribues": Object {
-          "class": "d3 d2",
-          "id": "container",
+          "class": "d3 d2\\" i",
         },
         "children": Array [
           Object {
@@ -68,13 +67,15 @@ Array [
       },
       Object {
         "attribues": Object {
-          "data-mce-style": "text-align: center; font-size: 15px;",
-          "style": "text-align: center; font-size: 15px;",
+          "style": "text-align: center; font-size: 15px;\\" data-mce-styl",
         },
         "children": Array [
           Object {
             "attribues": Object {
-              "src": "https",
+              "alt": "TinyMCE",
+              "height": "97\\" data-mce-sr",
+              "src": "https://www.tinymce.com/images/glyph-tinymce@2x.png",
+              "width": "110",
             },
             "children": undefined,
             "name": "img",
@@ -84,8 +85,7 @@ Array [
       },
       Object {
         "attribues": Object {
-          "data-mce-style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;",
-          "style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;",
+          "style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;\\" data-mce-styl",
         },
         "children": Array [
           "This demo includes these TinyMCE Premium",
@@ -93,8 +93,7 @@ Array [
             "attribues": Object {
               "class": "mce-spellchecker-word",
               "data-mce-bogus": "1",
-              "data-mce-index": "0",
-              "data-mce-word": "Plugins",
+              "data-mce-word": "Plugins\\" data-mce-inde",
             },
             "children": Array [
               "Plugins",
@@ -104,7 +103,8 @@ Array [
           ":",
           Object {
             "attribues": Object {
-              "href": "https",
+              "data-mce-href": "powerpaste\\" data-mce-linkchecker-statu",
+              "href": "https://www.tinymce.com/powerpaste",
             },
             "children": Array [
               "PowerPaste",
@@ -114,7 +114,8 @@ Array [
           "(improved Word paste),",
           Object {
             "attribues": Object {
-              "href": "https",
+              "data-mce-href": "accessibility-checker\\" data-mce-linkchecker-statu",
+              "href": "https://www.tinymce.com/accessibility-checker",
             },
             "children": Array [
               "Accessibility Checker",
@@ -124,7 +125,9 @@ Array [
           ",",
           Object {
             "attribues": Object {
-              "href": "https",
+              "data-mce-href": "spell-checker-pro\\"
+      data-mce-linkchecker-statu",
+              "href": "https://www.tinymce.com/spell-checker-pro",
             },
             "children": Array [
               "Spell Checker Pro",
@@ -134,7 +137,8 @@ Array [
           "&amp; file management with",
           Object {
             "attribues": Object {
-              "href": "http",
+              "data-mce-href": "http://www.moxiemanager.com\\" data-mce-linkchecker-statu",
+              "href": "http://www.moxiemanager.com",
             },
             "children": Array [
               "MoxieManager",
@@ -147,9 +151,8 @@ Array [
       },
       Object {
         "attribues": Object {
-          "": true,
-          "data-mce-style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;",
-          "style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;",
+          "style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;\\"
+    data-mce-styl",
         },
         "children": Array [
           "TinyMCE is a platform indepen",
@@ -180,8 +183,7 @@ Array [
       },
       Object {
         "attribues": Object {
-          "data-mce-style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;",
-          "style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;",
+          "style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;\\" data-mce-styl",
         },
         "children": Array [
           Object {
@@ -192,8 +194,7 @@ Array [
                 "attribues": Object {
                   "class": "mce-spellchecker-word",
                   "data-mce-bogus": "1",
-                  "data-mce-index": "0",
-                  "data-mce-word": "textarea",
+                  "data-mce-word": "textarea\\" data-mce-inde",
                 },
                 "children": Array [
                   "textarea",
