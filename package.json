@@ -2,16 +2,20 @@
   "name": "html2any",
   "version": "0.0.1",
   "description": "convert html to anything from ast form",
-  "main": "src/index.js",
+  "main": "lib/index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "test:update": "jest -u",
+    "build": "babel src -d lib"
   },
   "engines": {
-    "node": ">=6.0"
+    "node": ">=4.0"
   },
   "author": "huozhi <gilesliu12@gmial.com>",
   "license": "UNLICENSED",
   "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-preset-env": "^1.6.0",
     "jest": "^20.0.4",
     "react": "^15.6.1",
     "react-dom": "^15.6.1"
