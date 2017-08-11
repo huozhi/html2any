@@ -3,17 +3,17 @@
 exports[`tokenizer parse correctly 1`] = `
 Array [
   Object {
-    "attribues": Object {},
+    "attributes": Object {},
     "name": "div",
     "type": "start",
   },
   Object {
-    "attribues": Object {},
+    "attributes": Object {},
     "name": "hr",
     "type": "self-close",
   },
   Object {
-    "attribues": Object {
+    "attributes": Object {
       "data-index": "2",
       "src": "a.jpg",
     },
@@ -21,7 +21,7 @@ Array [
     "type": "self-close",
   },
   Object {
-    "attribues": Object {
+    "attributes": Object {
       "id": "x3",
     },
     "name": "p",
@@ -36,14 +36,14 @@ Array [
     "type": "end",
   },
   Object {
-    "attribues": Object {
+    "attributes": Object {
       "class": "d3 d2\\" i",
     },
     "name": "div",
     "type": "start",
   },
   Object {
-    "attribues": Object {
+    "attributes": Object {
       "disabled": true,
       "value": "123",
     },
@@ -64,17 +64,17 @@ Array [
 exports[`tokenizer parse correctly 2`] = `
 Array [
   Object {
-    "attribues": Object {},
+    "attributes": Object {},
     "name": "div",
     "type": "start",
   },
   Object {
-    "attribues": Object {},
+    "attributes": Object {},
     "name": "p",
     "type": "start",
   },
   Object {
-    "attribues": Object {},
+    "attributes": Object {},
     "name": "br",
     "type": "self-close",
   },
@@ -83,14 +83,14 @@ Array [
     "type": "end",
   },
   Object {
-    "attribues": Object {
+    "attributes": Object {
       "style": "text-align: center; font-size: 15px;\\" data-mce-styl",
     },
     "name": "p",
     "type": "start",
   },
   Object {
-    "attribues": Object {
+    "attributes": Object {
       "alt": "TinyMCE",
       "height": "97\\" data-mce-sr",
       "src": "https://www.tinymce.com/images/glyph-tinymce@2x.png",
@@ -104,7 +104,7 @@ Array [
     "type": "end",
   },
   Object {
-    "attribues": Object {
+    "attributes": Object {
       "style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;\\" data-mce-styl",
     },
     "name": "p",
@@ -115,7 +115,7 @@ Array [
     "value": "This demo includes these TinyMCE Premium",
   },
   Object {
-    "attribues": Object {
+    "attributes": Object {
       "class": "mce-spellchecker-word",
       "data-mce-bogus": "1",
       "data-mce-word": "Plugins\\" data-mce-inde",
@@ -136,7 +136,7 @@ Array [
     "value": ":",
   },
   Object {
-    "attribues": Object {
+    "attributes": Object {
       "data-mce-href": "powerpaste\\" data-mce-linkchecker-statu",
       "href": "https://www.tinymce.com/powerpaste",
     },
@@ -156,7 +156,7 @@ Array [
     "value": "(improved Word paste),",
   },
   Object {
-    "attribues": Object {
+    "attributes": Object {
       "data-mce-href": "accessibility-checker\\" data-mce-linkchecker-statu",
       "href": "https://www.tinymce.com/accessibility-checker",
     },
@@ -176,7 +176,7 @@ Array [
     "value": ",",
   },
   Object {
-    "attribues": Object {
+    "attributes": Object {
       "data-mce-href": "spell-checker-pro\\"
       data-mce-linkchecker-statu",
       "href": "https://www.tinymce.com/spell-checker-pro",
@@ -197,7 +197,7 @@ Array [
     "value": "&amp; file management with",
   },
   Object {
-    "attribues": Object {
+    "attributes": Object {
       "data-mce-href": "http://www.moxiemanager.com\\" data-mce-linkchecker-statu",
       "href": "http://www.moxiemanager.com",
     },
@@ -221,7 +221,7 @@ Array [
     "type": "end",
   },
   Object {
-    "attribues": Object {
+    "attributes": Object {
       "style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;\\"
     data-mce-styl",
     },
@@ -233,7 +233,7 @@ Array [
     "value": "TinyMCE is a platform indepen",
   },
   Object {
-    "attribues": Object {},
+    "attributes": Object {},
     "name": "strong",
     "type": "start",
   },
@@ -250,7 +250,7 @@ Array [
     "value": "based JavaScript HTML WYSIWYG",
   },
   Object {
-    "attribues": Object {},
+    "attributes": Object {},
     "name": "br",
     "type": "self-close",
   },
@@ -259,7 +259,7 @@ Array [
     "value": "editor control released as open source",
   },
   Object {
-    "attribues": Object {},
+    "attributes": Object {},
     "name": "em",
     "type": "start",
   },
@@ -280,14 +280,14 @@ Array [
     "type": "end",
   },
   Object {
-    "attribues": Object {
+    "attributes": Object {
       "style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;\\" data-mce-styl",
     },
     "name": "p",
     "type": "start",
   },
   Object {
-    "attribues": Object {},
+    "attributes": Object {},
     "name": "em",
     "type": "start",
   },
@@ -296,7 +296,7 @@ Array [
     "value": "TinyMCE enables you to convert HTML",
   },
   Object {
-    "attribues": Object {
+    "attributes": Object {
       "class": "mce-spellchecker-word",
       "data-mce-bogus": "1",
       "data-mce-word": "textarea\\" data-mce-inde",
@@ -325,12 +325,12 @@ Array [
     "type": "end",
   },
   Object {
-    "attribues": Object {},
+    "attributes": Object {},
     "name": "p",
     "type": "start",
   },
   Object {
-    "attribues": Object {},
+    "attributes": Object {},
     "name": "br",
     "type": "self-close",
   },

@@ -20,7 +20,7 @@ function filterProps(node) {
     return node
   }
   return [
-    'name', 'children', 'attribues'
+    'name', 'children', 'attributes'
   ].reduce((r, c) => (
     Object.assign({}, r, {[c]: node[c]})
   ), {})
