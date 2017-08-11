@@ -6,7 +6,7 @@ const transform = require('../src/transform')
 const React = require('react')
 const ReactDOMServer = require('react-dom/server')
 
-function rule (node, children) {
+function rule(node, children) {
   if (typeof node === 'string') {
     return node
   }
@@ -23,21 +23,21 @@ function rule (node, children) {
     case 'p': {
       elem = {
         type: 'h1',
-        props: attributes
+        props: attributes,
       }
       break
     }
     case 'b': {
       elem = {
         type: 'h2',
-        props: attributes
+        props: attributes,
       }
       break
     }
     case 'div': {
       elem = {
         type: 'div',
-        props: attributes
+        props: attributes,
       }
       break
     }
@@ -59,7 +59,6 @@ function rule (node, children) {
   }
   return React.createElement(elem.type, elem.props, children)
 }
-
 
 it('transform works well on html1 with customized rule', () => {
   const ast = parser(tokenizer(html1))[0]
