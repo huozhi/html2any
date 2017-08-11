@@ -10,46 +10,46 @@ function rule (node, children) {
   if (typeof node === 'string') {
     return node
   }
-  const {name, attribues} = node
-  if (attribues && attribues.hasOwnProperty('style')) {
-    delete attribues.style
+  const {name, attributes} = node
+  if (attributes && attributes.hasOwnProperty('style')) {
+    delete attributes.style
   }
-  if (attribues && attribues.hasOwnProperty('class')) {
-    attribues.className = attribues.class
-    delete attribues.class
+  if (attributes && attributes.hasOwnProperty('class')) {
+    attributes.className = attributes.class
+    delete attributes.class
   }
   let elem
   switch (name) {
     case 'p': {
       elem = {
-        tag: 'h1',
-        props: attribues
+        type: 'h1',
+        props: attributes
       }
       break
     }
     case 'b': {
       elem = {
-        tag: 'h2',
-        props: attribues
+        type: 'h2',
+        props: attributes
       }
       break
     }
     case 'div': {
       elem = {
-        tag: 'div',
-        props: attribues
+        type: 'div',
+        props: attributes
       }
       break
     }
     default: {
       elem = {
-        tag: name,
-        props: attribues,
+        type: name,
+        props: attributes,
       }
     }
   }
 
-  if (!elem || !elem.tag) {
+  if (!elem || !elem.type) {
     return null
   }
 
@@ -57,7 +57,7 @@ function rule (node, children) {
   if (typeof node.index === 'number') {
     Object.assign(elem.props, {key: node.index})
   }
-  return React.createElement(elem.tag, elem.props, children)
+  return React.createElement(elem.type, elem.props, children)
 }
 
 
