@@ -1,5 +1,5 @@
-function transform (ast, rule) {
-  function next (node) {
+function transform(ast, rule) {
+  function next(node) {
     if (node) {
       if (typeof node === 'string') {
         return rule(node)

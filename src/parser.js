@@ -19,11 +19,10 @@ function filterProps(node) {
   if (typeof node === 'string') {
     return node
   }
-  return [
-    'name', 'children', 'attributes'
-  ].reduce((r, c) => (
-    Object.assign({}, r, {[c]: node[c]})
-  ), {})
+  return ['name', 'children', 'attributes'].reduce(
+    (r, c) => Object.assign({}, r, {[c]: node[c]}),
+    {},
+  )
 }
 
 function parse(tokens) {

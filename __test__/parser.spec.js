@@ -3,8 +3,7 @@ const html2 = require('./mock/html2')
 const tokenizer = require('../src/tokenizer')
 const parser = require('../src/parser')
 
-const logJSON = (x) => console.log(JSON.stringify(x, null, 2))
-
+const logJSON = x => console.log(JSON.stringify(x, null, 2))
 
 it('parse correctly', () => {
   const tks = tokenizer(html1)

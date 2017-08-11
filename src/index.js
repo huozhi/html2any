@@ -5,5 +5,5 @@ const transform = require('./transform')
 module.exports = {
   tokenizer,
   parser,
-  transform
+  transform,
 }
