@@ -1,6 +1,6 @@
 const utils = require('./utils')
 
-const ATTRIBUTES_REGEX = /(?=(^\w|\s+[a-z-]+="[^"]+")|(\s+\w+\s+))/
+const ATTRIBUTES_REGEX = /(?=(^\w|\s+[a-z-]+="[^"]+")|("\s+\w+\s+\/?))/
 
 function getAttributes(str) {
   const paris = str.split(ATTRIBUTES_REGEX).filter(Boolean).map(s => s.trim())
