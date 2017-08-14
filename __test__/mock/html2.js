@@ -4,9 +4,9 @@ module.exports = `
     <br>
   </p>
   <p style="text-align: center; font-size: 15px;" data-mce-style="text-align: center; font-size: 15px;">
-    <img src="https://www.tinymce.com/images/glyph-tinymce@2x.png" alt="TinyMCE" width="110" height="97" data-mce-src="images/glyph-tinymce@2x.png">
+    <img src="https://www.tinymce.com/images/glyph-tinymce@2x.png" alt="Tiny M C E" width="110" height="97" data-mce-src="images/glyph-tinymce@2x.png">
   </p>
-  <p style="text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;" data-mce-style="text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;">
+  <p style="text-align: center; color: #666; font-size: 15px; font-family: avenir;">
     This demo includes these TinyMCE Premium
     <span class="mce-spellchecker-word" data-mce-bogus="1" data-mce-word="Plugins" data-mce-index="0">
       Plugins

@@ -34,7 +34,7 @@ Array [
         "children": Array [
           Object {
             "attributes": Object {
-              "disabled": true,
+              "readonly": "true",
               "value": "123",
             },
             "children": undefined,
@@ -72,7 +72,7 @@ Array [
         "children": Array [
           Object {
             "attributes": Object {
-              "alt": "TinyMCE",
+              "alt": "Tiny M C E",
               "height": "97\\" data-mce-sr",
               "src": "https://www.tinymce.com/images/glyph-tinymce@2x.png",
               "width": "110",
@@ -85,7 +85,7 @@ Array [
       },
       Object {
         "attributes": Object {
-          "style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;\\" data-mce-styl",
+          "style": "text-align: center; color: #666; font-size: 15px; font-family: avenir",
         },
         "children": Array [
           "This demo includes these TinyMCE Premium",

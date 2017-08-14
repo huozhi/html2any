@@ -41,6 +41,16 @@ function rule(node, children) {
       }
       break
     }
+    case 'input': {
+      if (attributes.readonly) {
+        attributes.readOnly = attributes.readonly
+        delete attributes.readonly
+      }
+      elem = {
+        type: 'input',
+        props: attributes,
+      }
+    }
     default: {
       elem = {
         type: name,
