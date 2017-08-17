@@ -22,7 +22,7 @@ Array [
   },
   Object {
     "attributes": Object {
-      "id": "x3",
+      "id": "x34",
     },
     "name": "p",
     "type": "start",
@@ -37,15 +37,17 @@ Array [
   },
   Object {
     "attributes": Object {
-      "class": "d3 d2\\" i",
+      "class": "d3 d2",
+      "id": "container",
     },
     "name": "div",
     "type": "start",
   },
   Object {
     "attributes": Object {
-      "readonly": "true",
-      "value": "123",
+      "data-id": "xx",
+      "readonly": true,
+      "value": "1 2 3",
     },
     "name": "input",
     "type": "self-close",
@@ -84,7 +86,8 @@ Array [
   },
   Object {
     "attributes": Object {
-      "style": "text-align: center; font-size: 15px;\\" data-mce-styl",
+      "data-mce-style": "text-align: center; font-size: 15px;",
+      "style": "text-align: center; font-size: 15px;",
     },
     "name": "p",
     "type": "start",
@@ -92,7 +95,8 @@ Array [
   Object {
     "attributes": Object {
       "alt": "Tiny M C E",
-      "height": "97\\" data-mce-sr",
+      "data-mce-src": "images/glyph-tinymce@2x.png",
+      "height": "97",
       "src": "https://www.tinymce.com/images/glyph-tinymce@2x.png",
       "width": "110",
     },
@@ -105,7 +109,7 @@ Array [
   },
   Object {
     "attributes": Object {
-      "style": "text-align: center; color: #666; font-size: 15px; font-family: avenir",
+      "style": "text-align: center; color: #666; font-size: 15px; font-family: avenir;",
     },
     "name": "p",
     "type": "start",
@@ -118,7 +122,8 @@ Array [
     "attributes": Object {
       "class": "mce-spellchecker-word",
       "data-mce-bogus": "1",
-      "data-mce-word": "Plugins\\" data-mce-inde",
+      "data-mce-index": "0",
+      "data-mce-word": "Plugins",
     },
     "name": "span",
     "type": "start",
@@ -137,7 +142,8 @@ Array [
   },
   Object {
     "attributes": Object {
-      "data-mce-href": "powerpaste\\" data-mce-linkchecker-statu",
+      "data-mce-href": "powerpaste",
+      "data-mce-linkchecker-status": "valid",
       "href": "https://www.tinymce.com/powerpaste",
     },
     "name": "a",
@@ -157,7 +163,8 @@ Array [
   },
   Object {
     "attributes": Object {
-      "data-mce-href": "accessibility-checker\\" data-mce-linkchecker-statu",
+      "data-mce-href": "accessibility-checker",
+      "data-mce-linkchecker-status": "valid",
       "href": "https://www.tinymce.com/accessibility-checker",
     },
     "name": "a",
@@ -177,8 +184,8 @@ Array [
   },
   Object {
     "attributes": Object {
-      "data-mce-href": "spell-checker-pro\\"
-      data-mce-linkchecker-statu",
+      "data-mce-href": "spell-checker-pro",
+      "data-mce-linkchecker-status": "valid",
       "href": "https://www.tinymce.com/spell-checker-pro",
     },
     "name": "a",
@@ -198,7 +205,8 @@ Array [
   },
   Object {
     "attributes": Object {
-      "data-mce-href": "http://www.moxiemanager.com\\" data-mce-linkchecker-statu",
+      "data-mce-href": "http://www.moxiemanager.com",
+      "data-mce-linkchecker-status": "valid",
       "href": "http://www.moxiemanager.com",
     },
     "name": "a",
@@ -222,8 +230,8 @@ Array [
   },
   Object {
     "attributes": Object {
-      "style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;\\"
-    data-mce-styl",
+      "data-mce-style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;",
+      "style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;",
     },
     "name": "p",
     "type": "start",
@@ -281,7 +289,8 @@ Array [
   },
   Object {
     "attributes": Object {
-      "style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;\\" data-mce-styl",
+      "data-mce-style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;",
+      "style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;",
     },
     "name": "p",
     "type": "start",
@@ -299,7 +308,8 @@ Array [
     "attributes": Object {
       "class": "mce-spellchecker-word",
       "data-mce-bogus": "1",
-      "data-mce-word": "textarea\\" data-mce-inde",
+      "data-mce-index": "0",
+      "data-mce-word": "textarea",
     },
     "name": "span",
     "type": "start",
