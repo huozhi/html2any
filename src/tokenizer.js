@@ -1,15 +1,26 @@
 const utils = require('./utils')
 
-const ATTRIBUTES_REGEX = /(?=(^\w|\s+[a-z-]+="[^"]+")|("\s+\w+\s+\/?))/
+// assuming that quato always following equation - `=""`
+const ATTR_FIND = /((^\w|\s+)[a-z-]+)(="[^"]+"|\s+|\s*$)?/
 
-function getAttributes(str) {
-  const paris = str.split(ATTRIBUTES_REGEX).filter(Boolean).map(s => s.trim())
-  return paris.reduce((r, pair) => {
-    const [key, val] = pair.split('=')
-    const value = val ? val.slice(1, -1) : true
+function extraAttrs(str) {
+  let i = 0
+  const attrs = {}
+  while (i < str.length) {
+    const suffix = str.slice(i)
+    const match  = ATTR_FIND.exec(suffix)
+    if (!match || !match[1]) {
+      break
+    }
+    let [result, key, _, value] = match
 
-    return Object.assign({}, r, {[key]: value})
-  }, {})
+    key = key.trim()
+    value = value && value.trim()
+
+    attrs[key] = (value && value.startsWith('=')) ? value.slice(2, -1) : true
+    i += result.length
+  }
+  return attrs
 }
 
 function makeToken(tag) {
@@ -30,7 +41,7 @@ function makeToken(tag) {
     return {
       type: utils.isSelfClose(match[1]) ? 'self-close' : 'start',
       name: match[1],
-      attributes: getAttributes(match[2].slice(0, -1)),
+      attributes: extraAttrs(match[2]),
     }
   }
 }
