@@ -1,18 +1,21 @@
 {
   "name": "html2any",
-  "version": "0.0.1",
+  "version": "0.0.1-alpha",
   "description": "convert html to anything from ast form",
   "main": "lib/index.js",
   "scripts": {
     "test": "jest",
     "test:update": "jest -u",
     "build": "babel src -d lib",
-    "prebuild": ". ./prettier.sh \"./{src,__test__}/**/*.js\"",
-    "postbuild": ". ./prettier.sh \"./lib/*.js\""
+    "prebuild": ". ./prettier.sh \"./{src,__test__}/**/*.js\""
   },
   "engines": {
     "node": ">=4.0"
   },
+  "files": [
+    "*.md",
+    "lib"
+  ],
   "author": "huozhi <gilesliu12@gmial.com>",
   "license": "UNLICENSED",
   "devDependencies": {
