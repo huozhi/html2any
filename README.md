@@ -9,4 +9,5 @@ Now `html2any` help you to render html string. It not only parses your html but 
 
 ### Demo
 
-https://github.com/huozhi/html2any-rn-demo
+React Native demo: https://github.com/huozhi/html2any-rn-demo
+Web React demo: https://github.com/huozhi/html2any-rn-demo

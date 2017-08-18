@@ -8,7 +8,7 @@ function extraAttrs(str) {
   const attrs = {}
   while (i < str.length) {
     const suffix = str.slice(i)
-    const match  = ATTR_FIND.exec(suffix)
+    const match = ATTR_FIND.exec(suffix)
     if (!match || !match[1]) {
       break
     }
@@ -17,7 +17,7 @@ function extraAttrs(str) {
     key = key.trim()
     value = value && value.trim()
 
-    attrs[key] = (value && value.startsWith('=')) ? value.slice(2, -1) : true
+    attrs[key] = value && value.startsWith('=') ? value.slice(2, -1) : true
     i += result.length
   }
   return attrs
