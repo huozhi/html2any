@@ -1,5 +1,123 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`transform works well on html1 with customized rule 1`] = `"<div><hr/><img src=\\"a.jpg\\" data-index=\\"2\\"/><h1 id=\\"x34\\">1234 &amp;amp;</h1><div id=\\"container\\" class=\\"d3 d2\\"><input value=\\"1 2 3\\" data-id=\\"xx\\" readonly=\\"\\"/></div></div>"`;
+exports[`transform works well on html1 with customized rule 1`] = `
+<div>
+  <hr />
+  <img
+    data-index="2"
+    src="a.jpg"
+  />
+  <h1
+    id="x34"
+  >
+    1234 &amp;
+  </h1>
+  <div
+    className="d3 d2"
+    id="container"
+  >
+    <input
+      data-id="xx"
+      readOnly={true}
+      value="1 2 3"
+    />
+  </div>
+</div>
+`;
 
-exports[`transform works well on html2 with customized rule 1`] = `"<div><h1><br/></h1><h1 data-mce-style=\\"text-align: center; font-size: 15px;\\"><img src=\\"https://www.tinymce.com/images/glyph-tinymce@2x.png\\" alt=\\"Tiny M C E\\" width=\\"110\\" height=\\"97\\" data-mce-src=\\"images/glyph-tinymce@2x.png\\"/></h1><h1>This demo includes these TinyMCE Premium<span data-mce-bogus=\\"1\\" data-mce-word=\\"Plugins\\" data-mce-index=\\"0\\" class=\\"mce-spellchecker-word\\">Plugins</span>:<a href=\\"https://www.tinymce.com/powerpaste\\" data-mce-href=\\"powerpaste\\" data-mce-linkchecker-status=\\"valid\\">PowerPaste</a>(improved Word paste),<a href=\\"https://www.tinymce.com/accessibility-checker\\" data-mce-href=\\"accessibility-checker\\" data-mce-linkchecker-status=\\"valid\\">Accessibility Checker</a>,<a href=\\"https://www.tinymce.com/spell-checker-pro\\" data-mce-href=\\"spell-checker-pro\\" data-mce-linkchecker-status=\\"valid\\">Spell Checker Pro</a>&amp;amp; file management with<a href=\\"http://www.moxiemanager.com\\" data-mce-href=\\"http://www.moxiemanager.com\\" data-mce-linkchecker-status=\\"valid\\">MoxieManager</a>.</h1><h1 data-mce-style=\\"text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;\\">TinyMCE is a platform indepen<strong>dent web-</strong>based JavaScript HTML WYSIWYG<br/>editor control released as open source<em>under</em>LGPL.</h1><h1 data-mce-style=\\"text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;\\"><em>TinyMCE enables you to convert HTML<span data-mce-bogus=\\"1\\" data-mce-word=\\"textarea\\" data-mce-index=\\"0\\" class=\\"mce-spellchecker-word\\">textarea</span>fields or other HTML elements to editor instances.</em></h1><h1><br/></h1></div>"`;
+exports[`transform works well on html2 with customized rule 1`] = `
+<div>
+  <h1>
+    <br />
+  </h1>
+  <h1
+    data-mce-style="text-align: center; font-size: 15px;"
+  >
+    <img
+      alt="Tiny M C E"
+      data-mce-src="images/glyph-tinymce@2x.png"
+      height="97"
+      src="https://www.tinymce.com/images/glyph-tinymce@2x.png"
+      width="110"
+    />
+  </h1>
+  <h1>
+    This demo includes these TinyMCE Premium
+    <span
+      className="mce-spellchecker-word"
+      data-mce-bogus="1"
+      data-mce-index="0"
+      data-mce-word="Plugins"
+    >
+      Plugins
+    </span>
+    :
+    <a
+      data-mce-href="powerpaste"
+      data-mce-linkchecker-status="valid"
+      href="https://www.tinymce.com/powerpaste"
+    >
+      PowerPaste
+    </a>
+    (improved Word paste),
+    <a
+      data-mce-href="accessibility-checker"
+      data-mce-linkchecker-status="valid"
+      href="https://www.tinymce.com/accessibility-checker"
+    >
+      Accessibility Checker
+    </a>
+    ,
+    <a
+      data-mce-href="spell-checker-pro"
+      data-mce-linkchecker-status="valid"
+      href="https://www.tinymce.com/spell-checker-pro"
+    >
+      Spell Checker Pro
+    </a>
+    &amp; file management with
+    <a
+      data-mce-href="http://www.moxiemanager.com"
+      data-mce-linkchecker-status="valid"
+      href="http://www.moxiemanager.com"
+    >
+      MoxieManager
+    </a>
+    .
+  </h1>
+  <h1
+    data-mce-style="text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;"
+  >
+    TinyMCE is a platform indepen
+    <strong>
+      dent web-
+    </strong>
+    based JavaScript HTML WYSIWYG
+    <br />
+    editor control released as open source
+    <em>
+      under
+    </em>
+    LGPL.
+  </h1>
+  <h1
+    data-mce-style="text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;"
+  >
+    <em>
+      TinyMCE enables you to convert HTML
+      <span
+        className="mce-spellchecker-word"
+        data-mce-bogus="1"
+        data-mce-index="0"
+        data-mce-word="textarea"
+      >
+        textarea
+      </span>
+      fields or other HTML elements to editor instances.
+    </em>
+  </h1>
+  <h1>
+    <br />
+  </h1>
+</div>
+`;
