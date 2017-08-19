@@ -6,7 +6,6 @@ const transform = require('../src/transform')
 const React = require('react')
 const renderer = require('react-test-renderer')
 
-
 function rule(node, children) {
   if (typeof node === 'string') {
     return node
