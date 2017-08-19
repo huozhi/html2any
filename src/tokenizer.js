@@ -12,7 +12,9 @@ function extraAttrs(str) {
     if (!match || !match[1]) {
       break
     }
-    let [result, key, _, value] = match
+    const result = match[0]
+    let key = match[1]
+    let value = match[3]
 
     key = key.trim()
     value = value && value.trim()
