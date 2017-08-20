@@ -1,5 +1,8 @@
 # html2any
-> aim to covert html string to your customized format/components.
+
+[![npm version](https://badge.fury.io/js/html2any.svg)](https://badge.fury.io/js/html2any)
+
+> A non-dependecy package for coverting html string to your customized format/components.
 
 While building websites, people may met issues for rendering rich text into different formats.
 For example, I've got an `<video>` tag, but I wanna render it with my own React video component.
@@ -16,6 +19,5 @@ For example, we translate `<p>` tag into React Native component `<Text style={st
 
 ### Demo
 
-- React Native demo: https://github.com/huozhi/html2any-rn-demo
 - [Web React Online Demo](https://huozhi.github.io/html2any-web-demo/)
-
+- React Native demo: https://github.com/huozhi/html2any-rn-demo
