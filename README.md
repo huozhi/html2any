@@ -21,3 +21,51 @@ For example, we translate `<p>` tag into React Native component `<Text style={st
 
 - [Web React Online Demo](https://huozhi.github.io/html2any-web-demo/)
 - React Native demo: https://github.com/huozhi/html2any-rn-demo
+
+### Documentation
+
+html2any provide 3 APIs below:
+
+- API
+  - `Array[String] tokenizer(String html)`
+  - `AST(Object) parse(Array[String] tokens)`
+  - `transform(AST ast, function rule)`
+
+- tokenizer
+> Give you ability to parse raw html string to tokens
+
+- parse
+> Build the AST from tokens that tokenizer generated
+
+- transform
+> Convert the AST to the final form with the specific rule.
+
+If it's not easy to reach the point, you could look at the [demo code](https://huozhi.github.io/html2any-web-demo/).
+
+#### Example
+
+```js
+import {tokenizer, parse, transform} from 'html2any'
+
+const html = `
+  <div>123</div>
+`
+
+const ast = parse(tokenizer(html))[0]
+function rule(node, children) {
+  if (node.name === 'div') {
+    return <div>{children}</div>
+  } else {
+    return node // string node
+  }
+}
+
+const Dumb = transform(ast, rule)
+// React form of Dumb
+// { type: 'div', props: {...}, children: '...' }
+```
+
+### Issue
+
+Any suggestions or beautifier API you expect, just post issue [here](https://github.com/huozhi/html2any/issues).
+Reporting bugs is welcomed. : )
