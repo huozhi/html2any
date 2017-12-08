@@ -70,7 +70,7 @@ function splitTokens(html) {
   return tokens
 }
 
-function tokenizer(html) {
+function tokenize(html) {
   return splitTokens(html)
     .map(s => s.replace(/^\n|\n$/g, ''))
     .map(s => s.trim())
@@ -78,4 +78,4 @@ function tokenizer(html) {
     .map(makeToken)
 }
 
-module.exports = tokenizer
+module.exports = tokenize

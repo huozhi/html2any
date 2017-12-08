@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`tokenizer parse correctly 1`] = `
+exports[`tokenize parse correctly 1`] = `
 Array [
   Object {
     "attributes": Object {},
@@ -63,7 +63,7 @@ Array [
 ]
 `;
 
-exports[`tokenizer parse correctly 2`] = `
+exports[`tokenize parse correctly 2`] = `
 Array [
   Object {
     "attributes": Object {},

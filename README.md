@@ -27,15 +27,15 @@ For example, we translate `<p>` tag into React Native component `<Text style={st
 html2any provide 3 APIs below:
 
 - API
-  - `Array[String] tokenizer(String html)`
+  - `Array[String] tokenize(String html)`
   - `AST(Object) parse(Array[String] tokens)`
   - `transform(AST ast, function rule)`
 
-- tokenizer
+- tokenize
 > Give you ability to parse raw html string to tokens
 
 - parse
-> Build the AST from tokens that tokenizer generated
+> Build the AST from tokens that tokenize generated
 
 - transform
 > Convert the AST to the final form with the specific rule.
@@ -45,13 +45,13 @@ If it's not easy to reach the point, you could look at the [demo code](https://h
 #### Example
 
 ```js
-import {tokenizer, parse, transform} from 'html2any'
+import {tokenize, parse, transform} from 'html2any'
 
 const html = `
   <div>123</div>
 `
 
-const ast = parse(tokenizer(html))[0]
+const ast = parse(tokenize(html))[0]
 function rule(node, children) {
   if (node.name === 'div') {
     return <div>{children}</div>
