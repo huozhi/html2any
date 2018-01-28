@@ -1,8 +1,6 @@
-const fs = require('fs')
-const html1 = require('./mock/html1')
-const html2 = require('./mock/html2')
 const tokenize = require('../src/tokenize')
 const parse = require('../src/parse')
+const {html1, html2, xml1} = require('./contents')
 
 const parser = (content) => parse(tokenize(content))
 
@@ -17,7 +15,7 @@ it('parse correctly', () => {
 })
 
 it('parse xml correctly', () => {
-  const content = fs.readFileSync(__dirname + '/mock/mpd-1.xml', 'utf8')
-  const tks = tokenize(content)
+  // const content = readFile('/mock/mpd-1.xml')
+  const tks = tokenize(xml1)
   expect(parse(tks)).toMatchSnapshot()
 })

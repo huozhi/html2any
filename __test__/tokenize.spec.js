@@ -1,6 +1,5 @@
 const tokenize = require('../src/tokenize')
-const html1 = require('./mock/html1')
-const html2 = require('./mock/html2')
+const {html1, html2} = require('./contents')
 
 it('tokenize parse correctly', () => {
   expect(tokenize(html1)).toMatchSnapshot()
