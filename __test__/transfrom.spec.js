@@ -1,10 +1,9 @@
-const html1 = require('./mock/html1')
-const html2 = require('./mock/html2')
+const React = require('react')
+const renderer = require('react-test-renderer')
 const tokenize = require('../src/tokenize')
 const parse = require('../src/parse')
 const transform = require('../src/transform')
-const React = require('react')
-const renderer = require('react-test-renderer')
+const {html1, html2} = require('./contents')
 
 function rule(node, children) {
   if (typeof node === 'string') {
