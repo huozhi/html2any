@@ -1,6 +1,6 @@
 {
   "name": "html2any",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "convert html to anything from ast form",
   "main": "lib/index.js",
   "scripts": {
