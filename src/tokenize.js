@@ -1,7 +1,7 @@
 const utils = require('./utils')
 
 // assuming that quato always following equation - `=""`
-const ATTR_FIND = /((^\w|\s+)[a-z-]+)(="[^"]+"|\s+|\s*$)?/
+const ATTR_FIND = /((^\w|\s+)[a-zA-Z-:]+)(="[^"]+"|\s+|\s*$)?/
 
 function extraAttrs(str) {
   let i = 0
@@ -19,14 +19,14 @@ function extraAttrs(str) {
     key = key.trim()
     value = value && value.trim()
 
-    attrs[key] = value && value.startsWith('=') ? value.slice(2, -1) : true
+    attrs[key] = (value && value[0] === '=') ? value.slice(2, -1) : true
     i += result.length
   }
   return attrs
 }
 
 function makeToken(tag) {
-  const isTag = tag.startsWith('<') && tag.endsWith('>')
+  const isTag = tag[0] === '<' && tag[tag.length - 1] === '>'
 
   if (!isTag) {
     return {
@@ -39,11 +39,13 @@ function makeToken(tag) {
       name: tag.slice(2, -1),
     }
   } else {
-    const match = tag.match(/<(\w+)\s*([^>]*)/)
+    const match = tag.match(/<([\w+:?\w*]+)\s*([^>]*)/)
+    const tagName = match[1]
+    const tagBody = match[2]
     return {
-      type: utils.isSelfClose(match[1]) ? 'self-close' : 'start',
-      name: match[1],
-      attributes: extraAttrs(match[2]),
+      type: (utils.isSelfClose(tagName) || tagBody[tagBody.length - 1] === '/') ? 'self-close' : 'start',
+      name: tagName,
+      attributes: extraAttrs(tagBody),
     }
   }
 }
