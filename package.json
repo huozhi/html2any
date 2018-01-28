@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest",
     "test:update": "jest -u",
-    "build": "babel src -d lib"
+    "build": "rm -rf lib && babel src -d lib"
   },
   "engines": {
     "node": ">=4.0"
