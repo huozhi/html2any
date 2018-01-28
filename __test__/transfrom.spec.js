@@ -1,6 +1,5 @@
 const React = require('react')
 const renderer = require('react-test-renderer')
-const tokenize = require('../src/tokenize')
 const parse = require('../src/parse')
 const transform = require('../src/transform')
 const {html1, html2} = require('./contents')
@@ -70,14 +69,14 @@ function rule(node, children) {
 }
 
 it('transform works well on html1 with customized rule', () => {
-  const ast = parse(tokenize(html1))[0]
+  const ast = parse(html1)[0]
   const result = transform(ast, rule)
   const output = renderer.create(result).toJSON()
   expect(output).toMatchSnapshot()
 })
 
 it('transform works well on html2 with customized rule', () => {
-  const ast = parse(tokenize(html2))[0]
+  const ast = parse(html2)[0]
   const result = transform(ast, rule)
   const output = renderer.create(result).toJSON()
   expect(output).toMatchSnapshot()

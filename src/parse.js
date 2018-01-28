@@ -1,3 +1,4 @@
+const tokenize = require('./tokenize')
 const utils = require('./utils')
 
 function isEmpty(stack) {
@@ -25,7 +26,8 @@ function filterProps(node) {
   )
 }
 
-function parse(tokens) {
+function parse(src) {
+  const tokens = tokenize(src)
   const stack = []
   const tree = {
     type: 'root',

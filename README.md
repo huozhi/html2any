@@ -24,34 +24,36 @@ For example, we translate `<p>` tag into React Native component `<Text style={st
 
 ### Documentation
 
-html2any provide 3 APIs below:
+html2any provide 2 APIs below:
 
 - API
   - `Array[String] tokenize(String html)`
   - `AST(Object) parse(Array[String] tokens)`
-  - `transform(AST ast, function rule)`
-
-- tokenize
-> Give you ability to parse raw html string to tokens
+  - `void transform(AST ast, function rule)`
+  - `void html2any(html, function rule)`
 
 - parse
-> Build the AST from tokens that tokenize generated
+> Build the AST from tokens that tokenize generated with source html/xml code
 
 - transform
 > Convert the AST to the final form with the specific rule.
+
+- html2any
+> Convert the html/xml to the final form directly.
 
 If it's not easy to reach the point, you could look at the [demo code](https://huozhi.github.io/html2any-web-demo/).
 
 #### Example
 
 ```js
-import {tokenize, parse, transform} from 'html2any'
+import html2any, {parse, transform} from 'html2any'
 
 const html = `
   <div>123</div>
 `
 
-const ast = parse(tokenize(html))[0]
+const ast = parse(html)[0]
+
 function rule(node, children) {
   if (node.name === 'div') {
     return <div>{children}</div>
@@ -60,9 +62,16 @@ function rule(node, children) {
   }
 }
 
-const Dumb = transform(ast, rule)
-// React form of Dumb
+const vdom = transform(ast, rule)
+// vdom form of Dumb
 // { type: 'div', props: {...}, children: '...' }
+
+```
+
+Or you can just call html2any directly
+
+```js
+const vdom = html2any(html, rule)
 ```
 
 ### Issue
