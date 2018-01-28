@@ -28,11 +28,11 @@ function filterProps(node) {
 function parse(tokens) {
   const stack = []
   const tree = {
+    type: 'root',
     children: [],
   }
 
   stack.push(tree)
-
   while (!isEmpty(stack) && !isEmpty(tokens)) {
     const curr = tokens.shift()
     const top = getTop(stack)
