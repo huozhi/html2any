@@ -234,3 +234,195 @@ Array [
   },
 ]
 `;
+
+exports[`parse xml correctly 1`] = `
+Array [
+  Object {
+    "attributes": Object {
+      "mediaPresentationDuration": "PT0H3M1.63S",
+      "minBufferTime": "PT1.5S",
+      "profiles": "urn:mpeg:dash:profile:isoff-on-demand:2011",
+      "type": "static",
+      "xmlns": "urn:mpeg:DASH:schema:MPD:2011",
+      "xmlns:ytdrm": "http://youtube.com/ytdrm",
+    },
+    "children": Array [
+      Object {
+        "attributes": Object {
+          "duration": "PT0H3M1.63S",
+          "start": "PT0S",
+        },
+        "children": Array [
+          Object {
+            "attributes": Object {},
+            "children": Array [
+              Object {
+                "attributes": Object {
+                  "contentType": "video",
+                  "id": "1",
+                },
+                "children": undefined,
+                "name": "ContentComponent",
+              },
+              Object {
+                "attributes": Object {
+                  "schemeIdUri": "com.youtube.clearkey",
+                },
+                "children": Array [
+                  Object {
+                    "attributes": Object {
+                      "key": "1a8a2095e4deb2d29ec816ac7bae2082",
+                      "keyid": "60061e017e477e877e57d00d1ed00d1e",
+                    },
+                    "children": undefined,
+                    "name": "ytdrm:License",
+                  },
+                ],
+                "name": "ContentProtection",
+              },
+              Object {
+                "attributes": Object {
+                  "bandwidth": "4190760",
+                  "codecs": "avc1.640028",
+                  "height": "1080",
+                  "id": "1",
+                  "mimeType": "video/mp4",
+                  "width": "1920",
+                },
+                "children": Array [
+                  Object {
+                    "attributes": Object {},
+                    "children": Array [
+                      "car_cenc-20120827-89.mp4",
+                    ],
+                    "name": "BaseURL",
+                  },
+                  Object {
+                    "attributes": Object {
+                      "indexRange": "2755-3230",
+                    },
+                    "children": Array [
+                      Object {
+                        "attributes": Object {
+                          "range": "0-2754",
+                        },
+                        "children": undefined,
+                        "name": "Initialization",
+                      },
+                    ],
+                    "name": "SegmentBase",
+                  },
+                ],
+                "name": "Representation",
+              },
+              Object {
+                "attributes": Object {
+                  "bandwidth": "2073921",
+                  "codecs": "avc1.4d401f",
+                  "height": "720",
+                  "id": "2",
+                  "mimeType": "video/mp4",
+                  "width": "1280",
+                },
+                "children": Array [
+                  Object {
+                    "attributes": Object {},
+                    "children": Array [
+                      "car_cenc-20120827-88.mp4",
+                    ],
+                    "name": "BaseURL",
+                  },
+                  Object {
+                    "attributes": Object {
+                      "indexRange": "2789-3264",
+                    },
+                    "children": Array [
+                      Object {
+                        "attributes": Object {
+                          "range": "0-2788",
+                        },
+                        "children": undefined,
+                        "name": "Initialization",
+                      },
+                    ],
+                    "name": "SegmentBase",
+                  },
+                ],
+                "name": "Representation",
+              },
+            ],
+            "name": "AdaptationSet",
+          },
+          Object {
+            "attributes": Object {},
+            "children": Array [
+              Object {
+                "attributes": Object {
+                  "contentType": "audio",
+                  "id": "2",
+                },
+                "children": undefined,
+                "name": "ContentComponent",
+              },
+              Object {
+                "attributes": Object {
+                  "schemeIdUri": "com.youtube.clearkey",
+                },
+                "children": Array [
+                  Object {
+                    "attributes": Object {
+                      "key": "1a8a2095e4deb2d29ec816ac7bae2082",
+                      "keyid": "60061e017e477e877e57d00d1ed00d1e",
+                    },
+                    "children": undefined,
+                    "name": "ytdrm:License",
+                  },
+                ],
+                "name": "ContentProtection",
+              },
+              Object {
+                "attributes": Object {
+                  "bandwidth": "127236",
+                  "codecs": "mp4a.40.02",
+                  "id": "6",
+                  "mimeType": "audio/mp4",
+                  "numChannels": "2",
+                  "sampleRate": "44100",
+                },
+                "children": Array [
+                  Object {
+                    "attributes": Object {},
+                    "children": Array [
+                      "car_cenc-20120827-8c.mp4",
+                    ],
+                    "name": "BaseURL",
+                  },
+                  Object {
+                    "attributes": Object {
+                      "indexRange": "2673-2932",
+                    },
+                    "children": Array [
+                      Object {
+                        "attributes": Object {
+                          "range": "0-2672",
+                        },
+                        "children": undefined,
+                        "name": "Initialization",
+                      },
+                    ],
+                    "name": "SegmentBase",
+                  },
+                ],
+                "name": "Representation",
+              },
+            ],
+            "name": "AdaptationSet",
+          },
+        ],
+        "name": "Period",
+      },
+    ],
+    "name": "MPD",
+  },
+]
+`;
