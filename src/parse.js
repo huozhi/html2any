@@ -1,5 +1,5 @@
-const tokenize = require('./tokenize')
-const utils = require('./utils')
+import tokenize from './tokenize'
+import utils from './utils'
 
 function isEmpty(stack) {
   return stack.length === 0
@@ -55,4 +55,4 @@ function parse(src) {
   return tree.children
 }
 
-module.exports = parse
+export default parse

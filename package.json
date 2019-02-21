@@ -3,10 +3,11 @@
   "version": "0.0.5",
   "description": "convert html to anything from ast form",
   "main": "lib/index.js",
+  "module": "lib/index.mjs",
   "scripts": {
     "test": "jest",
     "test:update": "jest -u",
-    "build": "rm -rf lib && babel src -d lib"
+    "build": "rm -rf lib && bun src/index.js"
   },
   "engines": {
     "node": ">=4.0"
@@ -18,8 +19,9 @@
   "author": "huozhi <gilesliu12@gmial.com>",
   "license": "UNLICENSED",
   "devDependencies": {
-    "babel-cli": "^6.24.1",
-    "babel-preset-env": "^1.6.0",
+    "@babel/core": "^7.3.3",
+    "@babel/preset-env": "^7.3.1",
+    "@bunchee/bunchee": "^0.1.1",
     "jest": "^20.0.4",
     "react": "^15.6.1",
     "react-test-renderer": "^15.6.1"

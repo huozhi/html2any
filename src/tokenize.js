@@ -1,4 +1,4 @@
-const utils = require('./utils')
+import utils from './utils'
 
 // assuming that quato always following equation - `=""`
 const ATTR_FIND = /((^\w|\s+)[a-zA-Z-:]+)(="[^"]+"|\s+|\s*$)?/
@@ -80,4 +80,4 @@ function tokenize(html) {
     .map(makeToken)
 }
 
-module.exports = tokenize
+export default tokenize
