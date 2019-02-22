@@ -19,10 +19,9 @@
   "author": "huozhi <gilesliu12@gmial.com>",
   "license": "UNLICENSED",
   "devDependencies": {
-    "@babel/core": "^7.3.3",
     "@babel/preset-env": "^7.3.1",
-    "@bunchee/bunchee": "^0.1.1",
-    "jest": "^20.0.4",
+    "@bunchee/bunchee": "^0.1.2",
+    "jest": "^24.1.0",
     "react": "^15.6.1",
     "react-test-renderer": "^15.6.1"
   }

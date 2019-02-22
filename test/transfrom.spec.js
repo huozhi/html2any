@@ -1,8 +1,8 @@
-const React = require('react')
-const renderer = require('react-test-renderer')
-const parse = require('../src/parse')
-const transform = require('../src/transform')
-const {html1, html2} = require('./contents')
+import React from 'react'
+import renderer from 'react-test-renderer'
+import parse from '../src/parse'
+import transform from '../src/transform'
+import {html1, html2} from './contents'
 
 function rule(node, children) {
   if (typeof node === 'string') {
