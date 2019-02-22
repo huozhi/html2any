@@ -1,6 +1,5 @@
-const fs = require('fs')
-const path = require('path')
+import fs from 'fs'
+import path from 'path'
 
-const readFile = (filepath) => fs.readFileSync(path.resolve(__dirname, filepath), 'utf8')
+export const readFile = (filepath) => fs.readFileSync(path.resolve(__dirname, filepath), 'utf8')
 
-exports.readFile = readFile

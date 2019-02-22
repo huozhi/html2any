@@ -1,7 +1,5 @@
-const parse = require('../src/parse')
-const {html1, html2, xml1} = require('./contents')
-
-const parser = (content) => parse(content)
+import parse from '../src/parse'
+import {html1, html2, xml1} from './contents'
 
 it('parse correctly', () => {
   expect(parse(html1)).toMatchSnapshot()

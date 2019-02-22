@@ -20,4 +20,4 @@ function transform(ast, rule) {
   return next(ast)
 }
 
-module.exports = transform
+export default transform
