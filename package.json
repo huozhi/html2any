@@ -16,7 +16,7 @@
     "*.md",
     "lib"
   ],
-  "author": "huozhi <gilesliu12@gmial.com>",
+  "author": "huozhi",
   "license": "UNLICENSED",
   "devDependencies": {
     "@babel/preset-env": "^7.3.1",
