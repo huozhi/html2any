@@ -1,5 +1,5 @@
-import tokenize from './tokenize.js'
-import utils from './utils.js'
+import tokenize from './tokenize'
+import utils from './utils'
 
 function isEmpty(stack) {
   return stack.length === 0

@@ -1,4 +1,5 @@
-import parse from '../src/parse.js'
+import parse from '../src/parse'
+
 import { html1, html2, xml1 } from './fixtures'
 
 it('parse correctly', () => {

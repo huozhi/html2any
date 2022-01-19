@@ -1,7 +1,9 @@
-import parse from './parse.js'
-export { default as transform } from './transform.js'
+import transform from './transform'
+import parse from './parse'
 
-const html2any = (html, rule) => transform(parse(html)[0], rule)
+function html2any(html, rule) {
+  return transform(parse(html)[0], rule)
+}
 
-export default html2any
 export { parse, transform }
+export default html2any

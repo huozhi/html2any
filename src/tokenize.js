@@ -1,4 +1,4 @@
-import utils from './utils.js'
+import utils from './utils'
 
 // assuming that quato always following equation - `=""`
 const ATTR_FIND = /((^\w|\s+)[a-zA-Z-:]+)(="[^"]+"|\s+|\s*$)?/
@@ -74,7 +74,7 @@ function splitTokens(html) {
 
 function tokenize(html) {
   return splitTokens(html)
-    .map(s => s.replace(/^\n|\n$/g, ''))
+    .map(s => s.replace(/^\n+$/g, ''))
     .map(s => s.trim())
     .filter(Boolean)
     .map(makeToken)
