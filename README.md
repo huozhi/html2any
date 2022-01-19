@@ -27,8 +27,6 @@ html2any provide following APIs
 - html2any
 > Convert the html/xml to the final form directly.
 
-If it's not easy to reach the point, you could look at the [demo code](https://huozhi.github.io/html2any-web-demo/).
-
 ### Usage
 
 ```
@@ -38,22 +36,20 @@ npm i -S html2any
 ```js
 import html2any, { parse, transform } from 'html2any'
 
-const html = `
-  <div>123</div>
-`
+const html = escapeHTMLEntity(`<div>123</div>`)
 
 const ast = parse(html)[0]
 
 function rule(node, children) {
-  if (node.name === 'div') {
-    return <div>{children}</div>
+  if (typeof node === 'string') {
+    return node
   } else {
-    return node // string node
+    return <div>{node}</div>
   }
 }
 
 const vdom = transform(ast, rule)
-// vdom form of Dumb
+// JSX vdom form of html
 // { type: 'div', props: {...}, children: '...' }
 
 ```
@@ -63,11 +59,6 @@ Or you can just call html2any directly
 ```js
 const vdom = html2any(html, rule)
 ```
-
-Examples Demo
-
-- [Web React Online Demo](https://huozhi.github.io/html2any-web-demo/)
-- React Native demo: https://github.com/huozhi/html2any-rn-demo
 
 ### How It Works
 
