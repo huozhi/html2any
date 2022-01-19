@@ -1,6 +1,8 @@
 import Head from 'next/head'
 import html2any from 'html2any'
 
+const github = `https://github.com/huozhi/html2any`
+
 function decodeHtmlEntity(str) {
   return str
     .replace(/&amp;/g, "&")
@@ -19,8 +21,8 @@ function encodeHtmlEntity(str) {
     .replace(/'/g, "&#039;")
 }
 
-const html = `
-<div>
+const html = 
+`<div>
   <h1>Getting Started</h1>
   <p>Welcome to html2any documentation!</p>
 
@@ -59,12 +61,33 @@ ReactDOM.render(vdom, document.getElementById('root'))
 
 function rule(node, children) {
   if (typeof node === 'string') {
+    // change command to highlight
+    if (node.includes('html2any')) {
+      const parts = node.split('html2any')
+      const mergedParts = []
+      for (let i = 0; i < parts.length; i++) {
+        mergedParts.push(<span dangerouslySetInnerHTML={{ __html: parts[i] }} />)
+        if (i < parts.length - 1) {
+          mergedParts.push(<a target={`_blank`} href={github}><b>html2any</b></a>)
+        }
+      }
+
+      return (
+        <span>
+          {mergedParts.map(part => part)}
+        </span>
+      )
+    }
     return node
   }
 
   const Tag = node.name
   if (Tag === 'code') {
-    return <code className='code' dangerouslySetInnerHTML={{ __html: children }} />
+    if (typeof children[0] === 'string') {
+      return <code className='code' dangerouslySetInnerHTML={{ __html: children }} />
+    } else {
+      return <code className='code'>{children}</code>
+    }
   } else if (Tag === 'pre') {
     return <Tag className='pre'>{children}</Tag>
   } else if (['h1', 'h2', 'h3'].includes(Tag)) {
@@ -83,11 +106,11 @@ function Page() {
         <title>html2any</title>
       </Head>
 
-      <h1>html2any</h1>
+      <h1 className='title'>html2any</h1>
 
-      <div className='flex'>
-        <div className='flex-1'>
-          <h4 className='label'>Raw HTML</h4>
+      <div className='main flex'>
+        <div className='flex-1 pad'>
+          <h4 className='label'>Raw HTML String</h4>
           <div>
             <pre className='raw-code'>
               <code>
@@ -97,8 +120,8 @@ function Page() {
           </div>
         </div>
 
-        <div className='flex-1'>
-          <h4 className='label'>Transformed HTML</h4>
+        <div className='flex-1 pad'>
+          <h4 className='label'>Transformed React Components from HTML</h4>
           <div>{content}</div>
         </div>
 

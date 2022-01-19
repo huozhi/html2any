@@ -3,6 +3,14 @@ html {
   font-size: 16px;
 }
 
+a,a:visited,a:hover {
+  color: #000;
+}
+
+h1.title {
+  font-size: 3em;
+}
+
 .flex {
   display: flex;
 }
@@ -16,10 +24,16 @@ html {
   font-weight: 700;
   color: #eee;
   background-color: #111;
-  display: inline-block;
+  padding: 8px 16px;
+  text-align: center;
 }
 .raw-code {
   padding: 10px 20px;
+  background-color: #eee;
+  border-radius: 6px;
+}
+.pad {
+  padding: 8px;
 }
 
 code {
@@ -35,4 +49,14 @@ code {
 }
 .code {
   color: #5a5a5a;
+}
+
+@media screen and (max-width: 480px) {
+  html {
+    font-size: 14px;
+  }
+
+  .main {
+    flex-direction: column;
+  }
 }
