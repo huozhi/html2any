@@ -2,7 +2,7 @@ import React from 'react'
 import renderer from 'react-test-renderer'
 import parse from '../src/parse'
 import transform from '../src/transform'
-import {html1, html2} from './contents'
+import { html1, html2 } from './fixtures'
 
 function rule(node, children) {
   if (typeof node === 'string') {

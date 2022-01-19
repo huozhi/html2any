@@ -1,28 +1,30 @@
 {
   "name": "html2any",
   "version": "0.0.6",
-  "description": "convert html to anything from ast form",
-  "main": "lib/index.js",
-  "module": "lib/index.mjs",
-  "scripts": {
-    "test": "jest",
-    "test:update": "jest -u",
-    "build": "rm -rf lib && bun src/index.js"
+  "description": "parse html to ast and transform to anything you need",
+  "main": "./lib/index.js",
+  "exports": {
+    "import": "./lib/index.mjs",
+    "require": "./lib/index.js"
   },
-  "engines": {
-    "node": ">=4.0"
+  "scripts": {
+    "test": "yarn node --experimental-vm-modules $(yarn bin jest)",
+    "build": "rm -rf lib && bunchee src/index.js"
   },
   "files": [
     "*.md",
     "lib"
   ],
+  "type": "module",
+  "jest": {
+    "transform": {}
+  },
   "author": "huozhi",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "devDependencies": {
-    "@babel/preset-env": "^7.3.1",
-    "@bunchee/bunchee": "^0.1.2",
-    "jest": "^24.1.0",
-    "react": "^15.6.1",
-    "react-test-renderer": "^15.6.1"
+    "bunchee": "^1.8.2",
+    "jest": "^27.4.7",
+    "react": "^17.0.2",
+    "react-test-renderer": "^17.0.2"
   }
 }

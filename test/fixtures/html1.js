@@ -1,3 +1,4 @@
+export default `
 <div>
   <hr >
   <img src="a.jpg" data-index="2">
@@ -8,3 +9,4 @@
     <input value="1 2 3" readonly data-id="xx" />
   </div>
 </div>
+`
