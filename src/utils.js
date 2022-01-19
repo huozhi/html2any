@@ -23,4 +23,4 @@ function isPair(tagX, tagY) {
   return tagX.name === tagY.name && tagX.type === 'start' && tagY.type === 'end'
 }
 
-export default {isPair, isSelfClose}
+export default { isPair, isSelfClose }

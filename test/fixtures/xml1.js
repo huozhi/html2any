@@ -1,3 +1,4 @@
+export default `
 <MPD xmlns="urn:mpeg:DASH:schema:MPD:2011" xmlns:ytdrm="http://youtube.com/ytdrm" mediaPresentationDuration="PT0H3M1.63S" minBufferTime="PT1.5S" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011"
 type="static">
   <Period duration="PT0H3M1.63S" start="PT0S">
@@ -33,3 +34,4 @@ type="static">
     </AdaptationSet>
   </Period>
 </MPD>
+`

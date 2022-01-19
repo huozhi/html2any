@@ -1,5 +1,7 @@
 import fs from 'fs'
-import path from 'path'
+import { resolve } from 'path'
 
-export const readFile = (filepath) => fs.readFileSync(path.resolve(__dirname, filepath), 'utf8')
+const __dirname = resolve(process.cwd(), 'test')
+
+export const readFile = (filepath) => fs.readFileSync(resolve(__dirname, filepath), 'utf8')
 

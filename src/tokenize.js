@@ -1,4 +1,4 @@
-import utils from './utils'
+import utils from './utils.js'
 
 // assuming that quato always following equation - `=""`
 const ATTR_FIND = /((^\w|\s+)[a-zA-Z-:]+)(="[^"]+"|\s+|\s*$)?/

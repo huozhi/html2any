@@ -10,19 +10,7 @@ But I also want to render the whole html easily rather than parse it manually.
 
 Now `html2any` help you to render html string. It not only parses your html but also gives you ability to transform it from origin to the dest.
 
-
-### Theory
-
-Use `html2any` to construct an AST of html string, then convert each node recursively with `rule` passed to transform function.
-
-For example, we translate `<p>` tag into React Native component `<Text style={styles.paragraph}>` with the prepared styles. Then decode the p tag' s content to avoid html entities mess up.
-
-### Demo
-
-- [Web React Online Demo](https://huozhi.github.io/html2any-web-demo/)
-- React Native demo: https://github.com/huozhi/html2any-rn-demo
-
-### Documentation
+### API
 
 html2any provide following APIs
 
@@ -41,10 +29,14 @@ html2any provide following APIs
 
 If it's not easy to reach the point, you could look at the [demo code](https://huozhi.github.io/html2any-web-demo/).
 
-#### Example
+### Usage
+
+```
+npm i -S html2any
+```
 
 ```js
-import html2any, {parse, transform} from 'html2any'
+import html2any, { parse, transform } from 'html2any'
 
 const html = `
   <div>123</div>
@@ -72,7 +64,14 @@ Or you can just call html2any directly
 const vdom = html2any(html, rule)
 ```
 
-### Issue
+Examples Demo
 
-Any suggestions or beautifier API you expect, just post issue [here](https://github.com/huozhi/html2any/issues).
-Reporting bugs is welcomed. : )
+- [Web React Online Demo](https://huozhi.github.io/html2any-web-demo/)
+- React Native demo: https://github.com/huozhi/html2any-rn-demo
+
+### How It Works
+
+Use `html2any` to construct an AST of html string, then convert each node recursively with `rule` passed to transform function.
+
+For example, we translate `<p>` tag into React Native component `<Text style={styles.paragraph}>` with the prepared styles. Then decode the p tag' s content to avoid html entities mess up.
+

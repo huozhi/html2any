@@ -1,3 +1,4 @@
+export default `
 <div>
   <p>
     <br>
@@ -32,3 +33,4 @@
     <br>
   </p>
 </div>
+`

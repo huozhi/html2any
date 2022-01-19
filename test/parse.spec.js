@@ -1,5 +1,5 @@
-import parse from '../src/parse'
-import {html1, html2, xml1} from './contents'
+import parse from '../src/parse.js'
+import { html1, html2, xml1 } from './fixtures'
 
 it('parse correctly', () => {
   expect(parse(html1)).toMatchSnapshot()
