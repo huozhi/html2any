@@ -1,6 +1,6 @@
 {
   "name": "html2any",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "parse html to ast and transform to anything you need",
   "main": "./lib/index.js",
   "exports": {
