@@ -1,7 +1,8 @@
 "use client"
 
 import { Fragment, useMemo, useState } from 'react'
-import { parse, transform } from '../../src/index.js'
+import html2any, { parse } from '../../src/index.js'
+import { highlight } from 'sugar-high'
 
 const github = `https://github.com/huozhi/html2any`
 
@@ -18,7 +19,11 @@ const exampleHtml =
 `
 
 const transformerExample =
-`function rule(node, children, index) {
+`import html2any from 'html2any'
+
+const html = \`${exampleHtml.trim()}\`
+
+function rule(node, children, index) {
   if (typeof node === 'string') {
     return node
   }
@@ -31,7 +36,9 @@ const transformerExample =
     return <pre key={key} className="pre">{children}</pre>
   }
   return <Tag key={key}>{children}</Tag>
-}`
+}
+
+const content = html2any(html, rule)`
 
 function rule(node, children, index) {
   if (typeof node === 'string') {
@@ -149,18 +156,19 @@ function ParsedTags({ ast }) {
 export default function Demo() {
   const [html, setHtml] = useState(exampleHtml)
   const [urlPath, setUrlPath] = useState('huozhi.im')
-  const [loadedUrl, setLoadedUrl] = useState('Example HTML')
+  const [loadedUrl, setLoadedUrl] = useState('')
   const [status, setStatus] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
-  const exampleContent = useMemo(() => transform(parse(exampleHtml), rule), [])
+  const exampleContent = useMemo(() => html2any(exampleHtml, rule), [])
+  const highlightedTransformerExample = useMemo(() => highlight(transformerExample), [])
 
   const parsed = useMemo(() => {
     try {
       const ast = parse(html)
       return {
         ast,
-        content: transform(ast, rule),
+        content: html2any(html, rule),
       }
     } catch (error) {
       return {
@@ -196,26 +204,14 @@ export default function Demo() {
   }
 
   return (
-    <div className="demo-stack">
-      <section className="example-section">
+    <>
+      <section className="section-panel example-section">
         <h2 className="section-title">Example</h2>
-        <div className="main flex example-grid">
+        <div className="content-grid flex">
           <div className="flex-1 pad">
-            <h4 className="label">Input</h4>
-            <div className="input-stack">
-              <div>
-                <h5>HTML</h5>
-                <pre className="raw-code mini-code">
-                  <code>{exampleHtml}</code>
-                </pre>
-              </div>
-              <div>
-                <h5>Transformer</h5>
-                <pre className="raw-code mini-code">
-                  <code>{transformerExample}</code>
-                </pre>
-              </div>
-            </div>
+            <pre className="raw-code compact-code example-code">
+              <code dangerouslySetInnerHTML={{ __html: highlightedTransformerExample }} />
+            </pre>
           </div>
 
           <div className="flex-1 pad">
@@ -225,7 +221,7 @@ export default function Demo() {
         </div>
       </section>
 
-      <section className="load-section panel-card">
+      <section className="section-panel load-section">
         <form className="loader" onSubmit={loadUrl}>
           <label htmlFor="url">Load URL</label>
           <div className="url-control">
@@ -245,9 +241,9 @@ export default function Demo() {
           {status ? <p className="status">{status}</p> : null}
         </form>
 
-        <div className="source-bar">{loadedUrl}</div>
+        {loadedUrl ? <div className="source-bar">{loadedUrl}</div> : null}
 
-        <div className="main flex">
+        <div className="content-grid flex">
           <div className="flex-1 pad">
             <h4 className="label">Parsed Tags</h4>
             <div className="parsed-tags">
@@ -261,6 +257,6 @@ export default function Demo() {
           </div>
         </div>
       </section>
-    </div>
+    </>
   )
 }
