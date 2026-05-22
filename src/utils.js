@@ -16,7 +16,7 @@ const voidElementTags = [
 ]
 
 function isSelfClose(tagName) {
-  return voidElementTags.indexOf(tagName) > -1
+  return voidElementTags.indexOf(tagName.toLowerCase()) > -1
 }
 
 function isPair(tagX, tagY) {

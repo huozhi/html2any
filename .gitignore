@@ -1,5 +1,4 @@
 node_modules
-lib/
-package-lock.json
+dist/
 .next
-docs/yarn.lock
+

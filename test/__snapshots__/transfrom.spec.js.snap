@@ -1,123 +1,227 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
 
 exports[`transform works well on html1 with customized rule 1`] = `
-<div>
-  <hr />
-  <img
-    data-index="2"
-    src="a.jpg"
-  />
-  <h1
-    id="x34"
-  >
-    1234 &amp;
-  </h1>
-  <div
-    className="d3 d2"
-    id="container"
-  >
-    <input
-      data-id="xx"
-      readOnly={true}
-      value="1 2 3"
-    />
-  </div>
-</div>
+{
+  "children": [
+    {
+      "children": null,
+      "props": {},
+      "type": "hr",
+    },
+    {
+      "children": null,
+      "props": {
+        "data-index": "2",
+        "src": "a.jpg",
+      },
+      "type": "img",
+    },
+    {
+      "children": [
+        "1234 &amp;",
+      ],
+      "props": {
+        "id": "x34",
+      },
+      "type": "h1",
+    },
+    {
+      "children": [
+        {
+          "children": null,
+          "props": {
+            "data-id": "xx",
+            "readOnly": true,
+            "value": "1 2 3",
+          },
+          "type": "input",
+        },
+      ],
+      "props": {
+        "className": "d3 d2",
+        "id": "container",
+      },
+      "type": "div",
+    },
+  ],
+  "props": {},
+  "type": "div",
+}
 `;
 
 exports[`transform works well on html2 with customized rule 1`] = `
-<div>
-  <h1>
-    <br />
-  </h1>
-  <h1
-    data-mce-style="text-align: center; font-size: 15px;"
-  >
-    <img
-      alt="Tiny M C E"
-      data-mce-src="images/glyph-tinymce@2x.png"
-      height="97"
-      src="https://www.tinymce.com/images/glyph-tinymce@2x.png"
-      width="110"
-    />
-  </h1>
-  <h1>
-    This demo includes these TinyMCE Premium
-    <span
-      className="mce-spellchecker-word"
-      data-mce-bogus="1"
-      data-mce-index="0"
-      data-mce-word="Plugins"
-    >
-      Plugins
-    </span>
-    :
-    <a
-      data-mce-href="powerpaste"
-      data-mce-linkchecker-status="valid"
-      href="https://www.tinymce.com/powerpaste"
-    >
-      PowerPaste
-    </a>
-    (improved Word paste),
-    <a
-      data-mce-href="accessibility-checker"
-      data-mce-linkchecker-status="valid"
-      href="https://www.tinymce.com/accessibility-checker"
-    >
-      Accessibility Checker
-    </a>
-    ,
-    <a
-      data-mce-href="spell-checker-pro"
-      data-mce-linkchecker-status="valid"
-      href="https://www.tinymce.com/spell-checker-pro"
-    >
-      Spell Checker Pro
-    </a>
-    &amp; file management with
-    <a
-      data-mce-href="http://www.moxiemanager.com"
-      data-mce-linkchecker-status="valid"
-      href="http://www.moxiemanager.com"
-    >
-      MoxieManager
-    </a>
-    .
-  </h1>
-  <h1
-    data-mce-style="text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;"
-  >
-    TinyMCE is a platform indepen
-    <strong>
-      dent web-
-    </strong>
-    based JavaScript HTML WYSIWYG
-    <br />
-    editor control released as open source
-    <em>
-      under
-    </em>
-    LGPL.
-  </h1>
-  <h1
-    data-mce-style="text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;"
-  >
-    <em>
-      TinyMCE enables you to convert HTML
-      <span
-        className="mce-spellchecker-word"
-        data-mce-bogus="1"
-        data-mce-index="0"
-        data-mce-word="textarea"
-      >
-        textarea
-      </span>
-      fields or other HTML elements to editor instances.
-    </em>
-  </h1>
-  <h1>
-    <br />
-  </h1>
-</div>
+{
+  "children": [
+    {
+      "children": [
+        {
+          "children": null,
+          "props": {},
+          "type": "br",
+        },
+      ],
+      "props": {},
+      "type": "h1",
+    },
+    {
+      "children": [
+        {
+          "children": null,
+          "props": {
+            "alt": "Tiny M C E",
+            "data-mce-src": "images/glyph-tinymce@2x.png",
+            "height": "97",
+            "src": "https://www.tinymce.com/images/glyph-tinymce@2x.png",
+            "width": "110",
+          },
+          "type": "img",
+        },
+      ],
+      "props": {
+        "data-mce-style": "text-align: center; font-size: 15px;",
+      },
+      "type": "h1",
+    },
+    {
+      "children": [
+        "This demo includes these TinyMCE Premium",
+        {
+          "children": [
+            "Plugins",
+          ],
+          "props": {
+            "className": "mce-spellchecker-word",
+            "data-mce-bogus": "1",
+            "data-mce-index": "0",
+            "data-mce-word": "Plugins",
+          },
+          "type": "span",
+        },
+        ":",
+        {
+          "children": [
+            "PowerPaste",
+          ],
+          "props": {
+            "data-mce-href": "powerpaste",
+            "data-mce-linkchecker-status": "valid",
+            "href": "https://www.tinymce.com/powerpaste",
+          },
+          "type": "a",
+        },
+        "(improved Word paste),",
+        {
+          "children": [
+            "Accessibility Checker",
+          ],
+          "props": {
+            "data-mce-href": "accessibility-checker",
+            "data-mce-linkchecker-status": "valid",
+            "href": "https://www.tinymce.com/accessibility-checker",
+          },
+          "type": "a",
+        },
+        ",",
+        {
+          "children": [
+            "Spell Checker Pro",
+          ],
+          "props": {
+            "data-mce-href": "spell-checker-pro",
+            "data-mce-linkchecker-status": "valid",
+            "href": "https://www.tinymce.com/spell-checker-pro",
+          },
+          "type": "a",
+        },
+        "&amp; file management with",
+        {
+          "children": [
+            "MoxieManager",
+          ],
+          "props": {
+            "data-mce-href": "http://www.moxiemanager.com",
+            "data-mce-linkchecker-status": "valid",
+            "href": "http://www.moxiemanager.com",
+          },
+          "type": "a",
+        },
+        ".",
+      ],
+      "props": {},
+      "type": "h1",
+    },
+    {
+      "children": [
+        "TinyMCE is a platform indepen",
+        {
+          "children": [
+            "dent web-",
+          ],
+          "props": {},
+          "type": "strong",
+        },
+        "based JavaScript HTML WYSIWYG",
+        {
+          "children": null,
+          "props": {},
+          "type": "br",
+        },
+        "editor control released as open source",
+        {
+          "children": [
+            "under",
+          ],
+          "props": {},
+          "type": "em",
+        },
+        "LGPL.",
+      ],
+      "props": {
+        "data-mce-style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;",
+      },
+      "type": "h1",
+    },
+    {
+      "children": [
+        {
+          "children": [
+            "TinyMCE enables you to convert HTML",
+            {
+              "children": [
+                "textarea",
+              ],
+              "props": {
+                "className": "mce-spellchecker-word",
+                "data-mce-bogus": "1",
+                "data-mce-index": "0",
+                "data-mce-word": "textarea",
+              },
+              "type": "span",
+            },
+            "fields or other HTML elements to editor instances.",
+          ],
+          "props": {},
+          "type": "em",
+        },
+      ],
+      "props": {
+        "data-mce-style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;",
+      },
+      "type": "h1",
+    },
+    {
+      "children": [
+        {
+          "children": null,
+          "props": {},
+          "type": "br",
+        },
+      ],
+      "props": {},
+      "type": "h1",
+    },
+  ],
+  "props": {},
+  "type": "div",
+}
 `;

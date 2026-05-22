@@ -1,40 +1,40 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
 
 exports[`parse correctly 1`] = `
-Array [
-  Object {
-    "attributes": Object {},
-    "children": Array [
-      Object {
-        "attributes": Object {},
+[
+  {
+    "attributes": {},
+    "children": [
+      {
+        "attributes": {},
         "children": undefined,
         "name": "hr",
       },
-      Object {
-        "attributes": Object {
+      {
+        "attributes": {
           "data-index": "2",
           "src": "a.jpg",
         },
         "children": undefined,
         "name": "img",
       },
-      Object {
-        "attributes": Object {
+      {
+        "attributes": {
           "id": "x34",
         },
-        "children": Array [
+        "children": [
           "1234 &amp;",
         ],
         "name": "p",
       },
-      Object {
-        "attributes": Object {
+      {
+        "attributes": {
           "class": "d3 d2",
           "id": "container",
         },
-        "children": Array [
-          Object {
-            "attributes": Object {
+        "children": [
+          {
+            "attributes": {
               "data-id": "xx",
               "readonly": true,
               "value": "1 2 3",
@@ -52,29 +52,29 @@ Array [
 `;
 
 exports[`parse correctly 2`] = `
-Array [
-  Object {
-    "attributes": Object {},
-    "children": Array [
-      Object {
-        "attributes": Object {},
-        "children": Array [
-          Object {
-            "attributes": Object {},
+[
+  {
+    "attributes": {},
+    "children": [
+      {
+        "attributes": {},
+        "children": [
+          {
+            "attributes": {},
             "children": undefined,
             "name": "br",
           },
         ],
         "name": "p",
       },
-      Object {
-        "attributes": Object {
+      {
+        "attributes": {
           "data-mce-style": "text-align: center; font-size: 15px;",
           "style": "text-align: center; font-size: 15px;",
         },
-        "children": Array [
-          Object {
-            "attributes": Object {
+        "children": [
+          {
+            "attributes": {
               "alt": "Tiny M C E",
               "data-mce-src": "images/glyph-tinymce@2x.png",
               "height": "97",
@@ -87,68 +87,68 @@ Array [
         ],
         "name": "p",
       },
-      Object {
-        "attributes": Object {
+      {
+        "attributes": {
           "style": "text-align: center; color: #666; font-size: 15px; font-family: avenir;",
         },
-        "children": Array [
+        "children": [
           "This demo includes these TinyMCE Premium",
-          Object {
-            "attributes": Object {
+          {
+            "attributes": {
               "class": "mce-spellchecker-word",
               "data-mce-bogus": "1",
               "data-mce-index": "0",
               "data-mce-word": "Plugins",
             },
-            "children": Array [
+            "children": [
               "Plugins",
             ],
             "name": "span",
           },
           ":",
-          Object {
-            "attributes": Object {
+          {
+            "attributes": {
               "data-mce-href": "powerpaste",
               "data-mce-linkchecker-status": "valid",
               "href": "https://www.tinymce.com/powerpaste",
             },
-            "children": Array [
+            "children": [
               "PowerPaste",
             ],
             "name": "a",
           },
           "(improved Word paste),",
-          Object {
-            "attributes": Object {
+          {
+            "attributes": {
               "data-mce-href": "accessibility-checker",
               "data-mce-linkchecker-status": "valid",
               "href": "https://www.tinymce.com/accessibility-checker",
             },
-            "children": Array [
+            "children": [
               "Accessibility Checker",
             ],
             "name": "a",
           },
           ",",
-          Object {
-            "attributes": Object {
+          {
+            "attributes": {
               "data-mce-href": "spell-checker-pro",
               "data-mce-linkchecker-status": "valid",
               "href": "https://www.tinymce.com/spell-checker-pro",
             },
-            "children": Array [
+            "children": [
               "Spell Checker Pro",
             ],
             "name": "a",
           },
           "&amp; file management with",
-          Object {
-            "attributes": Object {
+          {
+            "attributes": {
               "data-mce-href": "http://www.moxiemanager.com",
               "data-mce-linkchecker-status": "valid",
               "href": "http://www.moxiemanager.com",
             },
-            "children": Array [
+            "children": [
               "MoxieManager",
             ],
             "name": "a",
@@ -157,30 +157,30 @@ Array [
         ],
         "name": "p",
       },
-      Object {
-        "attributes": Object {
+      {
+        "attributes": {
           "data-mce-style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;",
           "style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;",
         },
-        "children": Array [
+        "children": [
           "TinyMCE is a platform indepen",
-          Object {
-            "attributes": Object {},
-            "children": Array [
+          {
+            "attributes": {},
+            "children": [
               "dent web-",
             ],
             "name": "strong",
           },
           "based JavaScript HTML WYSIWYG",
-          Object {
-            "attributes": Object {},
+          {
+            "attributes": {},
             "children": undefined,
             "name": "br",
           },
           "editor control released as open source",
-          Object {
-            "attributes": Object {},
-            "children": Array [
+          {
+            "attributes": {},
+            "children": [
               "under",
             ],
             "name": "em",
@@ -189,24 +189,24 @@ Array [
         ],
         "name": "p",
       },
-      Object {
-        "attributes": Object {
+      {
+        "attributes": {
           "data-mce-style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;",
           "style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;",
         },
-        "children": Array [
-          Object {
-            "attributes": Object {},
-            "children": Array [
+        "children": [
+          {
+            "attributes": {},
+            "children": [
               "TinyMCE enables you to convert HTML",
-              Object {
-                "attributes": Object {
+              {
+                "attributes": {
                   "class": "mce-spellchecker-word",
                   "data-mce-bogus": "1",
                   "data-mce-index": "0",
                   "data-mce-word": "textarea",
                 },
-                "children": Array [
+                "children": [
                   "textarea",
                 ],
                 "name": "span",
@@ -218,11 +218,11 @@ Array [
         ],
         "name": "p",
       },
-      Object {
-        "attributes": Object {},
-        "children": Array [
-          Object {
-            "attributes": Object {},
+      {
+        "attributes": {},
+        "children": [
+          {
+            "attributes": {},
             "children": undefined,
             "name": "br",
           },
@@ -236,9 +236,9 @@ Array [
 `;
 
 exports[`parse xml correctly 1`] = `
-Array [
-  Object {
-    "attributes": Object {
+[
+  {
+    "attributes": {
       "mediaPresentationDuration": "PT0H3M1.63S",
       "minBufferTime": "PT1.5S",
       "profiles": "urn:mpeg:dash:profile:isoff-on-demand:2011",
@@ -246,31 +246,31 @@ Array [
       "xmlns": "urn:mpeg:DASH:schema:MPD:2011",
       "xmlns:ytdrm": "http://youtube.com/ytdrm",
     },
-    "children": Array [
-      Object {
-        "attributes": Object {
+    "children": [
+      {
+        "attributes": {
           "duration": "PT0H3M1.63S",
           "start": "PT0S",
         },
-        "children": Array [
-          Object {
-            "attributes": Object {},
-            "children": Array [
-              Object {
-                "attributes": Object {
+        "children": [
+          {
+            "attributes": {},
+            "children": [
+              {
+                "attributes": {
                   "contentType": "video",
                   "id": "1",
                 },
                 "children": undefined,
                 "name": "ContentComponent",
               },
-              Object {
-                "attributes": Object {
+              {
+                "attributes": {
                   "schemeIdUri": "com.youtube.clearkey",
                 },
-                "children": Array [
-                  Object {
-                    "attributes": Object {
+                "children": [
+                  {
+                    "attributes": {
                       "key": "1a8a2095e4deb2d29ec816ac7bae2082",
                       "keyid": "60061e017e477e877e57d00d1ed00d1e",
                     },
@@ -280,8 +280,8 @@ Array [
                 ],
                 "name": "ContentProtection",
               },
-              Object {
-                "attributes": Object {
+              {
+                "attributes": {
                   "bandwidth": "4190760",
                   "codecs": "avc1.640028",
                   "height": "1080",
@@ -289,21 +289,21 @@ Array [
                   "mimeType": "video/mp4",
                   "width": "1920",
                 },
-                "children": Array [
-                  Object {
-                    "attributes": Object {},
-                    "children": Array [
+                "children": [
+                  {
+                    "attributes": {},
+                    "children": [
                       "car_cenc-20120827-89.mp4",
                     ],
                     "name": "BaseURL",
                   },
-                  Object {
-                    "attributes": Object {
+                  {
+                    "attributes": {
                       "indexRange": "2755-3230",
                     },
-                    "children": Array [
-                      Object {
-                        "attributes": Object {
+                    "children": [
+                      {
+                        "attributes": {
                           "range": "0-2754",
                         },
                         "children": undefined,
@@ -315,8 +315,8 @@ Array [
                 ],
                 "name": "Representation",
               },
-              Object {
-                "attributes": Object {
+              {
+                "attributes": {
                   "bandwidth": "2073921",
                   "codecs": "avc1.4d401f",
                   "height": "720",
@@ -324,21 +324,21 @@ Array [
                   "mimeType": "video/mp4",
                   "width": "1280",
                 },
-                "children": Array [
-                  Object {
-                    "attributes": Object {},
-                    "children": Array [
+                "children": [
+                  {
+                    "attributes": {},
+                    "children": [
                       "car_cenc-20120827-88.mp4",
                     ],
                     "name": "BaseURL",
                   },
-                  Object {
-                    "attributes": Object {
+                  {
+                    "attributes": {
                       "indexRange": "2789-3264",
                     },
-                    "children": Array [
-                      Object {
-                        "attributes": Object {
+                    "children": [
+                      {
+                        "attributes": {
                           "range": "0-2788",
                         },
                         "children": undefined,
@@ -353,24 +353,24 @@ Array [
             ],
             "name": "AdaptationSet",
           },
-          Object {
-            "attributes": Object {},
-            "children": Array [
-              Object {
-                "attributes": Object {
+          {
+            "attributes": {},
+            "children": [
+              {
+                "attributes": {
                   "contentType": "audio",
                   "id": "2",
                 },
                 "children": undefined,
                 "name": "ContentComponent",
               },
-              Object {
-                "attributes": Object {
+              {
+                "attributes": {
                   "schemeIdUri": "com.youtube.clearkey",
                 },
-                "children": Array [
-                  Object {
-                    "attributes": Object {
+                "children": [
+                  {
+                    "attributes": {
                       "key": "1a8a2095e4deb2d29ec816ac7bae2082",
                       "keyid": "60061e017e477e877e57d00d1ed00d1e",
                     },
@@ -380,8 +380,8 @@ Array [
                 ],
                 "name": "ContentProtection",
               },
-              Object {
-                "attributes": Object {
+              {
+                "attributes": {
                   "bandwidth": "127236",
                   "codecs": "mp4a.40.02",
                   "id": "6",
@@ -389,21 +389,21 @@ Array [
                   "numChannels": "2",
                   "sampleRate": "44100",
                 },
-                "children": Array [
-                  Object {
-                    "attributes": Object {},
-                    "children": Array [
+                "children": [
+                  {
+                    "attributes": {},
+                    "children": [
                       "car_cenc-20120827-8c.mp4",
                     ],
                     "name": "BaseURL",
                   },
-                  Object {
-                    "attributes": Object {
+                  {
+                    "attributes": {
                       "indexRange": "2673-2932",
                     },
-                    "children": Array [
-                      Object {
-                        "attributes": Object {
+                    "children": [
+                      {
+                        "attributes": {
                           "range": "0-2672",
                         },
                         "children": undefined,
