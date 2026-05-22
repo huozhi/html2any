@@ -1,18 +1,20 @@
 {
   "name": "html2any",
   "version": "0.0.7",
-  "description": "parse html to ast and transform to anything you need",
+  "description": "understand html with flexible transform",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
     "test": "bun test",
-    "build": "bunchee"
+    "build": "bunchee",
+    "web:dev": "next dev web",
+    "web:build": "next build web",
+    "web:start": "next start web"
   },
   "files": [
     "*.md",
     "lib"
   ],
-  "type": "module",
   "author": "huozhi",
   "license": "MIT",
   "devDependencies": {
