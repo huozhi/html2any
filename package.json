@@ -2,6 +2,21 @@
   "name": "html2any",
   "version": "0.0.7",
   "description": "understand html with flexible transform",
+  "keywords": [
+    "html",
+    "parser",
+    "transform",
+    "html-transform",
+    "html-parser"
+  ],
+  "homepage": "https://github.com/huozhi/html2any#readme",
+  "bugs": {
+    "url": "https://github.com/huozhi/html2any/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/huozhi/html2any.git"
+  },
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
@@ -9,6 +24,7 @@
     "build": "bunchee",
     "web:dev": "next dev web",
     "web:build": "next build web",
+    "web:check-load": "node web/scripts/check-load.mjs",
     "web:start": "next start web"
   },
   "files": [
@@ -24,6 +40,10 @@
     "react-dom": "^19.2.6",
     "tailwindcss": "^4.3.0",
     "@tailwindcss/postcss": "^4.3.0",
-    "sugar-high": "^1.2.0"
+    "sugar-high": "^1.2.0",
+    "typescript": "^6.0.3",
+    "@types/node": "^25.9.1",
+    "@types/react": "^19.2.15",
+    "@types/react-dom": "^19.2.3"
   }
 }

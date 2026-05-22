@@ -52,6 +52,12 @@ function parse(src) {
       stack.push(curr)
     }
   }
+
+  while (stack.length > 1) {
+    const node = stack.pop()
+    appendChild(getTop(stack), node)
+  }
+
   return tree.children
 }
 

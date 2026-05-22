@@ -50,3 +50,40 @@ it('parses modern html attributes, custom elements, and raw text tags', () => {
     },
   ])
 })
+
+it('keeps unclosed tags when html ends early', () => {
+  expect(parse(`<html><body><main><h1>Partial page</h1><p>Loaded`)).toEqual([
+    {
+      name: 'html',
+      attributes: {},
+      children: [
+        {
+          name: 'body',
+          attributes: {},
+          children: [
+            {
+              name: 'main',
+              attributes: {},
+              children: [
+                {
+                  name: 'h1',
+                  attributes: {},
+                  children: [
+                    'Partial page',
+                  ],
+                },
+                {
+                  name: 'p',
+                  attributes: {},
+                  children: [
+                    'Loaded',
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  ])
+})
