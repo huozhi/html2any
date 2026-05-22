@@ -1,5 +1,5 @@
+import { expect, it } from 'bun:test'
 import React from 'react'
-import renderer from 'react-test-renderer'
 import parse from '../src/parse'
 import transform from '../src/transform'
 import { html1, html2 } from './fixtures'
@@ -68,16 +68,33 @@ function rule(node, children) {
   return React.createElement(elem.type, elem.props, children)
 }
 
+function renderElement(node) {
+  if (node == null || typeof node === 'string') {
+    return node
+  }
+  if (Array.isArray(node)) {
+    return node.map(renderElement)
+  }
+  if (!React.isValidElement(node)) {
+    return node
+  }
+
+  const {children, ...props} = node.props
+  return {
+    type: node.type,
+    props,
+    children: children == null ? null : renderElement(children),
+  }
+}
+
 it('transform works well on html1 with customized rule', () => {
   const ast = parse(html1)[0]
   const result = transform(ast, rule)
-  const output = renderer.create(result).toJSON()
-  expect(output).toMatchSnapshot()
+  expect(renderElement(result)).toMatchSnapshot()
 })
 
 it('transform works well on html2 with customized rule', () => {
   const ast = parse(html2)[0]
   const result = transform(ast, rule)
-  const output = renderer.create(result).toJSON()
-  expect(output).toMatchSnapshot()
+  expect(renderElement(result)).toMatchSnapshot()
 })

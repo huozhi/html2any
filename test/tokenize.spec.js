@@ -1,3 +1,4 @@
+import { expect, it } from 'bun:test'
 import tokenize from '../src/tokenize'
 import { html1, html2 } from './fixtures'
 

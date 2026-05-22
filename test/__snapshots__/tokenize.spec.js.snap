@@ -1,50 +1,50 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
 
 exports[`tokenize parse correctly 1`] = `
-Array [
-  Object {
-    "attributes": Object {},
+[
+  {
+    "attributes": {},
     "name": "div",
     "type": "start",
   },
-  Object {
-    "attributes": Object {},
+  {
+    "attributes": {},
     "name": "hr",
     "type": "self-close",
   },
-  Object {
-    "attributes": Object {
+  {
+    "attributes": {
       "data-index": "2",
       "src": "a.jpg",
     },
     "name": "img",
     "type": "self-close",
   },
-  Object {
-    "attributes": Object {
+  {
+    "attributes": {
       "id": "x34",
     },
     "name": "p",
     "type": "start",
   },
-  Object {
+  {
     "type": "string",
     "value": "1234 &amp;",
   },
-  Object {
+  {
     "name": "p",
     "type": "end",
   },
-  Object {
-    "attributes": Object {
+  {
+    "attributes": {
       "class": "d3 d2",
       "id": "container",
     },
     "name": "div",
     "type": "start",
   },
-  Object {
-    "attributes": Object {
+  {
+    "attributes": {
       "data-id": "xx",
       "readonly": true,
       "value": "1 2 3",
@@ -52,11 +52,11 @@ Array [
     "name": "input",
     "type": "self-close",
   },
-  Object {
+  {
     "name": "div",
     "type": "end",
   },
-  Object {
+  {
     "name": "div",
     "type": "end",
   },
@@ -64,36 +64,36 @@ Array [
 `;
 
 exports[`tokenize parse correctly 2`] = `
-Array [
-  Object {
-    "attributes": Object {},
+[
+  {
+    "attributes": {},
     "name": "div",
     "type": "start",
   },
-  Object {
-    "attributes": Object {},
+  {
+    "attributes": {},
     "name": "p",
     "type": "start",
   },
-  Object {
-    "attributes": Object {},
+  {
+    "attributes": {},
     "name": "br",
     "type": "self-close",
   },
-  Object {
+  {
     "name": "p",
     "type": "end",
   },
-  Object {
-    "attributes": Object {
+  {
+    "attributes": {
       "data-mce-style": "text-align: center; font-size: 15px;",
       "style": "text-align: center; font-size: 15px;",
     },
     "name": "p",
     "type": "start",
   },
-  Object {
-    "attributes": Object {
+  {
+    "attributes": {
       "alt": "Tiny M C E",
       "data-mce-src": "images/glyph-tinymce@2x.png",
       "height": "97",
@@ -103,23 +103,23 @@ Array [
     "name": "img",
     "type": "self-close",
   },
-  Object {
+  {
     "name": "p",
     "type": "end",
   },
-  Object {
-    "attributes": Object {
+  {
+    "attributes": {
       "style": "text-align: center; color: #666; font-size: 15px; font-family: avenir;",
     },
     "name": "p",
     "type": "start",
   },
-  Object {
+  {
     "type": "string",
     "value": "This demo includes these TinyMCE Premium",
   },
-  Object {
-    "attributes": Object {
+  {
+    "attributes": {
       "class": "mce-spellchecker-word",
       "data-mce-bogus": "1",
       "data-mce-index": "0",
@@ -128,20 +128,20 @@ Array [
     "name": "span",
     "type": "start",
   },
-  Object {
+  {
     "type": "string",
     "value": "Plugins",
   },
-  Object {
+  {
     "name": "span",
     "type": "end",
   },
-  Object {
+  {
     "type": "string",
     "value": ":",
   },
-  Object {
-    "attributes": Object {
+  {
+    "attributes": {
       "data-mce-href": "powerpaste",
       "data-mce-linkchecker-status": "valid",
       "href": "https://www.tinymce.com/powerpaste",
@@ -149,20 +149,20 @@ Array [
     "name": "a",
     "type": "start",
   },
-  Object {
+  {
     "type": "string",
     "value": "PowerPaste",
   },
-  Object {
+  {
     "name": "a",
     "type": "end",
   },
-  Object {
+  {
     "type": "string",
     "value": "(improved Word paste),",
   },
-  Object {
-    "attributes": Object {
+  {
+    "attributes": {
       "data-mce-href": "accessibility-checker",
       "data-mce-linkchecker-status": "valid",
       "href": "https://www.tinymce.com/accessibility-checker",
@@ -170,20 +170,20 @@ Array [
     "name": "a",
     "type": "start",
   },
-  Object {
+  {
     "type": "string",
     "value": "Accessibility Checker",
   },
-  Object {
+  {
     "name": "a",
     "type": "end",
   },
-  Object {
+  {
     "type": "string",
     "value": ",",
   },
-  Object {
-    "attributes": Object {
+  {
+    "attributes": {
       "data-mce-href": "spell-checker-pro",
       "data-mce-linkchecker-status": "valid",
       "href": "https://www.tinymce.com/spell-checker-pro",
@@ -191,20 +191,20 @@ Array [
     "name": "a",
     "type": "start",
   },
-  Object {
+  {
     "type": "string",
     "value": "Spell Checker Pro",
   },
-  Object {
+  {
     "name": "a",
     "type": "end",
   },
-  Object {
+  {
     "type": "string",
     "value": "&amp; file management with",
   },
-  Object {
-    "attributes": Object {
+  {
+    "attributes": {
       "data-mce-href": "http://www.moxiemanager.com",
       "data-mce-linkchecker-status": "valid",
       "href": "http://www.moxiemanager.com",
@@ -212,100 +212,100 @@ Array [
     "name": "a",
     "type": "start",
   },
-  Object {
+  {
     "type": "string",
     "value": "MoxieManager",
   },
-  Object {
+  {
     "name": "a",
     "type": "end",
   },
-  Object {
+  {
     "type": "string",
     "value": ".",
   },
-  Object {
+  {
     "name": "p",
     "type": "end",
   },
-  Object {
-    "attributes": Object {
+  {
+    "attributes": {
       "data-mce-style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;",
       "style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;",
     },
     "name": "p",
     "type": "start",
   },
-  Object {
+  {
     "type": "string",
     "value": "TinyMCE is a platform indepen",
   },
-  Object {
-    "attributes": Object {},
+  {
+    "attributes": {},
     "name": "strong",
     "type": "start",
   },
-  Object {
+  {
     "type": "string",
     "value": "dent web-",
   },
-  Object {
+  {
     "name": "strong",
     "type": "end",
   },
-  Object {
+  {
     "type": "string",
     "value": "based JavaScript HTML WYSIWYG",
   },
-  Object {
-    "attributes": Object {},
+  {
+    "attributes": {},
     "name": "br",
     "type": "self-close",
   },
-  Object {
+  {
     "type": "string",
     "value": "editor control released as open source",
   },
-  Object {
-    "attributes": Object {},
+  {
+    "attributes": {},
     "name": "em",
     "type": "start",
   },
-  Object {
+  {
     "type": "string",
     "value": "under",
   },
-  Object {
+  {
     "name": "em",
     "type": "end",
   },
-  Object {
+  {
     "type": "string",
     "value": "LGPL.",
   },
-  Object {
+  {
     "name": "p",
     "type": "end",
   },
-  Object {
-    "attributes": Object {
+  {
+    "attributes": {
       "data-mce-style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;",
       "style": "text-align: center; color: #666; font-size: 15px; font-family: avenir; font-weight: 200;",
     },
     "name": "p",
     "type": "start",
   },
-  Object {
-    "attributes": Object {},
+  {
+    "attributes": {},
     "name": "em",
     "type": "start",
   },
-  Object {
+  {
     "type": "string",
     "value": "TinyMCE enables you to convert HTML",
   },
-  Object {
-    "attributes": Object {
+  {
+    "attributes": {
       "class": "mce-spellchecker-word",
       "data-mce-bogus": "1",
       "data-mce-index": "0",
@@ -314,41 +314,41 @@ Array [
     "name": "span",
     "type": "start",
   },
-  Object {
+  {
     "type": "string",
     "value": "textarea",
   },
-  Object {
+  {
     "name": "span",
     "type": "end",
   },
-  Object {
+  {
     "type": "string",
     "value": "fields or other HTML elements to editor instances.",
   },
-  Object {
+  {
     "name": "em",
     "type": "end",
   },
-  Object {
+  {
     "name": "p",
     "type": "end",
   },
-  Object {
-    "attributes": Object {},
+  {
+    "attributes": {},
     "name": "p",
     "type": "start",
   },
-  Object {
-    "attributes": Object {},
+  {
+    "attributes": {},
     "name": "br",
     "type": "self-close",
   },
-  Object {
+  {
     "name": "p",
     "type": "end",
   },
-  Object {
+  {
     "name": "div",
     "type": "end",
   },

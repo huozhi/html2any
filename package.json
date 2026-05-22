@@ -2,29 +2,25 @@
   "name": "html2any",
   "version": "0.0.7",
   "description": "parse html to ast and transform to anything you need",
-  "main": "./lib/index.js",
-  "exports": {
-    "import": "./lib/index.mjs",
-    "require": "./lib/index.js"
-  },
+  "type": "module",
+  "main": "dist/index.js",
   "scripts": {
-    "test": "yarn node --experimental-vm-modules $(yarn bin jest)",
-    "build": "rm -rf lib && bunchee src/index.js"
+    "test": "bun test",
+    "build": "bunchee"
   },
   "files": [
     "*.md",
     "lib"
   ],
   "type": "module",
-  "jest": {
-    "transform": {}
-  },
   "author": "huozhi",
   "license": "MIT",
   "devDependencies": {
-    "bunchee": "^2.0.4",
-    "jest": "^27.4.7",
-    "react": "^18.2.0",
-    "react-test-renderer": "^18.2.0"
+    "bunchee": "^6.10.0",
+    "react": "^19.2.6",
+    "next": "^16.2.6",
+    "react-dom": "^19.2.6",
+    "tailwindcss": "^4.3.0",
+    "@tailwindcss/postcss": "^4.3.0"
   }
 }
