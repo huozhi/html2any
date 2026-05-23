@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./preview-reset.css";
 
 :root {
   --ink: #171717;
@@ -139,12 +140,12 @@ main > h1.title {
 }
 
 .rendered {
-  background: #fff8ee;
+  background: #fbfaf4;
   overflow-wrap: anywhere;
-  font-family: Trebuchet MS, Verdana, Arial, sans-serif;
-  font-size: 14px;
-  line-height: 1.3;
-  color: #2f1b0c;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
+  font-size: 13px;
+  line-height: 1.38;
+  color: #222;
 }
 
 .compact-code,
@@ -267,21 +268,21 @@ code {
 }
 
 .rendered h1 {
-  margin: 0.35em 0;
-  font-size: 1.65em;
-  font-weight: bold;
+  margin: 0.22em 0;
+  font-size: 1.24em;
+  font-weight: 900;
 }
 
 .rendered h2 {
-  margin: 0.45em 0;
-  font-size: 1.35em;
-  font-weight: bold;
+  margin: 0.22em 0;
+  font-size: 1.14em;
+  font-weight: 900;
 }
 
 .rendered h3 {
-  margin: 0.5em 0;
-  font-size: 1.12em;
-  font-weight: bold;
+  margin: 0.22em 0;
+  font-size: 1.06em;
+  font-weight: 900;
 }
 
 .rendered h4,
@@ -299,17 +300,31 @@ code {
 }
 
 .rendered a {
-  color: #004fd6;
+  color: #071f49;
+  font-weight: 900;
   text-decoration: underline;
+  text-decoration-color: #071f49;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
 }
 
 .rendered a:visited {
-  color: #4b35a8;
+  color: #201547;
+  text-decoration-color: #201547;
 }
 
 .rendered table {
-  border-collapse: separate;
-  border-spacing: 2px;
+  max-width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  overflow-wrap: anywhere;
+}
+
+.rendered th,
+.rendered td {
+  padding: 2px 4px;
+  border: 1px solid #ddd;
+  vertical-align: top;
 }
 
 .rendered button,
@@ -317,7 +332,7 @@ code {
 .rendered select,
 .rendered textarea {
   font-family: MS Sans Serif, Tahoma, Arial, sans-serif;
-  font-size: 12px;
+  font-size: 13px;
   color: #2f1b0c;
   background: #fff1dc;
   border: 1px solid #f0cfa4;
@@ -336,34 +351,15 @@ code {
 .load-section .browser-content {
   height: min(680px, 70vh);
   max-height: none;
-  background: #fff;
-  color: #111;
-  font-family: Times New Roman, Times, serif;
-  font-size: 16px;
-  line-height: normal;
+  background: #fbfaf4;
+  color: #222;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
+  font-size: 14px;
+  line-height: 1.38;
 }
 
 .browser-content > div {
   max-width: none;
-}
-
-.browser-content img {
-  display: block;
-  max-width: 100%;
-  height: auto;
-  margin: 0.5em 0;
-}
-
-.browser-content table {
-  max-width: 100%;
-  overflow-wrap: anywhere;
-}
-
-.browser-content th,
-.browser-content td {
-  padding: 2px 4px;
-  border: 1px solid #ddd;
-  vertical-align: top;
 }
 
 .tag-details {
@@ -409,24 +405,24 @@ code {
   display: block;
   margin: 0.4em 0;
   padding: 0;
-  color: #2f1b0c;
+  color: #222;
   background: transparent;
   border: 0;
 }
 
 .rendered h1.title {
-  font-size: 1.65em;
-  line-height: 1.15;
+  font-size: 1.24em;
+  line-height: 1.2;
 }
 
 .rendered h2.title {
-  font-size: 1.35em;
-  line-height: 1.15;
+  font-size: 1.14em;
+  line-height: 1.2;
 }
 
 .rendered h3.title {
-  font-size: 1.12em;
-  line-height: 1.15;
+  font-size: 1.06em;
+  line-height: 1.2;
 }
 
 .error {

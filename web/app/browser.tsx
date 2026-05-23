@@ -1,45 +1,10 @@
 'use client'
 
-import { Fragment, useCallback, useMemo, useRef, useState } from 'react'
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties, FormEvent, JSX, MouseEvent, ReactNode } from 'react'
-import html2any, { parse, transform } from '../../src/index.js'
-import { highlight } from 'sugar-high'
+import { parse } from '../../src/index.js'
 
-const github = `https://github.com/huozhi/html2any`
-
-const exampleHtml =
-`<div>
-  <h1>Getting Started</h1>
-  <p>Welcome to html2any documentation!</p>
-  <h3>Install</h3>
-  <p>html2any is a dependency free library can be used in any JS runtime.</p>
-  <pre><code>npm install --save html2any</code></pre>
-  <h3>Usage</h3>
-  <p>Map each parsed node to whatever output shape your app needs.</p>
-</div>
-`
-
-const transformerExample =
-`import html2any from 'html2any'
-
-const html = \`${exampleHtml.trim()}\`
-
-function rule(node, children, index) {
-  if (typeof node === 'string') {
-    return node
-  }
-  const Tag = node.name
-  const key = typeof node.index === 'number' ? node.index : undefined
-  if (['h1', 'h2', 'h3'].includes(Tag)) {
-    return <Tag key={key} className="title">{children}</Tag>
-  }
-  if (Tag === 'pre') {
-    return <pre key={key} className="pre">{children}</pre>
-  }
-  return <Tag key={key}>{children}</Tag>
-}
-
-const content = html2any(html, rule)`
+const DEFAULT_URL = 'http://example.com'
 
 type AttrValue = string | boolean
 type Attributes = Record<string, AttrValue | undefined>
@@ -50,7 +15,6 @@ type HtmlNode = {
   name: string
 }
 type HtmlTree = Array<HtmlNode | string>
-type BrowserRule = (node: HtmlNode | string, children?: ReactNode, index?: number) => ReactNode
 type TagAttr = {
   name: string
   value: string
@@ -74,6 +38,121 @@ type LoadResponse = {
   html: string
   url: string
 }
+type Bookmark = {
+  icon: string
+  label: string
+  url: string
+}
+
+const bookmarks: Bookmark[] = [
+  {
+    icon: 'H',
+    label: 'huozhi.im',
+    url: 'http://huozhi.im',
+  },
+  {
+    icon: 'E',
+    label: 'example.com',
+    url: 'http://example.com',
+  },
+  {
+    icon: 'W',
+    label: 'swr',
+    url: 'https://swr.vercel.app/',
+  },
+  {
+    icon: 'Y',
+    label: 'hacker news',
+    url: 'https://news.ycombinator.com/',
+  },
+]
+
+const skippedBrowserTags = ['head', 'script', 'style', 'meta', 'link', 'title', 'noscript', 'template', 'iframe', 'object', 'embed']
+const voidBrowserTags = ['area', 'base', 'br', 'col', 'hr', 'input', 'param', 'source', 'track', 'wbr']
+const nativeBrowserTags = [
+  'abbr',
+  'address',
+  'article',
+  'aside',
+  'b',
+  'bdi',
+  'bdo',
+  'blockquote',
+  'button',
+  'caption',
+  'cite',
+  'code',
+  'col',
+  'colgroup',
+  'data',
+  'datalist',
+  'dd',
+  'del',
+  'details',
+  'dfn',
+  'dialog',
+  'div',
+  'dl',
+  'dt',
+  'em',
+  'fieldset',
+  'figcaption',
+  'figure',
+  'footer',
+  'form',
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
+  'header',
+  'hgroup',
+  'i',
+  'ins',
+  'kbd',
+  'label',
+  'legend',
+  'li',
+  'main',
+  'mark',
+  'menu',
+  'meter',
+  'nav',
+  'ol',
+  'optgroup',
+  'option',
+  'output',
+  'p',
+  'pre',
+  'progress',
+  'q',
+  'rp',
+  'rt',
+  'ruby',
+  's',
+  'samp',
+  'section',
+  'select',
+  'small',
+  'span',
+  'strong',
+  'sub',
+  'summary',
+  'sup',
+  'table',
+  'tbody',
+  'td',
+  'textarea',
+  'tfoot',
+  'th',
+  'thead',
+  'time',
+  'tr',
+  'u',
+  'ul',
+  'var',
+]
 
 function getErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : 'Something went wrong.'
@@ -81,54 +160,6 @@ function getErrorMessage(error: unknown) {
 
 function isAbortError(error: unknown) {
   return error instanceof Error && error.name === 'AbortError'
-}
-
-function exampleRule(node: HtmlNode | string, children?: ReactNode, index?: number): ReactNode {
-  if (typeof node === 'string') {
-    if (node.includes('html2any')) {
-      const parts = node.split('html2any')
-      const mergedParts: ReactNode[] = []
-      for (let i = 0; i < parts.length; i++) {
-        mergedParts.push(<span key={`text-${i}`} dangerouslySetInnerHTML={{ __html: parts[i] }} />)
-        if (i < parts.length - 1) {
-          mergedParts.push(<a key={`link-${i}`} target="_blank" rel="noreferrer" href={github}><b>html2any</b></a>)
-        }
-      }
-
-      return <span key={index}>{mergedParts}</span>
-    }
-    return node
-  }
-
-  const Tag = node.name as keyof JSX.IntrinsicElements
-  const key = typeof node.index === 'number' ? node.index : undefined
-
-  if (['head', 'script', 'style', 'meta', 'link', 'title', 'noscript'].includes(Tag)) {
-    return null
-  }
-
-  if (Tag === 'html' || Tag === 'body') {
-    return <Fragment key={key}>{children}</Fragment>
-  }
-
-  if (Tag === 'code') {
-    if (Array.isArray(children) && typeof children[0] === 'string') {
-      return <code key={key} className="code" dangerouslySetInnerHTML={{ __html: children.join('') }} />
-    }
-    return <code key={key} className="code">{children}</code>
-  } else if (Tag === 'pre') {
-    return <Tag key={key} className="pre">{children}</Tag>
-  } else if (['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(Tag)) {
-    return <Tag key={key} className="title">{children}</Tag>
-  } else if (['main', 'article', 'section', 'nav', 'header', 'footer', 'aside'].includes(Tag)) {
-    return <div key={key}>{children}</div>
-  } else if (Tag === 'p') {
-    return <div key={key} className="paragraph">{children}</div>
-  } else if (['div', 'ul', 'ol', 'li', 'a', 'b', 'strong', 'em', 'span', 'br'].includes(Tag)) {
-    return <Tag key={key}>{children}</Tag>
-  }
-
-  return <div key={key}>{children}</div>
 }
 
 function normalizeAddress(value: string, baseUrl = '') {
@@ -179,120 +210,92 @@ function textAttr(value: AttrValue | undefined) {
   return typeof value === 'string' ? value : ''
 }
 
-function createBrowserRule(baseUrl: string, onNavigate: (url: string) => void): BrowserRule {
-  return function browserRule(node, children, index) {
-    if (typeof node === 'string') {
-      return node
+function renderBrowserContent(html: string, baseUrl: string, onNavigate: (url: string) => void) {
+  if (!html || typeof DOMParser === 'undefined') {
+    return []
+  }
+
+  const document = new DOMParser().parseFromString(html, 'text/html')
+  return renderDomNodes(Array.from(document.body.childNodes), baseUrl, onNavigate)
+}
+
+function renderDomNodes(nodes: ChildNode[], baseUrl: string, onNavigate: (url: string) => void): ReactNode[] {
+  return nodes.map((node, index) => {
+    return renderDomNode(node, baseUrl, onNavigate, index)
+  })
+}
+
+function renderDomNode(node: ChildNode, baseUrl: string, onNavigate: (url: string) => void, index: number): ReactNode {
+  if (node.nodeType === 3) {
+    return node.textContent
+  }
+
+  if (node.nodeType !== 1) {
+    return null
+  }
+
+  const element = node as Element
+  const tagName = element.tagName.toLowerCase()
+  const children = renderDomNodes(Array.from(element.childNodes), baseUrl, onNavigate)
+
+  if (skippedBrowserTags.includes(tagName)) {
+    return null
+  }
+
+  if (tagName === 'html' || tagName === 'body') {
+    return <Fragment key={index}>{children}</Fragment>
+  }
+
+  if (tagName === 'a') {
+    const href = resolveBrowserUrl(element.getAttribute('href') || undefined, baseUrl)
+    if (!href) {
+      return <span key={index}>{children}</span>
     }
 
-    const tagName = node.name.toLowerCase()
-    const attrs = node.attributes || {}
-    const key = typeof node.index === 'number' ? node.index : index
+    return (
+      <a
+        key={index}
+        href={href}
+        title={textAttr(element.getAttribute('title') || undefined)}
+        onClick={(event: MouseEvent<HTMLAnchorElement>) => {
+          event.preventDefault()
+          onNavigate(href)
+        }}
+      >
+        {children}
+      </a>
+    )
+  }
 
-    if (['head', 'script', 'style', 'meta', 'link', 'title', 'noscript', 'template'].includes(tagName)) {
+  if (tagName === 'img') {
+    const src = resolveBrowserUrl(element.getAttribute('src') || undefined, baseUrl)
+    if (!src) {
       return null
     }
 
-    if (tagName === 'html' || tagName === 'body') {
-      return <Fragment key={key}>{children}</Fragment>
-    }
-
-    if (tagName === 'a') {
-      const href = resolveBrowserUrl(attrs.href, baseUrl)
-      if (!href) {
-        return <span key={key}>{children}</span>
-      }
-
-      return (
-        <a
-          key={key}
-          href={href}
-          title={textAttr(attrs.title)}
-          onClick={(event: MouseEvent<HTMLAnchorElement>) => {
-            event.preventDefault()
-            onNavigate(href)
-          }}
-        >
-          {children}
-        </a>
-      )
-    }
-
-    if (tagName === 'img') {
-      const src = resolveBrowserUrl(attrs.src, baseUrl)
-      if (!src) {
-        return null
-      }
-
-      return (
-        <img
-          key={key}
-          src={src}
-          alt={textAttr(attrs.alt)}
-          title={textAttr(attrs.title)}
-          loading="lazy"
-          decoding="async"
-        />
-      )
-    }
-
-    if (['main', 'article', 'section', 'nav', 'header', 'footer', 'aside', 'form'].includes(tagName)) {
-      return <div key={key}>{children}</div>
-    }
-
-    if (tagName === 'p') {
-      return <div key={key} className="paragraph">{children}</div>
-    }
-
-    if (tagName === 'br' || tagName === 'hr') {
-      const Tag = tagName as keyof JSX.IntrinsicElements
-      return <Tag key={key} />
-    }
-
-    if (['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(tagName)) {
-      const Tag = tagName as keyof JSX.IntrinsicElements
-      return <Tag key={key} className="title">{children}</Tag>
-    }
-
-    if (tagName === 'code') {
-      return <code key={key} className="code">{children}</code>
-    }
-
-    if (tagName === 'pre') {
-      return <pre key={key} className="pre">{children}</pre>
-    }
-
-    if (
-      [
-        'div',
-        'ul',
-        'ol',
-        'li',
-        'b',
-        'strong',
-        'em',
-        'i',
-        'span',
-        'small',
-        'blockquote',
-        'table',
-        'thead',
-        'tbody',
-        'tfoot',
-        'tr',
-        'th',
-        'td',
-        'dl',
-        'dt',
-        'dd',
-      ].includes(tagName)
-    ) {
-      const Tag = tagName as keyof JSX.IntrinsicElements
-      return <Tag key={key}>{children}</Tag>
-    }
-
-    return <div key={key}>{children}</div>
+    return (
+      <img
+        key={index}
+        src={src}
+        alt={textAttr(element.getAttribute('alt') || undefined)}
+        title={textAttr(element.getAttribute('title') || undefined)}
+        loading="lazy"
+        decoding="async"
+      />
+    )
   }
+
+  if (voidBrowserTags.includes(tagName)) {
+    const Tag = tagName as keyof JSX.IntrinsicElements
+    return <Tag key={index} />
+  }
+
+  if (nativeBrowserTags.includes(tagName)) {
+    const Tag = tagName as keyof JSX.IntrinsicElements
+    return <Tag key={index}>{children}</Tag>
+  }
+
+  return <Fragment key={index}>{children}</Fragment>
 }
 
 function formatAttrValue(name: string, value: AttrValue | undefined) {
@@ -362,7 +365,7 @@ function ParsedTags({ ast }: { ast: HtmlTree }) {
 
 export default function Browser() {
   const [html, setHtml] = useState('')
-  const [address, setAddress] = useState('http://huozhi.im')
+  const [address, setAddress] = useState(DEFAULT_URL)
   const [loadedUrl, setLoadedUrl] = useState('')
   const [browserError, setBrowserError] = useState('')
   const [navigation, setNavigation] = useState<NavigationState>({
@@ -371,9 +374,7 @@ export default function Browser() {
   })
   const [isLoading, setIsLoading] = useState(false)
   const abortControllerRef = useRef<AbortController | null>(null)
-
-  const exampleContent = useMemo(() => html2any(exampleHtml, exampleRule), [])
-  const highlightedTransformerExample = useMemo(() => highlight(transformerExample), [])
+  const didAutoLoadRef = useRef(false)
 
   const loadTargetUrl = useCallback(async (targetUrl: string, options: LoadOptions = {}) => {
     const historyMode = options.historyMode || 'push'
@@ -444,14 +445,23 @@ export default function Browser() {
     loadTargetUrl(targetUrl)
   }, [loadTargetUrl])
 
-  const browserRule = useMemo(() => createBrowserRule(loadedUrl, navigateToUrl), [loadedUrl, navigateToUrl])
+  useEffect(() => {
+    if (didAutoLoadRef.current) {
+      return
+    }
+
+    didAutoLoadRef.current = true
+    loadTargetUrl(DEFAULT_URL, { historyMode: 'replace' })
+
+    return () => abortControllerRef.current?.abort()
+  }, [loadTargetUrl])
 
   const parsed = useMemo(() => {
     try {
       const ast = parse(html)
       return {
         ast: ast as HtmlTree,
-        content: transform(ast, browserRule) as ReactNode,
+        content: renderBrowserContent(html, loadedUrl, navigateToUrl),
       }
     } catch (error) {
       return {
@@ -459,7 +469,7 @@ export default function Browser() {
         content: <p className="error">Could not parse this HTML: {getErrorMessage(error)}</p>,
       }
     }
-  }, [browserRule, html])
+  }, [html, loadedUrl, navigateToUrl])
 
   async function loadUrl(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -476,6 +486,14 @@ export default function Browser() {
 
   function cancelLoad() {
     abortControllerRef.current?.abort()
+  }
+
+  function openBookmark(url: string) {
+    if (isLoading) {
+      return
+    }
+
+    loadTargetUrl(url)
   }
 
   const trimmedAddress = address.trim()
@@ -581,8 +599,27 @@ export default function Browser() {
           </button>
           </form>
 
+          <div className="flex min-h-10 items-center gap-2 overflow-x-auto border-b-[3px] border-[var(--ink)] bg-[var(--muted)] px-4 py-2 max-[760px]:px-2.5">
+            {bookmarks.map((bookmark) => (
+              <button
+                key={bookmark.url}
+                type="button"
+                className="inline-flex h-6 flex-none cursor-pointer items-center gap-1.5 rounded-none border-2 border-[var(--ink)] bg-[var(--panel)] px-1.5 font-mono text-[11px] font-black leading-none text-[var(--ink)] disabled:cursor-wait disabled:opacity-[0.45]"
+                disabled={isLoading}
+                onClick={() => openBookmark(bookmark.url)}
+                title={bookmark.url}
+                aria-label={`Open ${bookmark.label}`}
+              >
+                <span className="inline-flex h-4 w-4 flex-none items-center justify-center border border-[var(--ink)] bg-[var(--ink)] font-mono text-[10px] font-black leading-none text-white" aria-hidden="true">
+                  {bookmark.icon}
+                </span>
+                <span>{bookmark.label}</span>
+              </button>
+            ))}
+          </div>
+
           <div className="browser-viewport" aria-busy={isLoading}>
-            <div className="rendered browser-content">
+            <div className="rendered browser-content" data-preview-reset>
               {browserError ? <p className="error">{browserError}</p> : parsed.content}
             </div>
           </div>
@@ -596,26 +633,6 @@ export default function Browser() {
         </section>
       </div>
 
-      <div className="grid gap-3">
-        <div>
-          <h2 className="m-0 text-base font-black uppercase leading-tight">Usage</h2>
-          <p className="m-0 mt-1 text-sm leading-tight text-[#555]">Turn parsed HTML into the output shape you need.</p>
-        </div>
-
-        <section className="section-panel example-section">
-          <div className="content-grid flex">
-            <div className="flex-1 pad">
-              <pre className="raw-code compact-code example-code">
-                <code dangerouslySetInnerHTML={{ __html: highlightedTransformerExample }} />
-              </pre>
-            </div>
-
-            <div className="flex-1 pad">
-              <div className="rendered compact-preview">{exampleContent}</div>
-            </div>
-          </div>
-        </section>
-      </div>
     </>
   )
 }
