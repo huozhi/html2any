@@ -6,6 +6,7 @@ import { htmlToMarkdown } from '../src/context.ts'
 
 const root = path.resolve(import.meta.dir, '..')
 const defaultOutputsDir = path.join(root, 'benchmark', 'outputs', 'compare')
+const FETCH_TIMEOUT_MS = 10000
 
 function usage() {
   return `Usage:
@@ -68,6 +69,7 @@ async function fetchHtml(url) {
       accept: 'text/html,application/xhtml+xml',
       'user-agent': 'html2any-compare/0.1',
     },
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
   })
   if (!response.ok) {
     throw new Error(`Failed to fetch ${url}: ${response.status} ${response.statusText}`)
