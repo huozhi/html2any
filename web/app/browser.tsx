@@ -34,14 +34,14 @@ const bookmarks: Bookmark[] = [
     url: 'http://huozhi.im',
   },
   {
-    icon: 'E',
-    label: 'google.com',
-    url: 'https://www.google.com',
+    icon: 'M',
+    label: 'mdn fetch',
+    url: 'https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch',
   },
   {
-    icon: 'W',
-    label: 'swr',
-    url: 'https://swr.vercel.app',
+    icon: 'N',
+    label: 'node fs',
+    url: 'https://nodejs.org/api/fs.html',
   },
   {
     icon: 'Y',
@@ -51,6 +51,7 @@ const bookmarks: Bookmark[] = [
 ]
 
 const skippedBrowserTags = ['head', 'script', 'style', 'meta', 'link', 'title', 'noscript', 'template', 'iframe', 'object', 'embed']
+const noWhitespaceTextChildTags = ['table', 'thead', 'tbody', 'tfoot', 'tr', 'colgroup', 'select', 'optgroup']
 const voidBrowserTags = ['area', 'base', 'br', 'col', 'hr', 'input', 'param', 'source', 'track', 'wbr']
 const nativeBrowserTags = [
   'abbr',
@@ -335,14 +336,17 @@ function renderBrowserContent(html: string, baseUrl: string, onNavigate: (url: s
   return renderDomNodes(Array.from(document.body.childNodes), baseUrl, onNavigate)
 }
 
-function renderDomNodes(nodes: ChildNode[], baseUrl: string, onNavigate: (url: string) => void): ReactNode[] {
+function renderDomNodes(nodes: ChildNode[], baseUrl: string, onNavigate: (url: string) => void, parentTagName = ''): ReactNode[] {
   return nodes.map((node, index) => {
-    return renderDomNode(node, baseUrl, onNavigate, index)
+    return renderDomNode(node, baseUrl, onNavigate, index, parentTagName)
   })
 }
 
-function renderDomNode(node: ChildNode, baseUrl: string, onNavigate: (url: string) => void, index: number): ReactNode {
+function renderDomNode(node: ChildNode, baseUrl: string, onNavigate: (url: string) => void, index: number, parentTagName = ''): ReactNode {
   if (node.nodeType === 3) {
+    if (noWhitespaceTextChildTags.includes(parentTagName) && !node.textContent?.trim()) {
+      return null
+    }
     return node.textContent
   }
 
@@ -352,7 +356,7 @@ function renderDomNode(node: ChildNode, baseUrl: string, onNavigate: (url: strin
 
   const element = node as Element
   const tagName = element.tagName.toLowerCase()
-  const children = renderDomNodes(Array.from(element.childNodes), baseUrl, onNavigate)
+  const children = renderDomNodes(Array.from(element.childNodes), baseUrl, onNavigate, tagName)
 
   if (skippedBrowserTags.includes(tagName)) {
     return null

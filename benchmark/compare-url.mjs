@@ -8,6 +8,18 @@ const root = path.resolve(import.meta.dir, '..')
 const defaultOutputsDir = path.join(root, 'benchmark', 'outputs', 'compare')
 const FETCH_TIMEOUT_MS = 10000
 
+// Useful manual benchmark candidates:
+//   https://news.ycombinator.com
+//   https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+//   https://kubernetes.io/docs/concepts/workloads/pods/
+//   https://nodejs.org/api/fs.html
+//   https://docs.python.org/3/library/asyncio.html
+//
+// Known failure-case candidate:
+//   https://docs.docker.com/build/concepts/dockerfile/
+// The Docker page contains useful article content in raw HTML, but the current
+// semantic extractor over-prunes that page shape and emits mostly metadata.
+
 function usage() {
   return `Usage:
   bun benchmark/compare-url.mjs <url...> [options]
