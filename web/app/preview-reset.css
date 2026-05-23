@@ -1,0 +1,73 @@
+@scope (:where([data-preview-reset])) {
+  :scope[data-preview-reset][data-preview-reset],
+  :scope[data-preview-reset][data-preview-reset] :where(*) {
+    box-sizing: border-box;
+    min-width: 0;
+  }
+
+  :scope[data-preview-reset][data-preview-reset] :where(*) {
+    padding: 0;
+    border: 0;
+  }
+
+  :scope[data-preview-reset][data-preview-reset] :where(ol, ul) {
+    list-style: none;
+  }
+
+  :scope[data-preview-reset][data-preview-reset] :where(h1, h2, h3, h4, h5, h6, p, blockquote, ul, ol, pre, dl, figure, table) {
+    margin: 0.22em 0;
+  }
+
+  :scope[data-preview-reset][data-preview-reset] :where(li, dt, dd) {
+    margin: 0.08em 0;
+  }
+
+  :scope[data-preview-reset][data-preview-reset] :where(table) {
+    border-collapse: collapse;
+    border-spacing: 0;
+  }
+
+  :scope[data-preview-reset][data-preview-reset] :where(pre) {
+    overflow: auto;
+    padding: 6px 8px;
+    border: 1px solid #d7d3c7;
+    background: #f1efe8;
+    white-space: pre-wrap;
+  }
+
+  :scope[data-preview-reset][data-preview-reset] :where(code, kbd, samp) {
+    padding: 1px 3px;
+    border: 1px solid #d7d3c7;
+    background: #f1efe8;
+    color: #111;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
+    font-size: 0.95em;
+  }
+
+  :scope[data-preview-reset][data-preview-reset] :where(pre code) {
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  :scope[data-preview-reset][data-preview-reset] :where(th, td) {
+    padding: 2px 4px;
+    border: 1px solid #ddd;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  :scope[data-preview-reset][data-preview-reset] :where(th) {
+    font-weight: 900;
+  }
+
+  :scope[data-preview-reset][data-preview-reset] :where(button, input, select, textarea) {
+    appearance: none;
+  }
+
+  :scope[data-preview-reset][data-preview-reset] :where(img, svg, video, canvas) {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+}
