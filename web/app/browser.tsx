@@ -373,6 +373,7 @@ export default function Browser() {
     index: -1,
   })
   const [isLoading, setIsLoading] = useState(false)
+  const [showParsedTags, setShowParsedTags] = useState(false)
   const abortControllerRef = useRef<AbortController | null>(null)
   const didAutoLoadRef = useRef(false)
 
@@ -522,7 +523,7 @@ export default function Browser() {
       <div className="grid gap-3">
         <div>
           <h2 className="m-0 text-base font-black uppercase leading-tight">Browser</h2>
-          <p className="m-0 mt-1 text-sm leading-tight text-[#555]">See what can it do...</p>
+          <p className="m-0 mt-1 text-sm leading-tight text-[#555]">Parse and render html website.</p>
         </div>
 
         <section className="section-panel load-section">
@@ -599,37 +600,46 @@ export default function Browser() {
           </button>
           </form>
 
-          <div className="flex min-h-10 items-center gap-2 overflow-x-auto border-b-[3px] border-[var(--ink)] bg-[var(--muted)] px-4 py-2 max-[760px]:px-2.5">
-            {bookmarks.map((bookmark) => (
-              <button
-                key={bookmark.url}
-                type="button"
-                className="inline-flex h-6 flex-none cursor-pointer items-center gap-1.5 rounded-none border-2 border-[var(--ink)] bg-[var(--panel)] px-1.5 font-mono text-[11px] font-black leading-none text-[var(--ink)] disabled:cursor-wait disabled:opacity-[0.45]"
-                disabled={isLoading}
-                onClick={() => openBookmark(bookmark.url)}
-                title={bookmark.url}
-                aria-label={`Open ${bookmark.label}`}
-              >
-                <span className="inline-flex h-4 w-4 flex-none items-center justify-center border border-[var(--ink)] bg-[var(--ink)] font-mono text-[10px] font-black leading-none text-white" aria-hidden="true">
-                  {bookmark.icon}
-                </span>
-                <span>{bookmark.label}</span>
-              </button>
-            ))}
+          <div className="flex min-h-10 items-center gap-2 border-b-[3px] border-[var(--ink)] bg-[var(--muted)] px-4 py-2 max-[760px]:px-2.5">
+            <div className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto">
+              {bookmarks.map((bookmark) => (
+                <button
+                  key={bookmark.url}
+                  type="button"
+                  className="inline-flex h-6 flex-none cursor-pointer items-center gap-1.5 rounded-none border-2 border-[var(--ink)] bg-[var(--panel)] px-1.5 font-mono text-[11px] font-black leading-none text-[var(--ink)] disabled:cursor-wait disabled:opacity-[0.45]"
+                  disabled={isLoading}
+                  onClick={() => openBookmark(bookmark.url)}
+                  title={bookmark.url}
+                  aria-label={`Open ${bookmark.label}`}
+                >
+                  <span className="inline-flex h-4 w-4 flex-none items-center justify-center border border-[var(--ink)] bg-[var(--ink)] font-mono text-[10px] font-black leading-none text-white" aria-hidden="true">
+                    {bookmark.icon}
+                  </span>
+                  <span>{bookmark.label}</span>
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              className={`inline-flex h-6 flex-none cursor-pointer items-center gap-1 rounded-none border-2 border-[var(--ink)] px-2 font-mono text-[11px] font-black uppercase leading-none ${showParsedTags ? 'bg-[var(--ink)] text-white' : 'bg-[var(--panel)] text-[var(--ink)]'}`}
+              aria-pressed={showParsedTags}
+              aria-controls="browser-tags"
+              aria-label={`${showParsedTags ? 'Hide' : 'Show'} parsed AST`}
+              onClick={() => setShowParsedTags((value) => !value)}
+            >
+              <span>AST</span>
+              <span aria-hidden="true">{showParsedTags ? '-' : '+'}</span>
+            </button>
           </div>
 
           <div className="browser-viewport" aria-busy={isLoading}>
             <div className="rendered browser-content" data-preview-reset>
               {browserError ? <p className="error">{browserError}</p> : parsed.content}
             </div>
-          </div>
-
-          <details className="tag-details">
-            <summary>Parsed Tags</summary>
-            <div className="parsed-tags">
+            <div id="browser-tags" className={`parsed-tags browser-tags-overlay ${showParsedTags ? 'is-visible' : ''}`} aria-hidden={!showParsedTags}>
               <ParsedTags ast={parsed.ast} />
             </div>
-          </details>
+          </div>
         </section>
       </div>
 

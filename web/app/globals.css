@@ -52,16 +52,29 @@ main {
   background: transparent;
 }
 
-main > h1.title {
+.page-header {
   margin: 0;
   padding: 26px 28px 20px;
   border: 3px solid var(--ink);
   color: var(--ink);
   background: var(--muted);
   box-shadow: 10px 10px 0 var(--ink);
+}
+
+.page-header > h1.title {
+  margin: 0;
   font-size: 2.4rem;
   line-height: 0.92;
   text-transform: uppercase;
+}
+
+.intro {
+  max-width: 42rem;
+  margin: 12px 0 0;
+  color: #555;
+  font-size: 0.95rem;
+  font-weight: 800;
+  line-height: 1.35;
 }
 
 .title {
@@ -344,7 +357,9 @@ code {
 }
 
 .browser-viewport {
+  position: relative;
   min-width: 0;
+  overflow: hidden;
   background: #fff;
 }
 
@@ -362,39 +377,18 @@ code {
   max-width: none;
 }
 
-.tag-details {
-  border-top: 3px solid var(--ink);
-  background: var(--panel);
-}
-
-.tag-details summary {
-  display: flex;
-  align-items: center;
-  min-height: 46px;
-  padding: 0 16px;
-  font-weight: 900;
-  text-transform: uppercase;
-  cursor: pointer;
-  list-style: none;
-}
-
-.tag-details summary::-webkit-details-marker {
+.parsed-tags.browser-tags-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
   display: none;
-}
-
-.tag-details summary::after {
-  content: "+";
-  margin-left: auto;
-}
-
-.tag-details[open] summary::after {
-  content: "-";
-}
-
-.tag-details .parsed-tags {
-  height: min(380px, 48vh);
+  height: auto;
   max-height: none;
-  border-top: 3px solid var(--ink);
+  border-top: 0;
+}
+
+.parsed-tags.browser-tags-overlay.is-visible {
+  display: block;
 }
 
 .rendered .paragraph {
@@ -447,10 +441,18 @@ code {
     padding: 0 8px 8px;
   }
 
-  main > h1.title {
+  .page-header {
     padding: 18px 12px 14px;
     box-shadow: none;
+  }
+
+  .page-header > h1.title {
     font-size: 2rem;
+  }
+
+  .intro {
+    margin-top: 10px;
+    font-size: 0.9rem;
   }
 
   .label {
@@ -485,15 +487,6 @@ code {
 
   .load-section .browser-content {
     height: min(520px, 68vh);
-  }
-
-  .tag-details summary {
-    padding-right: 10px;
-    padding-left: 10px;
-  }
-
-  .tag-details .parsed-tags {
-    height: min(320px, 50vh);
   }
 
 }
