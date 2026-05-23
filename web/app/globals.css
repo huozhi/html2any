@@ -20,7 +20,7 @@ body {
   box-sizing: border-box;
   max-width: 100vw;
   margin: 0;
-  padding: 36px 18px;
+  padding: 18px 12px;
   overflow-x: hidden;
   color: var(--ink);
   background: transparent;
@@ -59,7 +59,7 @@ main > h1.title {
   color: var(--ink);
   background: var(--muted);
   box-shadow: 10px 10px 0 var(--ink);
-  font-size: 3.75rem;
+  font-size: 2.4rem;
   line-height: 0.92;
   text-transform: uppercase;
 }
@@ -450,7 +450,7 @@ code {
   main > h1.title {
     padding: 18px 12px 14px;
     box-shadow: none;
-    font-size: 3rem;
+    font-size: 2rem;
   }
 
   .label {
