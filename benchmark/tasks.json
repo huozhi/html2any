@@ -1,0 +1,42 @@
+[
+  {
+    "id": "nextjs-install-app-router",
+    "source": "https://nextjs.org/docs/app/getting-started/installation",
+    "prompt": "Using only the provided context, write the minimal commands and file changes to create a new Next.js app using the App Router.",
+    "checks": [
+      "Mentions create-next-app or the documented setup command",
+      "Distinguishes App Router setup from Pages Router setup",
+      "Cites the relevant installation section"
+    ]
+  },
+  {
+    "id": "nextjs-config-options",
+    "source": "https://nextjs.org/docs/app/api-reference/config/next-config-js",
+    "prompt": "Using only the provided context, list the documented next.config.js options needed to configure redirects, rewrites, and image remote patterns.",
+    "checks": [
+      "Names the correct config keys",
+      "Provides code shaped like next.config.js",
+      "Cites config sections or headings"
+    ]
+  },
+  {
+    "id": "swc-compilation-config",
+    "source": "https://swc.rs/docs/configuration/compilation",
+    "prompt": "Using only the provided context, create a concise .swcrc example for compiling TypeScript with JSX support.",
+    "checks": [
+      "Includes parser syntax for TypeScript",
+      "Includes TSX or JSX-related setting when documented",
+      "Cites the relevant configuration section"
+    ]
+  },
+  {
+    "id": "swc-core-usage",
+    "source": "https://swc.rs/docs/usage/core",
+    "prompt": "Using only the provided context, show how to transform JavaScript with SWC core from Node.js.",
+    "checks": [
+      "Uses the documented SWC core package/API",
+      "Includes a runnable transform example",
+      "Cites the relevant usage section"
+    ]
+  }
+]

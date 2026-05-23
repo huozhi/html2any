@@ -1,0 +1,26 @@
+[
+  {
+    "id": "nextjs-docs",
+    "url": "https://nextjs.org/docs"
+  },
+  {
+    "id": "nextjs-next-config",
+    "url": "https://nextjs.org/docs/app/api-reference/config/next-config-js"
+  },
+  {
+    "id": "nextjs-installation",
+    "url": "https://nextjs.org/docs/app/getting-started/installation"
+  },
+  {
+    "id": "swc-home",
+    "url": "https://swc.rs/"
+  },
+  {
+    "id": "swc-compilation",
+    "url": "https://swc.rs/docs/configuration/compilation"
+  },
+  {
+    "id": "swc-core",
+    "url": "https://swc.rs/docs/usage/core"
+  }
+]

@@ -1,0 +1,25 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`renders markdown for token-friendly docs context 1`] = `
+"# Example Docs
+API docs for agents
+Source: https://example.test/docs
+
+Install with \`npm install example\`.
+
+## Config
+
+Read the [config guide](/docs/config).
+
+- Set \`mode\`
+- Run build
+
+| Option | Meaning |
+| --- | --- |
+| mode | Compiler mode |
+
+\`\`\`js
+export default { mode: 'strict' }
+\`\`\`
+"
+`;

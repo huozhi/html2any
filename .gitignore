@@ -4,4 +4,5 @@ dist/
 next-env.d.ts
 tsconfig.tsbuildinfo
 bun.lockb
-
+AGENTS.md
+benchmark/outputs
