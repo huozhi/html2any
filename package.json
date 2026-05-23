@@ -35,8 +35,6 @@
     "web:start": "next start web"
   },
   "files": [
-    "*.md",
-    "benchmark",
     "dist"
   ],
   "author": "huozhi",
