@@ -2,9 +2,12 @@ import { expect, it } from 'bun:test'
 import React from 'react'
 import parse from '../src/parse'
 import transform from '../src/transform'
+import type { AstNode } from '../src/types'
 import { html1, html2 } from './fixtures'
 
-function rule(node, children) {
+type RuleResult = React.ReactElement | string | null
+
+function rule(node: AstNode, children: unknown): RuleResult {
   if (typeof node === 'string') {
     return node
   }
@@ -16,7 +19,7 @@ function rule(node, children) {
     attributes.className = attributes.class
     delete attributes.class
   }
-  let elem
+  let elem: { type: string, props: Record<string, unknown> } | undefined
   switch (name) {
     case 'p': {
       elem = {
@@ -65,10 +68,10 @@ function rule(node, children) {
   if (typeof node.index === 'number') {
     Object.assign(elem.props, {key: node.index})
   }
-  return React.createElement(elem.type, elem.props, children)
+  return React.createElement(elem.type, elem.props, children as React.ReactNode)
 }
 
-function renderElement(node) {
+function renderElement(node: unknown): unknown {
   if (node == null || typeof node === 'string') {
     return node
   }
@@ -79,7 +82,7 @@ function renderElement(node) {
     return node
   }
 
-  const {children, ...props} = node.props
+  const {children, ...props} = node.props as Record<string, unknown> & { children?: unknown }
   return {
     type: node.type,
     props,
@@ -88,13 +91,13 @@ function renderElement(node) {
 }
 
 it('transform works well on html1 with customized rule', () => {
-  const ast = parse(html1)[0]
+  const ast = parse(html1)[0] as AstNode
   const result = transform(ast, rule)
   expect(renderElement(result)).toMatchSnapshot()
 })
 
 it('transform works well on html2 with customized rule', () => {
-  const ast = parse(html2)[0]
+  const ast = parse(html2)[0] as AstNode
   const result = transform(ast, rule)
   expect(renderElement(result)).toMatchSnapshot()
 })
