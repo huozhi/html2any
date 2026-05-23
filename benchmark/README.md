@@ -31,6 +31,24 @@ Keep captured fixtures immutable for a benchmark run so raw HTML and Markdown va
 bun run benchmark -- --no-fetch
 ```
 
+## Compare Any URL
+
+Use `benchmark:url` for an ad hoc compression report against any page:
+
+```bash
+bun run benchmark:url -- https://vercel.com/docs/vercel-sandbox/sdk-reference
+```
+
+Multiple URLs are supported:
+
+```bash
+bun run benchmark:url -- \
+  https://vercel.com/docs/vercel-sandbox/sdk-reference \
+  https://workflow-sdk.dev/docs/getting-started/next
+```
+
+The script writes Markdown outputs and `report.json` to `benchmark/outputs/compare/` by default. Use `--no-files` to print only the report, or `--out <dir>` to choose another output directory.
+
 ## Variants
 
 The script generates two context variants per page:

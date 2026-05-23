@@ -27,6 +27,7 @@
     "test": "bun test",
     "typecheck": "tsgo --noEmit",
     "benchmark": "bun benchmark/run.mjs",
+    "benchmark:url": "bun benchmark/compare-url.mjs",
     "build": "bunchee",
     "prepublishOnly": "bun run build",
     "web:dev": "next dev web",
