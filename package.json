@@ -25,6 +25,7 @@
   },
   "scripts": {
     "test": "bun test",
+    "typecheck": "tsgo --noEmit",
     "benchmark": "bun benchmark/run.mjs",
     "build": "bunchee",
     "prepublishOnly": "bun run build",
@@ -41,16 +42,17 @@
   "author": "huozhi",
   "license": "MIT",
   "devDependencies": {
-    "bunchee": "^6.10.0",
-    "react": "^19.2.6",
-    "next": "^16.2.6",
-    "react-dom": "^19.2.6",
-    "tailwindcss": "^4.3.0",
     "@tailwindcss/postcss": "^4.3.0",
-    "sugar-high": "^1.2.0",
-    "typescript": "^6.0.3",
+    "@types/bun": "^1.3.14",
     "@types/node": "^25.9.1",
     "@types/react": "^19.2.15",
-    "@types/react-dom": "^19.2.3"
+    "@types/react-dom": "^19.2.3",
+    "@typescript/native-preview": "^7.0.0-dev.20260523.1",
+    "bunchee": "^6.10.0",
+    "next": "^16.2.6",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "sugar-high": "^1.2.0",
+    "tailwindcss": "^4.3.0"
   }
 }

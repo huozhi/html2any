@@ -1,3 +1,5 @@
+import type { ElementNode, Token } from './types'
+
 const voidElementTags = [
   'area',
   'base',
@@ -15,11 +17,14 @@ const voidElementTags = [
   'wbr',
 ]
 
-function isSelfClose(tagName) {
+function isSelfClose(tagName: string) {
   return voidElementTags.indexOf(tagName.toLowerCase()) > -1
 }
 
-function isPair(tagX, tagY) {
+function isPair(tagX: ElementNode | undefined, tagY: Token) {
+  if (!tagX || tagY.type === 'string') {
+    return false
+  }
   return tagX.name === tagY.name && tagX.type === 'start' && tagY.type === 'end'
 }
 

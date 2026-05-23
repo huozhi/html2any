@@ -1,10 +1,11 @@
 import utils from './utils'
+import type { Attributes, AttributeValue, Token } from './types'
 
 const RAW_TEXT_TAGS = ['script', 'style', 'textarea', 'title']
 
-function extraAttrs(str) {
+function extraAttrs(str: string) {
   let i = 0
-  const attrs = {}
+  const attrs: Attributes = {}
 
   while (i < str.length) {
     while (/\s/.test(str[i])) i++
@@ -15,7 +16,7 @@ function extraAttrs(str) {
     const nameStart = i
     while (str[i] && !/[\s=/>]/.test(str[i])) i++
     const key = str.slice(nameStart, i)
-    let value = true
+    let value: AttributeValue = true
 
     while (/\s/.test(str[i])) i++
     if (str[i] === '=') {
@@ -44,7 +45,7 @@ function extraAttrs(str) {
   return attrs
 }
 
-function makeToken(tag) {
+function makeToken(tag: string): Token | null {
   const isTag = tag[0] === '<' && tag[tag.length - 1] === '>'
 
   if (!isTag) {
@@ -75,8 +76,8 @@ function makeToken(tag) {
   }
 }
 
-function findTagEnd(html, start) {
-  let quote = null
+function findTagEnd(html: string, start: number) {
+  let quote: string | null = null
 
   for (let i = start + 1; i < html.length; i++) {
     const curr = html[i]
@@ -92,7 +93,7 @@ function findTagEnd(html, start) {
   return -1
 }
 
-function getStartTagName(tag) {
+function getStartTagName(tag: string) {
   if (tag.startsWith('</') || tag.startsWith('<!') || tag.startsWith('<?')) {
     return null
   }
@@ -101,10 +102,10 @@ function getStartTagName(tag) {
   return match && match[1]
 }
 
-function splitTokens(html) {
+function splitTokens(html: string) {
   let i = 0
   let j = 0
-  const tokens = []
+  const tokens: string[] = []
   while (i < html.length) {
     const curr = html[i]
     if (curr === '<') {
@@ -158,13 +159,13 @@ function splitTokens(html) {
   return tokens
 }
 
-function tokenize(html) {
+function tokenize(html: string) {
   return splitTokens(html)
     .map(s => s.replace(/^\n+$/g, ''))
     .map(s => s.trim())
     .filter(Boolean)
     .map(makeToken)
-    .filter(Boolean)
+    .filter((token): token is Token => Boolean(token))
 }
 
 export default tokenize

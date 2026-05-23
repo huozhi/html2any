@@ -13,7 +13,7 @@ Options:
   --help        Show this help
 `
 
-function parseArgs(argv) {
+function parseArgs(argv: string[]) {
   const args = [...argv]
   const command = args.shift()
   let input = ''
@@ -33,7 +33,7 @@ function parseArgs(argv) {
   return { command, input, url }
 }
 
-function isUrl(value) {
+function isUrl(value: string) {
   return /^https?:\/\//i.test(value)
 }
 
@@ -45,7 +45,7 @@ async function readStdin() {
   return Buffer.concat(chunks).toString('utf8')
 }
 
-async function readInput(input) {
+async function readInput(input: string) {
   if (!input || input === '-') {
     return { html: await readStdin(), url: '' }
   }

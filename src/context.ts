@@ -1,4 +1,65 @@
 import parse from './parse'
+import type { AstNode, ElementNode } from './types'
+
+type TextOptions = {
+  preserveLines?: boolean
+}
+
+type PageContext = {
+  title: string
+  description: string
+  url: string
+}
+
+type LinkContext = {
+  label: string
+  href: string
+}
+
+type ActionContext = LinkContext & {
+  role: string
+  selector: string
+}
+
+type CodeExample = {
+  language: string
+  code: string
+  section: string
+}
+
+type SectionContext = {
+  heading: string
+  level: number
+  summary: string
+  content: string[]
+  code_examples: CodeExample[]
+  links: LinkContext[]
+}
+
+type FormField = {
+  name: string
+  label: string
+  type: string
+  required: boolean
+}
+
+type FormContext = {
+  fields: FormField[]
+  submit: Pick<ActionContext, 'label' | 'role'> | null
+}
+
+type ExtractedContext = {
+  page: PageContext
+  sections: SectionContext[]
+  actions: ActionContext[]
+  forms: FormContext[]
+  navigation: LinkContext[]
+  code_examples: CodeExample[]
+}
+
+type ExtractOptions = {
+  url?: string
+}
 
 const DROP_TAGS = new Set([
   'script',
@@ -31,16 +92,19 @@ const BLOCK_TAGS = new Set([
 const HEADING_TAGS = new Set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])
 const LIST_TAGS = new Set(['ul', 'ol'])
 
-function tagName(node) {
+function tagName(node: AstNode | undefined | null) {
+  if (!node || typeof node === 'string') {
+    return ''
+  }
   return typeof node === 'string' ? '' : String(node.name || '').toLowerCase()
 }
 
-function attrs(node) {
+function attrs(node: AstNode | undefined | null) {
   return node && typeof node !== 'string' ? node.attributes || {} : {}
 }
 
-function decodeEntity(entity) {
-  const named = {
+function decodeEntity(entity: string) {
+  const named: Record<string, string> = {
     amp: '&',
     apos: "'",
     gt: '>',
@@ -57,17 +121,17 @@ function decodeEntity(entity) {
   return Object.prototype.hasOwnProperty.call(named, entity) ? named[entity] : `&${entity};`
 }
 
-function decodeHtml(value) {
+function decodeHtml(value: string | boolean | undefined | null) {
   return String(value || '').replace(/&([a-zA-Z][a-zA-Z0-9]+|#[0-9]+|#x[0-9a-fA-F]+);/g, (_, entity) => decodeEntity(entity))
 }
 
-function compactText(value) {
+function compactText(value: string | boolean | undefined | null) {
   return decodeHtml(value)
     .replace(/\s+/g, ' ')
     .trim()
 }
 
-function compactLines(value) {
+function compactLines(value: string | undefined | null) {
   return decodeHtml(value)
     .replace(/\r\n?/g, '\n')
     .split('\n')
@@ -76,11 +140,11 @@ function compactLines(value) {
     .trim()
 }
 
-function compactInline(value) {
+function compactInline(value: string) {
   return compactText(value).replace(/\s+([.,;:!?])/g, '$1')
 }
 
-function isHidden(node) {
+function isHidden(node: AstNode | undefined | null) {
   const nodeAttrs = attrs(node)
   const style = String(nodeAttrs.style || '').toLowerCase()
   return nodeAttrs.hidden === true ||
@@ -89,15 +153,15 @@ function isHidden(node) {
     /visibility\s*:\s*hidden/.test(style)
 }
 
-function shouldDrop(node) {
+function shouldDrop(node: AstNode | undefined | null) {
   return DROP_TAGS.has(tagName(node)) || isHidden(node)
 }
 
-function childrenOf(node) {
+function childrenOf(node: AstNode | undefined | null): AstNode[] {
   return node && typeof node !== 'string' && Array.isArray(node.children) ? node.children : []
 }
 
-function textOf(node, options = {}) {
+function textOf(node: AstNode | undefined | null, options: TextOptions = {}): string {
   if (typeof node === 'string') {
     return options.preserveLines ? compactLines(node) : compactText(node)
   }
@@ -117,7 +181,7 @@ function textOf(node, options = {}) {
   return options.preserveLines ? compactLines(joined) : compactText(joined)
 }
 
-function inlineText(node, links) {
+function inlineText(node: AstNode | undefined | null, links: LinkContext[]): string {
   if (typeof node === 'string') {
     return compactText(node)
   }
@@ -150,11 +214,11 @@ function inlineText(node, links) {
   return compactInline(childrenOf(node).map(child => inlineText(child, links)).filter(Boolean).join(' '))
 }
 
-function escapeMarkdown(value) {
+function escapeMarkdown(value: string) {
   return String(value).replace(/([\[\]])/g, '\\$1')
 }
 
-function pushUnique(list, item, key) {
+function pushUnique<T>(list: T[], item: T | null | undefined, key: (item: T) => string) {
   if (!item || !key(item)) {
     return
   }
@@ -163,14 +227,14 @@ function pushUnique(list, item, key) {
   }
 }
 
-function extractMeta(roots, sourceUrl) {
-  const page = {
+function extractMeta(roots: AstNode[], sourceUrl: string) {
+  const page: PageContext = {
     title: '',
     description: '',
     url: sourceUrl || '',
   }
 
-  function visit(node) {
+  function visit(node: AstNode) {
     if (!node || typeof node === 'string') {
       return
     }
@@ -198,9 +262,9 @@ function extractMeta(roots, sourceUrl) {
   return page
 }
 
-function extractRows(node) {
-  const rows = []
-  function visit(rowNode) {
+function extractRows(node: AstNode) {
+  const rows: string[][] = []
+  function visit(rowNode: AstNode) {
     if (!rowNode || typeof rowNode === 'string' || shouldDrop(rowNode)) {
       return
     }
@@ -220,7 +284,7 @@ function extractRows(node) {
   return rows
 }
 
-function tableToMarkdown(rows) {
+function tableToMarkdown(rows: string[][]) {
   if (!rows.length) {
     return ''
   }
@@ -233,12 +297,12 @@ function tableToMarkdown(rows) {
     .join('\n')
 }
 
-function listToMarkdown(node, depth = 0) {
+function listToMarkdown(node: AstNode, depth = 0): string {
   const ordered = tagName(node) === 'ol'
   return childrenOf(node)
     .filter(child => tagName(child) === 'li')
     .map((child, index) => {
-      const links = []
+      const links: LinkContext[] = []
       const direct = childrenOf(child)
         .filter(grandchild => !LIST_TAGS.has(tagName(grandchild)))
         .map(grandchild => inlineText(grandchild, links))
@@ -257,7 +321,7 @@ function listToMarkdown(node, depth = 0) {
     .join('\n')
 }
 
-function fieldFromInput(node) {
+function fieldFromInput(node: AstNode) {
   const name = tagName(node)
   const nodeAttrs = attrs(node)
   if (!['input', 'select', 'textarea'].includes(name)) {
@@ -274,11 +338,11 @@ function fieldFromInput(node) {
   }
 }
 
-function extractForm(node) {
-  const fields = []
-  const submit = []
+function extractForm(node: AstNode) {
+  const fields: FormField[] = []
+  const submit: Pick<ActionContext, 'label' | 'role'>[] = []
 
-  function visit(child) {
+  function visit(child: AstNode) {
     if (!child || typeof child === 'string' || shouldDrop(child)) {
       return
     }
@@ -304,7 +368,7 @@ function extractForm(node) {
   }
 }
 
-function createSection(heading = '', level = 1) {
+function createSection(heading = '', level = 1): SectionContext {
   return {
     heading,
     level,
@@ -315,14 +379,14 @@ function createSection(heading = '', level = 1) {
   }
 }
 
-function extractContext(html, options = {}) {
+function extractContext(html: string, options: ExtractOptions = {}): ExtractedContext {
   const roots = parse(html)
   const page = extractMeta(roots, options.url || '')
-  const sections = []
-  const actions = []
-  const forms = []
-  const navigation = []
-  const codeExamples = []
+  const sections: SectionContext[] = []
+  const actions: ActionContext[] = []
+  const forms: FormContext[] = []
+  const navigation: LinkContext[] = []
+  const codeExamples: CodeExample[] = []
   let current = createSection('', 1)
 
   function commitSection() {
@@ -332,14 +396,14 @@ function extractContext(html, options = {}) {
     }
   }
 
-  function addContent(value) {
+  function addContent(value: string) {
     const text = compactLines(value)
     if (text && !current.content.includes(text)) {
       current.content.push(text)
     }
   }
 
-  function addCode(code, language = '') {
+  function addCode(code: string, language = '') {
     const cleanCode = compactLines(code)
     if (!cleanCode) {
       return
@@ -353,7 +417,7 @@ function extractContext(html, options = {}) {
     codeExamples.push(item)
   }
 
-  function visit(node, inChrome = false) {
+  function visit(node: AstNode, inChrome = false) {
     if (!node || typeof node === 'string' || shouldDrop(node)) {
       return
     }
@@ -405,7 +469,7 @@ function extractContext(html, options = {}) {
       collectAction(node, actions)
     }
     if (name === 'p' || name === 'blockquote' || name === 'summary' || name === 'figcaption') {
-      const links = []
+      const links: LinkContext[] = []
       const text = inlineText(node, links)
       links.forEach(link => pushUnique(current.links, link, item => `${item.label}\n${item.href}`))
       addContent(text)
@@ -422,7 +486,7 @@ function extractContext(html, options = {}) {
         return HEADING_TAGS.has(childName) || LIST_TAGS.has(childName) || ['p', 'pre', 'table', 'form'].includes(childName)
       })
       if (!hasStructuredChild && textOf(node)) {
-        const links = []
+        const links: LinkContext[] = []
         const text = inlineText(node, links)
         links.forEach(link => pushUnique(current.links, link, item => `${item.label}\n${item.href}`))
         addContent(text)
@@ -446,7 +510,7 @@ function extractContext(html, options = {}) {
   }
 }
 
-function collectNavigation(node, navigation) {
+function collectNavigation(node: AstNode, navigation: LinkContext[]) {
   if (!node || typeof node === 'string' || shouldDrop(node)) {
     return
   }
@@ -460,7 +524,7 @@ function collectNavigation(node, navigation) {
   childrenOf(node).forEach(child => collectNavigation(child, navigation))
 }
 
-function collectAction(node, actions) {
+function collectAction(node: AstNode, actions: ActionContext[]) {
   const name = tagName(node)
   const nodeAttrs = attrs(node)
   const label = compactText(textOf(node) || nodeAttrs.value || nodeAttrs['aria-label'] || nodeAttrs.title || '')
@@ -471,12 +535,12 @@ function collectAction(node, actions) {
       label,
       role,
       href,
-      selector: selectorFor(node),
+      selector: selectorFor(node as ElementNode),
     }, item => `${item.label}\n${item.href}\n${item.role}`)
   }
 }
 
-function collectActions(node, actions) {
+function collectActions(node: AstNode, actions: ActionContext[]) {
   if (!node || typeof node === 'string' || shouldDrop(node)) {
     return
   }
@@ -486,7 +550,7 @@ function collectActions(node, actions) {
   childrenOf(node).forEach(child => collectActions(child, actions))
 }
 
-function selectorFor(node) {
+function selectorFor(node: ElementNode) {
   const nodeAttrs = attrs(node)
   if (nodeAttrs.id) {
     return `#${nodeAttrs.id}`
@@ -500,8 +564,8 @@ function selectorFor(node) {
   return tagName(node)
 }
 
-function renderMarkdown(context) {
-  const lines = []
+function renderMarkdown(context: ExtractedContext) {
+  const lines: string[] = []
   if (context.page.title) {
     lines.push(`# ${context.page.title}`)
   }
@@ -527,7 +591,7 @@ function renderMarkdown(context) {
   return `${lines.filter((line, index) => line !== '' || lines[index - 1] !== '').join('\n').trim()}\n`
 }
 
-function htmlToMarkdown(html, options = {}) {
+function htmlToMarkdown(html: string, options: ExtractOptions = {}) {
   return renderMarkdown(extractContext(html, options))
 }
 
