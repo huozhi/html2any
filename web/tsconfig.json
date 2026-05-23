@@ -28,7 +28,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "../src/**/*.js",
+    "../src/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
   "exclude": [

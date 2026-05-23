@@ -16,6 +16,7 @@ const docsHtml = `
       <p>Install with <code>npm install example</code>.</p>
       <h2>Config</h2>
       <p>Read the <a href="/docs/config">config guide</a>.</p>
+      <p>Don&rsquo;t keep docs &mdash; examples encoded.</p>
       <ul><li>Set <code>mode</code></li><li>Run build</li></ul>
       <pre><code class="language-js">export default { mode: 'strict' }</code></pre>
       <table><tr><th>Option</th><th>Meaning</th></tr><tr><td>mode</td><td>Compiler mode</td></tr></table>
@@ -51,6 +52,7 @@ it('extracts compact agent context from docs html', () => {
         summary: 'Read the [config guide](/docs/config).',
         content: [
           'Read the [config guide](/docs/config).',
+          "Don't keep docs -- examples encoded.",
           '- Set `mode`\n- Run build',
           '| Option | Meaning |\n| --- | --- |\n| mode | Compiler mode |',
         ],

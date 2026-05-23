@@ -107,9 +107,19 @@ function decodeEntity(entity: string) {
   const named: Record<string, string> = {
     amp: '&',
     apos: "'",
+    copy: '(c)',
+    hellip: '...',
     gt: '>',
     lt: '<',
+    mdash: '--',
     nbsp: ' ',
+    ndash: '-',
+    reg: '(r)',
+    rsquo: "'",
+    lsquo: "'",
+    rdquo: '"',
+    ldquo: '"',
+    trade: '(tm)',
     quot: '"',
   }
   if (entity[0] === '#') {

@@ -11,6 +11,8 @@ Install with \`npm install example\`.
 
 Read the [config guide](/docs/config).
 
+Don't keep docs -- examples encoded.
+
 - Set \`mode\`
 - Run build
 

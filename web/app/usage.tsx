@@ -1,6 +1,6 @@
 import { Fragment } from 'react'
 import type { JSX, ReactNode } from 'react'
-import html2any from '../../src/index.js'
+import html2any from '../../src/index'
 import { highlight } from 'sugar-high'
 
 const github = `https://github.com/huozhi/html2any`

@@ -1,29 +1,12 @@
 'use client'
 
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import type { CSSProperties, FormEvent, JSX, MouseEvent, ReactNode } from 'react'
-import { parse } from '../../src/index.js'
+import type { FormEvent, JSX, MouseEvent, ReactNode } from 'react'
+import { htmlToMarkdown } from '../../src/context'
 
-const DEFAULT_URL = 'http://example.com'
+const DEFAULT_URL = 'https://huozhi.im/crafts'
 
 type AttrValue = string | boolean
-type Attributes = Record<string, AttrValue | undefined>
-type HtmlNode = {
-  attributes?: Attributes
-  children?: HtmlTree
-  index?: number
-  name: string
-}
-type HtmlTree = Array<HtmlNode | string>
-type TagAttr = {
-  name: string
-  value: string
-}
-type TagRow = {
-  attrs: TagAttr[]
-  depth: number
-  tag: string
-}
 type HistoryMode = 'move' | 'push' | 'replace'
 type LoadOptions = {
   historyIndex?: number
@@ -52,18 +35,18 @@ const bookmarks: Bookmark[] = [
   },
   {
     icon: 'E',
-    label: 'example.com',
-    url: 'http://example.com',
+    label: 'google.com',
+    url: 'https://www.google.com',
   },
   {
     icon: 'W',
     label: 'swr',
-    url: 'https://swr.vercel.app/',
+    url: 'https://swr.vercel.app',
   },
   {
     icon: 'Y',
     label: 'hacker news',
-    url: 'https://news.ycombinator.com/',
+    url: 'https://news.ycombinator.com',
   },
 ]
 
@@ -210,6 +193,139 @@ function textAttr(value: AttrValue | undefined) {
   return typeof value === 'string' ? value : ''
 }
 
+function booleanAttr(element: Element, name: string) {
+  return element.hasAttribute(name)
+}
+
+function stringAttr(element: Element, name: string) {
+  const value = element.getAttribute(name)
+  return value == null ? undefined : value
+}
+
+function assignStringAttr(props: Record<string, unknown>, element: Element, attr: string, prop = attr) {
+  const value = stringAttr(element, attr)
+  if (value != null) {
+    props[prop] = value
+  }
+}
+
+function selectedOptionValues(element: Element) {
+  return Array.from(element.querySelectorAll('option'))
+    .filter(option => option.hasAttribute('selected'))
+    .map(option => option.getAttribute('value') ?? option.textContent ?? '')
+}
+
+function getDisplayProps(element: Element, tagName: string, baseUrl: string) {
+  const props: Record<string, unknown> = {}
+
+  assignStringAttr(props, element, 'title')
+  if (element.hasAttribute('hidden')) {
+    props.hidden = true
+  }
+
+  if (tagName === 'input') {
+    assignStringAttr(props, element, 'type')
+    assignStringAttr(props, element, 'placeholder')
+    assignStringAttr(props, element, 'value', 'defaultValue')
+    assignStringAttr(props, element, 'min')
+    assignStringAttr(props, element, 'max')
+    assignStringAttr(props, element, 'step')
+    assignStringAttr(props, element, 'size')
+    assignStringAttr(props, element, 'maxlength', 'maxLength')
+    assignStringAttr(props, element, 'pattern')
+    assignStringAttr(props, element, 'autocomplete', 'autoComplete')
+    assignStringAttr(props, element, 'inputmode', 'inputMode')
+    props.defaultChecked = booleanAttr(element, 'checked')
+    props.disabled = booleanAttr(element, 'disabled')
+    props.readOnly = booleanAttr(element, 'readonly')
+    props.required = booleanAttr(element, 'required')
+    props.multiple = booleanAttr(element, 'multiple')
+    return props
+  }
+
+  if (tagName === 'textarea') {
+    assignStringAttr(props, element, 'placeholder')
+    assignStringAttr(props, element, 'rows')
+    assignStringAttr(props, element, 'cols')
+    assignStringAttr(props, element, 'maxlength', 'maxLength')
+    props.defaultValue = element.getAttribute('value') ?? element.textContent ?? ''
+    props.disabled = booleanAttr(element, 'disabled')
+    props.readOnly = booleanAttr(element, 'readonly')
+    props.required = booleanAttr(element, 'required')
+    return props
+  }
+
+  if (tagName === 'select') {
+    assignStringAttr(props, element, 'size')
+    const selected = selectedOptionValues(element)
+    props.defaultValue = booleanAttr(element, 'multiple') ? selected : selected[0]
+    props.disabled = booleanAttr(element, 'disabled')
+    props.required = booleanAttr(element, 'required')
+    props.multiple = booleanAttr(element, 'multiple')
+    return props
+  }
+
+  if (tagName === 'option') {
+    assignStringAttr(props, element, 'value')
+    assignStringAttr(props, element, 'label')
+    props.disabled = booleanAttr(element, 'disabled')
+    return props
+  }
+
+  if (tagName === 'button') {
+    assignStringAttr(props, element, 'type')
+    assignStringAttr(props, element, 'value')
+    props.disabled = booleanAttr(element, 'disabled')
+    return props
+  }
+
+  if (tagName === 'progress' || tagName === 'meter') {
+    for (const attr of ['value', 'min', 'max', 'low', 'high', 'optimum']) {
+      assignStringAttr(props, element, attr)
+    }
+    return props
+  }
+
+  if (tagName === 'details') {
+    props.open = booleanAttr(element, 'open')
+    return props
+  }
+
+  if (tagName === 'ol') {
+    assignStringAttr(props, element, 'start')
+    assignStringAttr(props, element, 'type')
+    props.reversed = booleanAttr(element, 'reversed')
+    return props
+  }
+
+  if (tagName === 'li') {
+    assignStringAttr(props, element, 'value')
+    return props
+  }
+
+  if (tagName === 'td' || tagName === 'th') {
+    assignStringAttr(props, element, 'colspan', 'colSpan')
+    assignStringAttr(props, element, 'rowspan', 'rowSpan')
+    return props
+  }
+
+  if (tagName === 'video' || tagName === 'audio') {
+    const src = resolveBrowserUrl(element.getAttribute('src') || undefined, baseUrl)
+    if (src) {
+      props.src = src
+    }
+    props.controls = booleanAttr(element, 'controls')
+    props.loop = booleanAttr(element, 'loop')
+    props.muted = booleanAttr(element, 'muted')
+    assignStringAttr(props, element, 'width')
+    assignStringAttr(props, element, 'height')
+    assignStringAttr(props, element, 'poster')
+    return props
+  }
+
+  return props
+}
+
 function renderBrowserContent(html: string, baseUrl: string, onNavigate: (url: string) => void) {
   if (!html || typeof DOMParser === 'undefined') {
     return []
@@ -279,6 +395,8 @@ function renderDomNode(node: ChildNode, baseUrl: string, onNavigate: (url: strin
         src={src}
         alt={textAttr(element.getAttribute('alt') || undefined)}
         title={textAttr(element.getAttribute('title') || undefined)}
+        width={textAttr(element.getAttribute('width') || undefined)}
+        height={textAttr(element.getAttribute('height') || undefined)}
         loading="lazy"
         decoding="async"
       />
@@ -287,80 +405,15 @@ function renderDomNode(node: ChildNode, baseUrl: string, onNavigate: (url: strin
 
   if (voidBrowserTags.includes(tagName)) {
     const Tag = tagName as keyof JSX.IntrinsicElements
-    return <Tag key={index} />
+    return <Tag key={index} {...getDisplayProps(element, tagName, baseUrl)} />
   }
 
   if (nativeBrowserTags.includes(tagName)) {
     const Tag = tagName as keyof JSX.IntrinsicElements
-    return <Tag key={index}>{children}</Tag>
+    return <Tag key={index} {...getDisplayProps(element, tagName, baseUrl)}>{children}</Tag>
   }
 
   return <Fragment key={index}>{children}</Fragment>
-}
-
-function formatAttrValue(name: string, value: AttrValue | undefined) {
-  if (value === true) {
-    return 'true'
-  }
-
-  const text = String(value).replace(/\s+/g, ' ').trim()
-  const limit = name === 'class' || name === 'className' ? 28 : 40
-
-  return text.length > limit ? `${text.slice(0, limit - 1)}...` : text
-}
-
-function collectAttrs(attrs: Attributes): TagAttr[] {
-  return Object.entries(attrs)
-    .slice(0, 4)
-    .map(([name, value]) => ({
-      name,
-      value: formatAttrValue(name, value),
-    }))
-}
-
-function collectTagRows(nodes: HtmlTree | undefined, rows: TagRow[] = [], depth = 0): TagRow[] {
-  if (!Array.isArray(nodes)) {
-    return rows
-  }
-
-  for (const node of nodes) {
-    if (rows.length >= 80) {
-      break
-    }
-
-    if (typeof node === 'string') {
-      continue
-    }
-
-    const attrs = node.attributes || {}
-    rows.push({
-      attrs: collectAttrs(attrs),
-      depth,
-      tag: node.name,
-    })
-
-    collectTagRows(node.children, rows, depth + 1)
-  }
-
-  return rows
-}
-
-function ParsedTags({ ast }: { ast: HtmlTree }) {
-  const rows = collectTagRows(ast)
-
-  return (
-    <ol className="tag-list">
-      {rows.map((row, index) => (
-        <li key={`${row.tag}-${index}`} style={{ '--depth': row.depth } as CSSProperties}>
-          <span>- </span>
-          <strong>{row.tag}</strong>
-          {row.attrs.map((attr) => (
-            <span className="tag-attr" key={attr.name}> {attr.name}={attr.value}</span>
-          ))}
-        </li>
-      ))}
-    </ol>
-  )
 }
 
 export default function Browser() {
@@ -373,7 +426,8 @@ export default function Browser() {
     index: -1,
   })
   const [isLoading, setIsLoading] = useState(false)
-  const [showParsedTags, setShowParsedTags] = useState(false)
+  const [showAgentContext, setShowAgentContext] = useState(false)
+  const agentContextRef = useRef<HTMLPreElement | null>(null)
   const abortControllerRef = useRef<AbortController | null>(null)
   const didAutoLoadRef = useRef(false)
 
@@ -459,14 +513,13 @@ export default function Browser() {
 
   const parsed = useMemo(() => {
     try {
-      const ast = parse(html)
       return {
-        ast: ast as HtmlTree,
+        agentMarkdown: html ? htmlToMarkdown(html, { url: loadedUrl }) : '',
         content: renderBrowserContent(html, loadedUrl, navigateToUrl),
       }
     } catch (error) {
       return {
-        ast: [],
+        agentMarkdown: '',
         content: <p className="error">Could not parse this HTML: {getErrorMessage(error)}</p>,
       }
     }
@@ -495,6 +548,26 @@ export default function Browser() {
     }
 
     loadTargetUrl(url)
+  }
+
+  function selectAgentContext() {
+    const node = agentContextRef.current
+    if (!node || typeof window === 'undefined') {
+      return
+    }
+
+    const selection = window.getSelection()
+    const range = document.createRange()
+    range.selectNodeContents(node)
+    selection?.removeAllRanges()
+    selection?.addRange(range)
+  }
+
+  function handleAgentKeyDown(event: React.KeyboardEvent<HTMLPreElement>) {
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'a') {
+      event.preventDefault()
+      selectAgentContext()
+    }
   }
 
   const trimmedAddress = address.trim()
@@ -571,7 +644,7 @@ export default function Browser() {
               inputMode="url"
               value={address}
               onChange={(event) => setAddress(event.target.value)}
-              placeholder="http://example.com"
+              placeholder="https://www.google.com"
               autoCapitalize="none"
               autoCorrect="off"
               spellCheck={false}
@@ -621,14 +694,14 @@ export default function Browser() {
             </div>
             <button
               type="button"
-              className={`inline-flex h-6 flex-none cursor-pointer items-center gap-1 rounded-none border-2 border-[var(--ink)] px-2 font-mono text-[11px] font-black uppercase leading-none ${showParsedTags ? 'bg-[var(--ink)] text-white' : 'bg-[var(--panel)] text-[var(--ink)]'}`}
-              aria-pressed={showParsedTags}
-              aria-controls="browser-tags"
-              aria-label={`${showParsedTags ? 'Hide' : 'Show'} parsed AST`}
-              onClick={() => setShowParsedTags((value) => !value)}
+              className={`inline-flex h-6 flex-none cursor-pointer items-center gap-1 rounded-none border-2 border-[var(--ink)] px-2 font-mono text-[11px] font-black uppercase leading-none ${showAgentContext ? 'bg-[var(--ink)] text-white' : 'bg-[var(--panel)] text-[var(--ink)]'}`}
+              aria-pressed={showAgentContext}
+              aria-controls="browser-agent"
+              aria-label={`${showAgentContext ? 'Hide' : 'Show'} agent Markdown`}
+              onClick={() => setShowAgentContext((value) => !value)}
             >
-              <span>AST</span>
-              <span aria-hidden="true">{showParsedTags ? '-' : '+'}</span>
+              <span>AGENT</span>
+              <span aria-hidden="true">{showAgentContext ? '-' : '+'}</span>
             </button>
           </div>
 
@@ -636,8 +709,14 @@ export default function Browser() {
             <div className="rendered browser-content" data-preview-reset>
               {browserError ? <p className="error">{browserError}</p> : parsed.content}
             </div>
-            <div id="browser-tags" className={`parsed-tags browser-tags-overlay ${showParsedTags ? 'is-visible' : ''}`} aria-hidden={!showParsedTags}>
-              <ParsedTags ast={parsed.ast} />
+            <div id="browser-agent" className={`agent-context browser-agent-overlay ${showAgentContext ? 'is-visible' : ''}`} aria-hidden={!showAgentContext}>
+              <pre
+                ref={agentContextRef}
+                tabIndex={showAgentContext ? 0 : -1}
+                onKeyDown={handleAgentKeyDown}
+              >
+                {parsed.agentMarkdown || 'No agent context available.'}
+              </pre>
             </div>
           </div>
         </section>

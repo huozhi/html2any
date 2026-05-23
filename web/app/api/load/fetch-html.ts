@@ -1,4 +1,5 @@
 const MAX_BYTES = 500000
+const DEFAULT_ENCODING = 'utf-8'
 
 export class LoadUrlError extends Error {
   status: number
@@ -42,6 +43,40 @@ function normalizeUrl(value: string) {
   return new URL(`http://${trimmedUrl}`)
 }
 
+function getCharsetFromContentType(contentType: string) {
+  const match = contentType.match(/charset\s*=\s*["']?([^;"'\s]+)/i)
+  return match ? match[1].trim().toLowerCase() : ''
+}
+
+function getCharsetFromMeta(htmlStart: string) {
+  const charsetMatch = htmlStart.match(/<meta[^>]+charset\s*=\s*["']?\s*([^"'\s/>]+)/i)
+  if (charsetMatch) {
+    return charsetMatch[1].trim().toLowerCase()
+  }
+
+  const contentTypeMatch = htmlStart.match(/<meta[^>]+http-equiv\s*=\s*["']?content-type["']?[^>]+content\s*=\s*["'][^"']*charset\s*=\s*([^"'\s;>]+)/i)
+  return contentTypeMatch ? contentTypeMatch[1].trim().toLowerCase() : ''
+}
+
+function decodeBytes(bytes: Uint8Array, encoding: string) {
+  try {
+    return new TextDecoder(encoding).decode(bytes)
+  } catch {
+    return new TextDecoder(DEFAULT_ENCODING).decode(bytes)
+  }
+}
+
+function decodeHtml(bytes: Uint8Array, contentType: string) {
+  const headerCharset = getCharsetFromContentType(contentType)
+  if (headerCharset) {
+    return decodeBytes(bytes, headerCharset)
+  }
+
+  const htmlStart = decodeBytes(bytes.slice(0, 4096), DEFAULT_ENCODING)
+  const metaCharset = getCharsetFromMeta(htmlStart)
+  return decodeBytes(bytes, metaCharset || DEFAULT_ENCODING)
+}
+
 export async function fetchHtmlUrl(value: string | null): Promise<FetchHtmlResult> {
   if (!value) {
     throw new LoadUrlError('URL is required.', 400)
@@ -76,16 +111,18 @@ export async function fetchHtmlUrl(value: string | null): Promise<FetchHtmlResul
       throw new LoadUrlError(`Expected HTML, received ${contentType}.`, 415)
     }
 
-    const html = await response.text()
-    const limitedHtml = html.slice(0, MAX_BYTES)
+    const buffer = await response.arrayBuffer()
+    const bytes = new Uint8Array(buffer)
+    const limitedBytes = bytes.slice(0, MAX_BYTES)
+    const html = decodeHtml(limitedBytes, contentType)
 
     return {
-      html: limitedHtml,
+      html,
       url: response.url || url.toString(),
-      bytes: limitedHtml.length,
+      bytes: limitedBytes.byteLength,
       responseOk: response.ok,
       responseStatus: response.status,
-      truncated: html.length > MAX_BYTES,
+      truncated: bytes.byteLength > MAX_BYTES,
       upstreamMitigation: response.headers.get('x-vercel-mitigated') || '',
     }
   } catch (error) {

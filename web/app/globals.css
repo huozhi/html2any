@@ -139,7 +139,7 @@ main {
 
 .raw-code,
 .rendered,
-.parsed-tags {
+.agent-context {
   box-sizing: border-box;
   width: 100%;
   height: min(640px, 70vh);
@@ -205,33 +205,25 @@ main {
   font-weight: 900;
 }
 
-.parsed-tags {
+.agent-context {
   background: var(--panel);
   overflow-x: auto;
 }
 
-.tag-list {
+.agent-context pre {
   margin: 0;
   padding: 0;
-  list-style: none;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
-  font-size: 0.9rem;
-  line-height: 1.7;
-}
-
-.tag-list li {
-  padding-left: calc(var(--depth) * 18px);
-  max-width: 100%;
-  white-space: normal;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
   overflow-wrap: anywhere;
+  outline: none;
 }
 
-.tag-list strong {
-  font-weight: 900;
-}
-
-.tag-attr {
-  color: #555;
+.agent-context pre:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 4px;
 }
 
 code {
@@ -377,7 +369,7 @@ code {
   max-width: none;
 }
 
-.parsed-tags.browser-tags-overlay {
+.agent-context.browser-agent-overlay {
   position: absolute;
   inset: 0;
   z-index: 2;
@@ -387,7 +379,7 @@ code {
   border-top: 0;
 }
 
-.parsed-tags.browser-tags-overlay.is-visible {
+.agent-context.browser-agent-overlay.is-visible {
   display: block;
 }
 
@@ -480,7 +472,7 @@ code {
 
   .raw-code,
   .rendered,
-  .parsed-tags {
+  .agent-context {
     height: min(460px, 62vh);
     padding: 14px;
   }

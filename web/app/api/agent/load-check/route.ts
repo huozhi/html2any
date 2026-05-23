@@ -1,4 +1,4 @@
-import { parse } from '../../../../../src/index.js'
+import { parse } from '../../../../../src/index'
 import { fetchHtmlUrl, LoadUrlError } from '../../load/fetch-html'
 
 type AttrValue = string | boolean
