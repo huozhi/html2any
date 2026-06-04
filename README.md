@@ -1,6 +1,6 @@
 # html2any
 
-[![npm version](https://badge.fury.io/js/html2any.svg)](https://badge.fury.io/js/html2any)
+[![npm version](https://img.shields.io/npm/v/html2any?style=flat&colorA=000000&colorB=000000)](https://npmjs.com/html2any)
 
 > Compile messy HTML into compact context for AI agents.
 
