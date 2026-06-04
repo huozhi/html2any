@@ -47,7 +47,7 @@
     "@types/react": "^19.2.15",
     "@types/react-dom": "^19.2.3",
     "@typescript/native-preview": "^7.0.0-dev.20260523.1",
-    "bunchee": "^6.10.0",
+    "bunchee": "^6.11.0",
     "next": "^16.2.6",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
