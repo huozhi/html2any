@@ -19,6 +19,7 @@
   },
   "type": "module",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "bin": {
     "html2any": "dist/bin/html2any.js",
     "html2": "dist/bin/html2.js"
