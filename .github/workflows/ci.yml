@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install
+        run: bun install --frozen-lockfile
+
+      - name: Typecheck
+        run: bun run typecheck
+
+      - name: Test
+        run: bun test
+
+      - name: Build package
+        run: bun run build
+
+      - name: Check scriptc static coverage
+        run: bun run scriptc:coverage
+
+      - name: Build native CLI
+        run: bunx scriptc build src/bin/html2any.ts -o /tmp/html2any-native --no-keep-c
+
+      - name: Smoke test native CLI
+        run: bun scripts/smoke-native.mjs /tmp/html2any-native

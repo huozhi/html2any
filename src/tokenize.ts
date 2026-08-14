@@ -1,4 +1,4 @@
-import utils from './utils'
+import { isSelfClose } from './utils'
 import type { Attributes, AttributeValue, Token } from './types'
 
 const RAW_TEXT_TAGS = ['script', 'style', 'textarea', 'title']
@@ -69,7 +69,7 @@ function makeToken(tag: string): Token | null {
     const tagName = match[1]
     const tagBody = body.slice(tagName.length)
     return {
-      type: (utils.isSelfClose(tagName) || tagBody[tagBody.length - 1] === '/') ? 'self-close' : 'start',
+      type: (isSelfClose(tagName) || tagBody[tagBody.length - 1] === '/') ? 'self-close' : 'start',
       name: tagName,
       attributes: extraAttrs(tagBody),
     }
@@ -99,7 +99,10 @@ function getStartTagName(tag: string) {
   }
 
   const match = tag.slice(1, -1).trim().match(/^([^\s/>]+)/)
-  return match && match[1]
+  if (match === null) {
+    return null
+  }
+  return match[1]
 }
 
 function splitTokens(html: string) {
@@ -109,7 +112,7 @@ function splitTokens(html: string) {
   while (i < html.length) {
     const curr = html[i]
     if (curr === '<') {
-      if (html.startsWith('<!--', i)) {
+      if (html.slice(i, i + 4) === '<!--') {
         const k = html.indexOf('-->', i + 4)
         if (k === -1) break
         if (j < i) {
@@ -159,13 +162,20 @@ function splitTokens(html: string) {
   return tokens
 }
 
-function tokenize(html: string) {
-  return splitTokens(html)
-    .map(s => s.replace(/^\n+$/g, ''))
-    .map(s => s.trim())
-    .filter(Boolean)
-    .map(makeToken)
-    .filter((token): token is Token => Boolean(token))
+export function tokenize(html: string) {
+  const tokens: Token[] = []
+  const parts = splitTokens(html)
+  for (const part of parts) {
+    const value = part.replace(/^\n+$/g, '').trim()
+    if (!value) {
+      continue
+    }
+    const token = makeToken(value)
+    if (token !== null) {
+      tokens.push(token)
+    }
+  }
+  return tokens
 }
 
 export default tokenize

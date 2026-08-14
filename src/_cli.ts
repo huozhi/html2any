@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 
+import { readFileSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
-import path from 'node:path'
+import { resolve } from 'node:path'
 import { htmlToMarkdown } from './context.js'
 
 const USAGE = `Usage:
@@ -13,7 +14,14 @@ Options:
   --help        Show this help
 `
 
-function parseArgs(argv: string[]) {
+type ParsedArgs = {
+  command: string
+  input: string
+  url: string
+  help: boolean
+}
+
+function parseArgs(argv: string[]): ParsedArgs {
   const args = [...argv]
   const command = args.shift()
   let input = ''
@@ -24,13 +32,13 @@ function parseArgs(argv: string[]) {
     if (arg === '--url') {
       url = args[++index] || ''
     } else if (arg === '--help' || arg === '-h') {
-      return { help: true }
+      return { command: '', input: '', url: '', help: true }
     } else if (!input) {
       input = arg
     }
   }
 
-  return { command, input, url }
+  return { command: command || '', input, url, help: false }
 }
 
 function isUrl(value: string) {
@@ -38,11 +46,7 @@ function isUrl(value: string) {
 }
 
 async function readStdin() {
-  const chunks = []
-  for await (const chunk of process.stdin) {
-    chunks.push(chunk)
-  }
-  return Buffer.concat(chunks).toString('utf8')
+  return readFileSync(0, 'utf8')
 }
 
 async function readInput(input: string) {
@@ -61,7 +65,7 @@ async function readInput(input: string) {
     }
     return { html: await response.text(), url: input }
   }
-  return { html: await readFile(input, 'utf8'), url: path.resolve(input) }
+  return { html: await readFile(input, 'utf8'), url: resolve(input) }
 }
 
 async function main() {
@@ -82,7 +86,8 @@ async function main() {
   process.stdout.write(htmlToMarkdown(input.html, options))
 }
 
-main().catch(error => {
-  process.stderr.write(`${error.message}\n`)
+main().catch((error: unknown) => {
+  const message = error instanceof Error ? error.message : String(error)
+  process.stderr.write(`${message}\n`)
   process.exit(1)
 })

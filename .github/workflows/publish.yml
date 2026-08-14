@@ -40,3 +40,66 @@ jobs:
 
       - name: Publish to npm
         run: npm publish --access public
+
+  binaries:
+    name: Binary (${{ matrix.name }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux x64
+            os: ubuntu-24.04
+            artifact: html2any-linux-x64.tar.gz
+          - name: macOS arm64
+            os: macos-15
+            artifact: html2any-darwin-arm64.tar.gz
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install
+        run: bun install --frozen-lockfile
+
+      - name: Check scriptc static coverage
+        run: bun run scriptc:coverage
+
+      - name: Build and package binary
+        run: |
+          mkdir -p release
+          bunx scriptc build src/bin/html2any.ts -o release/html2any --no-keep-c
+          bun scripts/smoke-native.mjs release/html2any
+          tar -czf "release/${{ matrix.artifact }}" -C release html2any
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: release/${{ matrix.artifact }}
+          if-no-files-found: error
+
+  release-binaries:
+    name: Attach binaries to release
+    if: github.event_name == 'release'
+    needs: binaries
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - name: Download binaries
+        uses: actions/download-artifact@v4
+        with:
+          path: release
+          merge-multiple: true
+
+      - name: Generate checksums
+        working-directory: release
+        run: sha256sum * > SHA256SUMS
+
+      - name: Upload release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ github.event.release.tag_name }}" release/* --clobber

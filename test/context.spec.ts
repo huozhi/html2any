@@ -128,3 +128,7 @@ it('extracts compact agent context from docs html', () => {
 it('renders markdown for token-friendly docs context', () => {
   expect(htmlToMarkdown(docsHtml, { url: 'https://example.test/docs' })).toMatchSnapshot()
 })
+
+it('decodes decimal, hexadecimal, and astral numeric entities', () => {
+  expect(htmlToMarkdown('<p>&#65; &#x42; &#x1F680; &unknown;</p>')).toBe('A B 🚀 &unknown;\n')
+})

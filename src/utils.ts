@@ -17,15 +17,15 @@ const voidElementTags = [
   'wbr',
 ]
 
-function isSelfClose(tagName: string) {
+export function isSelfClose(tagName: string) {
   return voidElementTags.indexOf(tagName.toLowerCase()) > -1
 }
 
-function isPair(tagX: ElementNode | undefined, tagY: Token) {
+export function isPair(tagX: ElementNode | undefined, tagY: Token) {
   if (!tagX || tagY.type === 'string') {
     return false
   }
-  return tagX.name === tagY.name && tagX.type === 'start' && tagY.type === 'end'
+  return tagX.type === 'start' && tagY.type === 'end' && tagX.name === tagY.name
 }
 
 export default { isPair, isSelfClose }

@@ -1,6 +1,6 @@
 export type AttributeValue = string | boolean
 
-export type Attributes = Record<string, AttributeValue>
+export type Attributes = Record<string, AttributeValue | undefined>
 
 export type TextNode = string
 

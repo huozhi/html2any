@@ -1,4 +1,4 @@
-import parse from './parse'
+import { parse } from './parse'
 import type { AstNode, ElementNode } from './types'
 
 type TextOptions = {
@@ -100,11 +100,11 @@ function tagName(node: AstNode | undefined | null) {
 }
 
 function attrs(node: AstNode | undefined | null) {
-  return node && typeof node !== 'string' ? node.attributes || {} : {}
+  return node && typeof node !== 'string' ? node.attributes : {}
 }
 
 function decodeEntity(entity: string) {
-  const named: Record<string, string> = {
+  const named: Record<string, string | undefined> = {
     amp: '&',
     apos: "'",
     copy: '(c)',
@@ -126,13 +126,45 @@ function decodeEntity(entity: string) {
     const code = entity[1] && entity[1].toLowerCase() === 'x'
       ? parseInt(entity.slice(2), 16)
       : parseInt(entity.slice(1), 10)
-    return Number.isFinite(code) ? String.fromCodePoint(code) : `&${entity};`
+    if (!Number.isFinite(code) || code < 0 || code > 0x10ffff) {
+      return `&${entity};`
+    }
+    if (code <= 0xffff) {
+      return String.fromCharCode(code)
+    }
+    const offset = code - 0x10000
+    return String.fromCharCode(0xd800 + Math.floor(offset / 0x400), 0xdc00 + (offset % 0x400))
   }
-  return Object.prototype.hasOwnProperty.call(named, entity) ? named[entity] : `&${entity};`
+  const namedValue = named[entity]
+  return namedValue !== undefined ? namedValue : `&${entity};`
 }
 
 function decodeHtml(value: string | boolean | undefined | null) {
-  return String(value || '').replace(/&([a-zA-Z][a-zA-Z0-9]+|#[0-9]+|#x[0-9a-fA-F]+);/g, (_, entity) => decodeEntity(entity))
+  const input = value === undefined || value === null || value === false ? '' : String(value)
+  let output = ''
+  let cursor = 0
+  while (cursor < input.length) {
+    const ampersand = input.indexOf('&', cursor)
+    if (ampersand === -1) {
+      output += input.slice(cursor)
+      break
+    }
+    output += input.slice(cursor, ampersand)
+    const semicolon = input.indexOf(';', ampersand + 1)
+    if (semicolon === -1) {
+      output += input.slice(ampersand)
+      break
+    }
+    const entity = input.slice(ampersand + 1, semicolon)
+    if (/^([a-zA-Z][a-zA-Z0-9]+|#[0-9]+|#x[0-9a-fA-F]+)$/.test(entity)) {
+      output += decodeEntity(entity)
+      cursor = semicolon + 1
+    } else {
+      output += '&'
+      cursor = ampersand + 1
+    }
+  }
+  return output
 }
 
 function compactText(value: string | boolean | undefined | null) {
@@ -374,7 +406,7 @@ function extractForm(node: AstNode) {
   visit(node)
   return {
     fields,
-    submit: submit[0] || null,
+    submit: submit[0] !== undefined ? submit[0] : null,
   }
 }
 
@@ -413,7 +445,7 @@ function extractContext(html: string, options: ExtractOptions = {}): ExtractedCo
     }
   }
 
-  function addCode(code: string, language = '') {
+  function addCode(code: string, language: string) {
     const cleanCode = compactLines(code)
     if (!cleanCode) {
       return
@@ -427,7 +459,7 @@ function extractContext(html: string, options: ExtractOptions = {}): ExtractedCo
     codeExamples.push(item)
   }
 
-  function visit(node: AstNode, inChrome = false) {
+  function visit(node: AstNode, inChrome: boolean) {
     if (!node || typeof node === 'string' || shouldDrop(node)) {
       return
     }
@@ -454,9 +486,16 @@ function extractContext(html: string, options: ExtractOptions = {}): ExtractedCo
       return
     }
     if (name === 'pre') {
-      const codeNode = childrenOf(node).find(child => tagName(child) === 'code')
-      const languageClass = compactText(attrs(codeNode).class || attrs(codeNode).className || attrs(node).class || '')
-      addCode(textOf(codeNode || node, { preserveLines: true }), languageClass.replace(/^language-/, ''))
+      let codeNode: AstNode | null = null
+      for (const child of childrenOf(node)) {
+        if (tagName(child) === 'code') {
+          codeNode = child
+          break
+        }
+      }
+      const targetNode = codeNode !== null ? codeNode : node
+      const languageClass = compactText(attrs(targetNode).class || attrs(targetNode).className || attrs(node).class || '')
+      addCode(textOf(targetNode, { preserveLines: true }), languageClass.replace(/^language-/, ''))
       return
     }
     if (name === 'table') {
@@ -507,14 +546,14 @@ function extractContext(html: string, options: ExtractOptions = {}): ExtractedCo
     childrenOf(node).forEach(child => visit(child, chrome))
   }
 
-  roots.forEach(root => visit(root))
+  roots.forEach(root => visit(root, false))
   commitSection()
 
   return {
     page,
-    sections: sections.filter(section => section.content.length || section.code_examples.length || section.heading !== 'Page'),
+    sections: sections.filter(section => section.content.length > 0 || section.code_examples.length > 0 || section.heading !== 'Page'),
     actions,
-    forms: forms.filter(form => form.fields.length || form.submit),
+    forms: forms.filter(form => form.fields.length > 0 || form.submit !== null),
     navigation,
     code_examples: codeExamples,
   }

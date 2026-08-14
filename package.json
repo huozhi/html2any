@@ -27,7 +27,9 @@
   "scripts": {
     "test": "bun test",
     "typecheck": "tsgo --noEmit",
+    "scriptc:coverage": "scriptc coverage src/index.ts && scriptc coverage src/bin/html2any.ts",
     "benchmark": "bun benchmark/run.mjs",
+    "benchmark:native": "bun benchmark/native-cli.mjs",
     "benchmark:url": "bun benchmark/compare-url.mjs",
     "build": "bunchee",
     "prepublishOnly": "bun run build",
@@ -52,6 +54,7 @@
     "next": "^16.3.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
+    "scriptc": "0.0.26",
     "sugar-high": "^1.2.0",
     "tailwindcss": "^4.3.0"
   }

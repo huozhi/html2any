@@ -1,5 +1,5 @@
-import tokenize from './tokenize'
-import utils from './utils'
+import { tokenize } from './tokenize'
+import { isPair } from './utils'
 import type { AstNode, ElementNode, Token } from './types'
 
 function isEmpty<T>(stack: T[]) {
@@ -28,7 +28,7 @@ function filterProps(node: AstNode): AstNode {
   }
 }
 
-function parse(src: string): AstNode[] {
+export function parse(src: string): AstNode[] {
   const tokens = tokenize(src)
   const stack: ElementNode[] = []
   const tree: ElementNode = {
@@ -40,12 +40,13 @@ function parse(src: string): AstNode[] {
 
   stack.push(tree)
   while (!isEmpty(stack) && !isEmpty(tokens)) {
-    const curr = tokens.shift() as Token
+    const curr = tokens[0] as Token
+    tokens.splice(0, 1)
     const top = getTop(stack)
 
     if (curr.type === 'string') {
       appendChild(top, curr.value)
-    } else if (utils.isPair(top, curr)) {
+    } else if (isPair(top, curr)) {
       const node = stack.pop() as ElementNode
       if (!isEmpty(stack)) {
         appendChild(getTop(stack), node)

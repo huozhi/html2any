@@ -97,6 +97,16 @@ Future LLM-eval coverage:
 - Record model latency, output tokens, and cost.
 - Score correctness and citation accuracy with a separate judge or manual rubric.
 
+## Native CLI Performance
+
+Build the fully static `scriptc` binary and compare its startup and conversion time with the Node and Bun CLIs:
+
+```bash
+bun run benchmark:native
+```
+
+The benchmark checks that all runtimes produce byte-identical output, then reports median and p95 wall-clock time for a small HTML document and the cached Next.js installation fixture. Override the sample counts with `BENCHMARK_RUNS` and `BENCHMARK_WARMUPS`.
+
 ## Expected Claims
 
 Primary claim:
