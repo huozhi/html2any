@@ -1,6 +1,15 @@
 import { expect, it } from 'bun:test'
 import { extractContext, htmlToMarkdown } from '../src/context'
 
+it('converts pages containing markup in raw-text elements', () => {
+  expect(htmlToMarkdown(`
+    <title><i>t</i></title>
+    <style><p></style>
+    <script type="text/template"><div>hi</div></script>
+    <main><h1>Docs</h1><p>Still visible</p></main>
+  `)).toBe('# <i>t</i>\n\n## Docs\n\nStill visible\n')
+})
+
 const docsHtml = `
 <!doctype html>
 <html>
