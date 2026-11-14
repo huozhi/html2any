@@ -1,13 +1,14 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
-import type { MutableRefObject } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import type { MutableRefObject, ReactNode } from 'react'
 import type { HtmlRoot } from '../../../src/stream'
 import { CanvasRenderer, FRAME_SKELETON, type RendererCallbacks } from './canvas-renderer'
 
 export type Device = 'desktop' | 'tablet' | 'mobile'
 
 const DEVICE_WIDTH: Record<Device, number | null> = { desktop: null, tablet: 820, mobile: 390 }
+const GAP = 8
 
 type CanvasProps = {
   root: HtmlRoot
@@ -16,63 +17,65 @@ type CanvasProps = {
   hovered: string | null
   baseUrl: string
   device: Device
-  labelFor: (id: string) => string
   rendererRef: MutableRefObject<CanvasRenderer | null>
   callbacks: RendererCallbacks
   onRendered: () => void
+  /** Floating toolbar shown next to the selected element. */
+  toolbar: ReactNode
 }
 
 export function Canvas(props: CanvasProps) {
-  const { root, streaming, selected, hovered, baseUrl, device, rendererRef, labelFor, onRendered } = props
+  const { root, streaming, selected, hovered, baseUrl, device, rendererRef, onRendered, toolbar } = props
   const frameRef = useRef<HTMLIFrameElement>(null)
-  const stageRef = useRef<HTMLDivElement>(null)
-  const badgeRef = useRef<HTMLDivElement>(null)
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const barRef = useRef<HTMLDivElement>(null)
   const callbacksRef = useRef(props.callbacks)
   callbacksRef.current = props.callbacks
   const [ready, setReady] = useState(false)
   const selectedRef = useRef(selected)
   selectedRef.current = selected
-  const labelRef = useRef(labelFor)
-  labelRef.current = labelFor
+  const renderedRef = useRef(onRendered)
+  renderedRef.current = onRendered
 
-  const updateBadge = useCallback(() => {
-    const badge = badgeRef.current
+  /** Place the toolbar above the selected element, or below when there is no room. */
+  const placeToolbar = useCallback(() => {
+    const bar = barRef.current
     const frame = frameRef.current
+    const wrap = wrapRef.current
     const renderer = rendererRef.current
     const id = selectedRef.current
-    if (!badge || !frame || !renderer) return
+    if (!bar || !frame || !wrap || !renderer) return
     const el = id ? renderer.getElement(id) : null
-    if (!el || el === frame.contentDocument?.body) {
-      badge.style.display = 'none'
+    const rect = el?.getBoundingClientRect()
+    const height = frame.clientHeight
+    if (!rect || rect.bottom < 0 || rect.top > height || !bar.firstElementChild) {
+      bar.style.visibility = 'hidden'
       return
     }
-    const rect = el.getBoundingClientRect()
-    const frameHeight = frame.clientHeight
-    if (rect.bottom < 0 || rect.top > frameHeight) {
-      badge.style.display = 'none'
-      return
-    }
-    badge.textContent = labelRef.current(id as string)
-    badge.style.display = 'block'
-    const top = rect.top < 24 ? Math.max(0, rect.top) + 4 : rect.top - 22
-    badge.style.transform = `translate(${Math.max(0, rect.left) + frame.offsetLeft}px, ${top + frame.offsetTop}px)`
+    const barWidth = bar.offsetWidth
+    const barHeight = bar.offsetHeight
+    let top = rect.top - barHeight - GAP
+    if (top < GAP) top = rect.bottom + GAP
+    if (top + barHeight > height - GAP) top = Math.max(GAP, Math.min(rect.top + GAP, height - barHeight - GAP))
+    const left = Math.max(GAP, Math.min(rect.left, wrap.clientWidth - barWidth - GAP))
+    bar.style.transform = `translate(${Math.round(left)}px, ${Math.round(top)}px)`
+    bar.style.visibility = 'visible'
   }, [rendererRef])
 
-  // Create the renderer once the frame document is ready.
   const onLoad = useCallback(() => {
     const doc = frameRef.current?.contentDocument
     if (!doc) return
     rendererRef.current?.dispose()
     rendererRef.current = new CanvasRenderer(doc, {
-      onSelect: id => callbacksRef.current.onSelect(id),
-      onHover: id => callbacksRef.current.onHover(id),
+      onSelect: (chain, clicks) => callbacksRef.current.onSelect(chain, clicks),
+      onHover: chain => callbacksRef.current.onHover(chain),
       onCommitText: (id, html) => callbacksRef.current.onCommitText(id, html),
       onEditingChange: id => callbacksRef.current.onEditingChange(id),
       onKeyDown: e => callbacksRef.current.onKeyDown(e),
-      onViewportChange: () => updateBadge(),
+      onViewportChange: () => placeToolbar(),
     })
     setReady(true)
-  }, [rendererRef, updateBadge])
+  }, [rendererRef, placeToolbar])
 
   useEffect(() => {
     // The srcdoc frame may finish loading before hydration attaches onLoad.
@@ -82,8 +85,7 @@ export function Canvas(props: CanvasProps) {
   }, [rendererRef, onLoad])
 
   useEffect(() => {
-    if (!ready) return
-    rendererRef.current?.setBaseUrl(baseUrl)
+    if (ready) rendererRef.current?.setBaseUrl(baseUrl)
   }, [ready, baseUrl, rendererRef])
 
   useEffect(() => {
@@ -97,35 +99,38 @@ export function Canvas(props: CanvasProps) {
     if (!ready || !rendererRef.current) return
     rendererRef.current.setSelected(selected)
     if (selected) rendererRef.current.scrollIntoView(selected)
-    updateBadge()
-  }, [ready, selected, rendererRef, updateBadge, root])
+  }, [ready, selected, rendererRef])
 
   useEffect(() => {
-    if (!ready) return
-    rendererRef.current?.setHovered(hovered)
+    if (ready) rendererRef.current?.setHovered(hovered)
   }, [ready, hovered, rendererRef])
 
+  // Re-place after every render: the toolbar's content and the element's box may both change.
+  useLayoutEffect(() => {
+    placeToolbar()
+  })
+
   useEffect(() => {
-    const stage = stageRef.current
-    if (!stage) return
-    const observer = new ResizeObserver(() => updateBadge())
-    observer.observe(stage)
+    const wrap = wrapRef.current
+    const bar = barRef.current
+    if (!wrap || !bar) return
+    const observer = new ResizeObserver(entries => {
+      placeToolbar()
+      // The canvas width changed: layout (and computed sizes) changed with it.
+      if (entries.some(entry => entry.target === wrap)) renderedRef.current()
+    })
+    observer.observe(wrap)
+    observer.observe(bar)
     return () => observer.disconnect()
-  }, [updateBadge])
+  }, [placeToolbar])
 
   const width = DEVICE_WIDTH[device]
 
   return (
-    <div className="h2e-stage" ref={stageRef}>
-      <div className={`h2e-frame-wrap${width ? ' is-device' : ''}`} style={width ? { width } : undefined}>
-        <iframe
-          ref={frameRef}
-          className="h2e-frame"
-          title="Page canvas"
-          srcDoc={FRAME_SKELETON}
-          onLoad={onLoad}
-        />
-        <div className="h2e-badge" ref={badgeRef} />
+    <div className="h2e-stage">
+      <div ref={wrapRef} className={`h2e-frame-wrap${width ? ' is-device' : ''}`} style={width ? { width } : undefined}>
+        <iframe ref={frameRef} className="h2e-frame" title="Page canvas" srcDoc={FRAME_SKELETON} onLoad={onLoad} />
+        <div className="h2e-floating" ref={barRef}>{toolbar}</div>
       </div>
     </div>
   )

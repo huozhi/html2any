@@ -24,8 +24,9 @@ html { cursor: default; }
 export const FRAME_SKELETON = `<!doctype html><html><head><meta charset="utf-8"><style data-h2a-editor>${EDITOR_FRAME_CSS}</style></head><body></body></html>`
 
 export type RendererCallbacks = {
-  onSelect(id: string | null): void
-  onHover(id: string | null): void
+  /** Managed element ids from the clicked element up to <body>; `clicks` is the click count. */
+  onSelect(chain: string[], clicks: number): void
+  onHover(chain: string[]): void
   onCommitText(id: string, html: string): void
   onEditingChange(id: string | null): void
   onKeyDown(event: KeyboardEvent): void
@@ -191,7 +192,7 @@ export class CanvasRenderer {
       if (this.editing && this.editing.el.contains(target)) return
       e.preventDefault()
       if (this.editing) this.finishEditing(false)
-      this.callbacks.onSelect(this.findManagedId(target))
+      this.callbacks.onSelect(this.chainOf(target), e.detail || 1)
     })
 
     on('dblclick', e => {
@@ -199,15 +200,15 @@ export class CanvasRenderer {
       const id = this.findEditableId(e.target as Node)
       if (!id) return
       e.preventDefault()
-      this.callbacks.onSelect(id)
+      this.callbacks.onSelect([id], 2)
       this.startEditing(id)
     })
 
     on('mouseover', e => {
-      this.callbacks.onHover(this.findManagedId(e.target as Node))
+      this.callbacks.onHover(this.chainOf(e.target as Node))
     })
 
-    doc.documentElement.addEventListener('mouseleave', () => this.callbacks.onHover(null))
+    doc.documentElement.addEventListener('mouseleave', () => this.callbacks.onHover([]))
 
     on('submit', e => e.preventDefault())
 
@@ -249,6 +250,17 @@ export class CanvasRenderer {
         view.removeEventListener('resize', onViewport)
       })
     }
+  }
+
+  private chainOf(node: Node | null): string[] {
+    const chain: string[] = []
+    let current: Node | null = node
+    while (current) {
+      const id = this.idByDom.get(current)
+      if (id && current.nodeType === 1) chain.push(id)
+      current = current.parentNode
+    }
+    return chain
   }
 
   private findManagedId(node: Node | null): string | null {

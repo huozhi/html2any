@@ -11,7 +11,10 @@ export type SchemaNode = {
   id: string
   tag: string
   kind: SchemaKind
-  className?: string
+  classes: string[]
+  /** Attributes worth showing (href, src, alt, ...); not class or style. */
+  attributes: Record<string, string>
+  style: string
   label: string
   /** Set when most children share one shape (cards, pricing tiers, list items...). */
   collection?: { count: number; item: string }
@@ -30,6 +33,10 @@ const HIDDEN = new Set(['html', 'body', 'script', 'style', 'link', 'meta', 'titl
 const LEAVES = new Set(['svg', 'math', 'img', 'picture', 'video', 'audio', 'iframe', 'canvas', 'input', 'textarea', 'select', 'pre', 'table', 'object', 'embed'])
 const SECTIONS = new Set(['section', 'header', 'footer', 'nav', 'main', 'article', 'aside'])
 const TEXTS = new Set(['p', 'span', 'small', 'strong', 'em', 'b', 'i', 'label', 'figcaption', 'dt', 'dd', 'summary', 'cite', 'time'])
+/** Attributes shown in the outline. Others are kept but not listed. */
+const SHOWN_ATTRIBUTES = ['id', 'href', 'src', 'alt', 'type', 'name', 'placeholder', 'value', 'target', 'action', 'method', 'for']
+const SIMPLE_CLASS = /^[\w-]+$/
+const MAX_LABEL = 48
 
 function hasDirectText(node: HtmlParent) {
   return node.children.some(child => child.type === 'text' && /\S/.test(child.value))
@@ -56,7 +63,7 @@ export function getContentRoot(root: HtmlRoot): HtmlParent {
   return parts.body ?? parts.html ?? root
 }
 
-function kindOf(node: HtmlElement): SchemaKind {
+export function kindOf(node: HtmlElement): SchemaKind {
   const lower = node.name.toLowerCase()
   if (HEADINGS.has(lower)) return 'heading'
   if (SECTIONS.has(lower)) return 'section'
@@ -83,46 +90,52 @@ function labelOf(node: HtmlElement): string {
   if (lower === 'img') label = attrs.alt || (attrs.src || '').split(/[?#]/)[0].split('/').pop() || ''
   else if (lower === 'input' || lower === 'textarea' || lower === 'select') label = attrs.placeholder || attrs.name || attrs.type || ''
   else if (lower === 'svg') label = attrs['aria-label'] || ''
-  else if (lower === 'table') {
-    const rows = textContent(node).trim() ? node.children : []
-    label = rows.length ? 'table' : ''
-  } else label = textContent(node)
+  else if (lower === 'table') label = ''
+  else label = textContent(node)
   label = label.replace(/\s+/g, ' ').trim()
-  return label.length > 48 ? label.slice(0, 47) + '…' : label
+  return label.length > MAX_LABEL ? label.slice(0, MAX_LABEL - 1) + '…' : label
 }
 
-function firstClass(node: HtmlElement) {
+function classesOf(node: HtmlElement) {
   const value = (node.attributes.class || '').trim()
-  return value ? value.split(/\s+/)[0] : undefined
+  return value ? value.split(/\s+/) : []
 }
 
-function shapeOf(node: HtmlElement, parent: HtmlParent): string {
+function shapeOf(node: HtmlElement): string {
   const kids = structuralChildren(node).map(child => child.name.toLowerCase()).join(',')
-  return `${node.name.toLowerCase()}.${(node.attributes.class || '').trim().split(/\s+/).sort().join('.')}[${kids}]`
+  return `${node.name.toLowerCase()}.${classesOf(node).sort().join('.')}[${kids}]`
 }
 
-function schemaNode(node: HtmlElement, parent: HtmlParent): SchemaNode {
+function shownAttributes(node: HtmlElement) {
+  const out: Record<string, string> = {}
+  for (const name of SHOWN_ATTRIBUTES) if (name in node.attributes) out[name] = node.attributes[name]
+  return out
+}
+
+function schemaNode(node: HtmlElement): SchemaNode {
   const kids = structuralChildren(node)
   const result: SchemaNode = {
     id: node.id,
     tag: node.name,
     kind: kindOf(node),
-    className: firstClass(node),
+    classes: classesOf(node),
+    attributes: shownAttributes(node),
+    style: (node.attributes.style || '').trim(),
     label: labelOf(node),
     open: node.open,
-    children: kids.map(child => schemaNode(child, node)),
+    children: kids.map(schemaNode),
   }
   if (kids.length >= 2) {
     const counts = new Map<string, number>()
     for (const kid of kids) {
-      const shape = shapeOf(kid, node)
+      const shape = shapeOf(kid)
       counts.set(shape, (counts.get(shape) || 0) + 1)
     }
     let best = 0
     for (const count of counts.values()) best = Math.max(best, count)
-    if (best >= 2 && best * 2 >= kids.length && kindOf(node) !== 'text') {
-      const sample = kids.find(kid => counts.get(shapeOf(kid, node)) === best)!
-      const cls = firstClass(sample)
+    if (best >= 2 && best * 2 >= kids.length && result.kind !== 'text') {
+      const sample = kids.find(kid => counts.get(shapeOf(kid)) === best)!
+      const cls = classesOf(sample)[0]
       result.collection = { count: best, item: sample.name + (cls ? `.${cls}` : '') }
     }
   }
@@ -137,23 +150,29 @@ export function inferSchema(root: HtmlRoot): PageSchema {
   return {
     title: title ? textContent(title).trim() : '',
     contentRoot: content.id,
-    children: structuralChildren(content).map(child => schemaNode(child, content)),
+    children: structuralChildren(content).map(schemaNode),
   }
 }
 
 export const OUTLINE_HEADER = [
   '// structure.outline — generated by html2any',
-  '// Move lines to reorder, indent to nest, delete a line to remove it,',
-  '// duplicate a line (with its children) to copy, change the tag to rename,',
-  '// or add `tag.class "text"` (without #id) to insert a new element.',
+  '// tag.class #id attr="value" { style } "text"',
+  '// Move lines to reorder, indent to nest, delete to remove, copy to duplicate.',
+  '// Edit the tag, classes, attributes, { style } or "text" in place. A line without',
+  '// #id inserts a new element.',
 ]
 
 /** A text view of the schema that can be edited and applied back with `applyOutline`. */
 export function toOutline(schema: PageSchema, options: { header?: boolean } = {}): string {
   const lines: string[] = options.header === false ? [] : [...OUTLINE_HEADER, '']
   function visit(node: SchemaNode, depth: number) {
-    const selector = node.tag + (node.className ? `.${node.className}` : '')
-    let line = `${'  '.repeat(depth)}${selector} #${node.id}`
+    const simple = node.classes.every(c => SIMPLE_CLASS.test(c))
+    let line = '  '.repeat(depth) + node.tag
+    if (simple) line += node.classes.map(c => `.${c}`).join('')
+    line += ` #${node.id}`
+    if (!simple) line += ` class=${JSON.stringify(node.classes.join(' '))}`
+    for (const [name, value] of Object.entries(node.attributes)) line += ` ${name}=${JSON.stringify(value)}`
+    if (node.style) line += ` { ${node.style} }`
     if (node.collection) line += `  [${node.collection.count} × ${node.collection.item}]`
     else if (node.label && node.children.length === 0) line += `  ${JSON.stringify(node.label)}`
     lines.push(line)
@@ -168,11 +187,72 @@ type OutlineItem = {
   tag: string
   classes: string[]
   id?: string
+  attributes: Record<string, string>
+  style?: string
   text?: string
   children: OutlineItem[]
 }
 
-const LINE = /^([a-zA-Z][\w:-]*)((?:\.[\w-]+)*)(?:\s+#([\w-]+))?(.*)$/
+const HEAD = /^([a-zA-Z][\w:-]*)((?:\.[\w-]+)*)(?:\s+#([\w-]+))?(.*)$/
+
+function readQuoted(source: string, start: number): { value: string; end: number } {
+  let i = start + 1
+  while (i < source.length && source[i] !== '"') i += source[i] === '\\' ? 2 : 1
+  const raw = source.slice(start, Math.min(i + 1, source.length))
+  try {
+    return { value: JSON.parse(raw.endsWith('"') ? raw : raw + '"'), end: i + 1 }
+  } catch {
+    return { value: raw.slice(1, raw.endsWith('"') ? -1 : undefined), end: i + 1 }
+  }
+}
+
+/** Parse the part of a line after `tag.class #id`: attributes, { style }, "text", [annotation]. */
+function parseRest(rest: string) {
+  const attributes: Record<string, string> = {}
+  let style: string | undefined
+  let text: string | undefined
+  let i = 0
+  while (i < rest.length) {
+    const c = rest[i]
+    if (/\s/.test(c)) {
+      i++
+    } else if (c === '{') {
+      const end = rest.indexOf('}', i)
+      style = rest.slice(i + 1, end === -1 ? rest.length : end).trim()
+      i = end === -1 ? rest.length : end + 1
+    } else if (c === '[') {
+      const end = rest.indexOf(']', i)
+      i = end === -1 ? rest.length : end + 1
+    } else if (c === '"') {
+      const quoted = readQuoted(rest, i)
+      text = quoted.value
+      i = quoted.end
+    } else {
+      const match = /^[^\s="{[]+/.exec(rest.slice(i))
+      if (!match) {
+        i++
+        continue
+      }
+      const name = match[0]
+      i += name.length
+      if (rest[i] === '=') {
+        i++
+        if (rest[i] === '"') {
+          const quoted = readQuoted(rest, i)
+          attributes[name] = quoted.value
+          i = quoted.end
+        } else {
+          const value = /^[^\s{[]*/.exec(rest.slice(i))![0]
+          attributes[name] = value
+          i += value.length
+        }
+      } else {
+        attributes[name] = ''
+      }
+    }
+  }
+  return { attributes, style, text }
+}
 
 export function parseOutline(text: string): { items: OutlineItem[]; errors: string[] } {
   const items: OutlineItem[] = []
@@ -183,26 +263,20 @@ export function parseOutline(text: string): { items: OutlineItem[]; errors: stri
     const content = expanded.trim()
     if (!content || content.startsWith('//')) return
     const indent = expanded.length - expanded.trimStart().length
-    const match = LINE.exec(content)
+    const match = HEAD.exec(content)
     if (!match) {
       errors.push(`line ${index + 1}: cannot read "${content}"`)
       return
     }
-    let text: string | undefined
-    const quoted = /"(?:[^"\\]|\\.)*"/.exec(match[4])
-    if (quoted) {
-      try {
-        text = JSON.parse(quoted[0])
-      } catch {
-        text = quoted[0].slice(1, -1)
-      }
-    }
+    const rest = parseRest(match[4])
     const item: OutlineItem = {
       line: index + 1,
       tag: match[1],
       classes: match[2] ? match[2].slice(1).split('.') : [],
       id: match[3],
-      text,
+      attributes: rest.attributes,
+      style: rest.style,
+      text: rest.text,
       children: [],
     }
     while (stack.length > 1 && stack[stack.length - 1].indent >= indent) stack.pop()
@@ -214,10 +288,56 @@ export function parseOutline(text: string): { items: OutlineItem[]; errors: stri
   return { items, errors }
 }
 
+function normalizeClass(value: string) {
+  return value.trim().split(/\s+/).filter(Boolean).join(' ')
+}
+
+/** Apply the tag, classes, attributes, style and text written on a line to an element. */
+function applyLine(base: HtmlElement, item: OutlineItem, createId: IdGenerator): HtmlElement {
+  let node = base
+  const attrs = { ...node.attributes }
+  let changed = false
+  const set = (name: string, value: string | null) => {
+    if (value === null) {
+      if (name in attrs) {
+        delete attrs[name]
+        changed = true
+      }
+    } else if (attrs[name] !== value) {
+      attrs[name] = value
+      changed = true
+    }
+  }
+
+  const wantClass = normalizeClass('class' in item.attributes ? item.attributes.class : item.classes.join(' '))
+  if (wantClass !== normalizeClass(attrs.class || '')) set('class', wantClass || null)
+
+  for (const [name, value] of Object.entries(item.attributes)) {
+    if (name !== 'class' && name !== 'style') set(name, value)
+  }
+  for (const name of SHOWN_ATTRIBUTES) {
+    if (!(name in item.attributes)) set(name, null)
+  }
+
+  const wantStyle = (item.style ?? item.attributes.style ?? '').trim()
+  if (wantStyle !== (attrs.style || '').trim()) set('style', wantStyle || null)
+
+  if (changed) node = { ...node, attributes: attrs }
+  if (item.tag !== node.name && item.tag.toLowerCase() !== node.name.toLowerCase()) node = { ...node, name: item.tag }
+
+  // "text" edits plain-text elements; truncated labels are display only.
+  if (item.text !== undefined && !item.text.endsWith('…') && node.children.every(child => child.type === 'text')) {
+    if (item.text !== labelOf(node) && !LEAVES.has(node.name.toLowerCase())) {
+      node = { ...node, children: item.text ? [{ type: 'text', id: createId(), value: item.text, open: false }] : [] }
+    }
+  }
+  return node
+}
+
 /**
  * Apply an edited outline to the tree. Inline content (text, links inside paragraphs, scripts,
  * styles...) always stays attached to its block; only structural blocks are moved, removed,
- * renamed, duplicated or created.
+ * renamed, duplicated or created, and their attributes, style and plain text updated.
  */
 export function applyOutline(root: HtmlRoot, outline: string, createId: IdGenerator): { root: HtmlRoot; errors: string[] } {
   const { items, errors } = parseOutline(outline)
@@ -236,7 +356,7 @@ export function applyOutline(root: HtmlRoot, outline: string, createId: IdGenera
     const out: HtmlNode[] = []
     let k = 0
     for (const child of base.children) {
-      if (isStructural(child, base) && !(base.type === 'element' && LEAVES.has(base.name.toLowerCase()))) {
+      if (isStructural(child, base)) {
         if (k < blocks.length) out.push(blocks[k++])
       } else {
         out.push(child)
@@ -256,20 +376,13 @@ export function applyOutline(root: HtmlRoot, outline: string, createId: IdGenera
     } else if (existing) {
       base = cloneNode(existing, createId)
       // A copied line without child lines keeps the whole copied subtree.
-      if (item.children.length === 0) return item.tag === existing.name ? base : { ...base, name: item.tag }
+      if (item.children.length === 0) return applyLine(base, item, createId)
     } else {
-      base = {
-        type: 'element',
-        id: createId(),
-        name: item.tag,
-        attributes: item.classes.length ? { class: item.classes.join(' ') } : {},
-        children: item.text ? [{ type: 'text', id: createId(), value: item.text, open: false }] : [],
-        open: false,
-      }
+      base = { type: 'element', id: createId(), name: item.tag, attributes: {}, children: [], open: false }
     }
-    if (item.tag !== base.name && item.tag.toLowerCase() !== base.name.toLowerCase()) base = { ...base, name: item.tag }
-    const blocks = item.children.map(build)
+    base = applyLine(base, item, createId)
     if (LEAVES.has(base.name.toLowerCase())) return base
+    const blocks = item.children.map(build)
     const children = fillSlots(base, blocks)
     const same = children.length === base.children.length && children.every((c, i) => c === base.children[i])
     return same ? base : { ...base, children }

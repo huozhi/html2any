@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'bun:test'
 import {
-  apply, find, html, outline, schema, setHTML, stream, text, type HtmlNode, type HtmlRoot,
+  apply, find, html, outline, parse, schema, setHTML, text, type HtmlNode, type HtmlRoot,
 } from '../src/stream'
+import { createStreamParser } from '../src/stream/parser'
 
-const parseHTML = (source: string) => stream().end(source)
+const parseHTML = (source: string) => parse(source, { done: true })
+const stream = () => createStreamParser()
 
 const PAGE = `<!doctype html>
 <html lang="en">
@@ -235,7 +237,7 @@ describe('schema and outline', () => {
       `    p #${c1.children[1].id}`,
       `  div.card #${c1.id}`,
       `  p.note "Added by outline"`,
-      `section #${hero.id}`,
+      `section.hero #${hero.id}`,
       `  h1 #${hero.children[0].id}`,
       lines[lineOf(/^ul /)],
     ].join('\n')
@@ -272,13 +274,13 @@ describe('streaming schema', () => {
     const root = parser.write('<!doctype html><html><head><title>T</title><style>p{}')
     expect(schema(root).children).toEqual([])
     parser.write('</style></head><body><main><p>x')
-    expect(schema(parser.tree).children.map(n => n.tag)).toEqual(['main'])
+    expect(schema(parser.snapshot()).children.map(n => n.tag)).toEqual(['main'])
   })
 })
 
 describe('edits', () => {
   it('replaces children with parsed HTML using fresh ids', () => {
-    const root = stream().end('<main><p id="a">old</p></main>')
+    const root = parseHTML('<main><p id="a">old</p></main>')
     const p = (root.children[0] as any).children[0]
     const next = setHTML(root, p.id, 'new <b>bold</b>')
     expect(html(next)).toBe('<main><p id="a">new <b>bold</b></p></main>')
@@ -289,5 +291,76 @@ describe('edits', () => {
       if (n.type === 'element') n.children.forEach(visit)
     }
     next.children.forEach(visit)
+  })
+})
+
+describe('parse', () => {
+  it('continues incrementally when the text grows', () => {
+    const a = parse('<main><section><h1>Done</h1></section><p>Stre')
+    const b = parse('<main><section><h1>Done</h1></section><p>Streaming</p>')
+    expect((b.children[0] as any).children[0]).toBe((a.children[0] as any).children[0])
+    expect(parse('<main><section><h1>Done</h1></section><p>Streaming</p>')).toBe(b)
+    const final = parse('<main><section><h1>Done</h1></section><p>Streaming</p>', { done: true })
+    expect(final.open).toBe(false)
+    expect(html(final)).toBe('<main><section><h1>Done</h1></section><p>Streaming</p></main>')
+  })
+
+  it('starts over when the text is not an extension', () => {
+    parse('<p>first version')
+    expect(html(parse('<p>second', { done: true }))).toBe('<p>second</p>')
+  })
+
+  it('iterates trees from an async source', async () => {
+    async function* chunks() {
+      yield '```html\n<ul><li>a'
+      yield new TextEncoder().encode('<li>b</ul>\n```')
+    }
+    const trees: HtmlRoot[] = []
+    for await (const tree of parse(chunks())) trees.push(tree)
+    expect(trees.length).toBeGreaterThan(1)
+    expect(trees[trees.length - 1].open).toBe(false)
+    expect(html(trees[trees.length - 1])).toBe('<ul><li>a</li><li>b</li></ul>\n')
+  })
+
+  it('reads a Response body', async () => {
+    const response = new Response('<p>hi <b>there</b></p>')
+    let last: HtmlRoot | undefined
+    for await (const tree of parse(response)) last = tree
+    expect(html(last!)).toBe('<p>hi <b>there</b></p>')
+  })
+})
+
+describe('outline properties', () => {
+  const root = parseHTML('<main><h1 class="title" style="color: red">Hi</h1><a href="/x" class="btn btn-lg">Go</a><div class="md:flex w-1/2">x</div></main>')
+
+  it('shows classes, attributes, style and text', () => {
+    const file = outline(root, { header: false })
+    expect(file).toContain('h1.title #')
+    expect(file).toContain('{ color: red }  "Hi"')
+    expect(file).toContain('a.btn.btn-lg #')
+    expect(file).toContain('href="/x"')
+    expect(file).toContain('class="md:flex w-1/2"')
+    expect(apply(root, file).root).toBe(root)
+  })
+
+  it('applies edited style, attributes, classes and text', () => {
+    const file = outline(root, { header: false })
+      .replace('{ color: red }  "Hi"', '{ color: blue; font-size: 40px }  "Hello"')
+      .replace('a.btn.btn-lg', 'a.btn')
+      .replace('href="/x"', 'href="/y" target="_blank"')
+      .replace('class="md:flex w-1/2"', 'class="grid"')
+    const { root: next, errors } = apply(root, file)
+    expect(errors).toEqual([])
+    expect(html(next)).toBe('<main><h1 class="title" style="color: blue; font-size: 40px">Hello</h1><a href="/y" class="btn" target="_blank">Go</a><div class="grid">x</div></main>')
+  })
+
+  it('removes a style and an attribute when they are deleted from the line', () => {
+    const file = outline(root, { header: false }).replace(' { color: red }', '').replace(' href="/x"', '')
+    expect(html(apply(root, file).root)).toBe('<main><h1 class="title">Hi</h1><a class="btn btn-lg">Go</a><div class="md:flex w-1/2">x</div></main>')
+  })
+
+  it('creates new elements with properties', () => {
+    const file = outline(root, { header: false }) + 'p.note data-x="1" { margin: 0 } "New"\n'
+    expect(html(apply(root, file).root)).toContain('<p class="note" data-x="1" style="margin: 0">New</p>')
   })
 })

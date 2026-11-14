@@ -2,17 +2,20 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
-  apply, duplicate, find, html, move, outline, path as pathTo, remove, schema, setAttr, setHTML, stream,
+  apply, duplicate, find, html, move, outline, parse, path as pathTo, remove, schema, setAttr, setHTML,
 } from '../../../src/stream'
-import type { HtmlElement, HtmlNode, HtmlRoot, SchemaNode } from '../../../src/stream'
+import type { HtmlElement, HtmlRoot, SchemaKind, SchemaNode } from '../../../src/stream'
+import { kindOf } from '../../../src/stream/schema'
 import { Canvas, type Device } from './canvas'
 import type { CanvasRenderer } from './canvas-renderer'
+import { FloatingBar, type BarAction } from './floating-bar'
 import { COMPUTED_PROPS, Inspector, type ComputedStyles } from './inspector'
 import { StructurePanel } from './structure-panel'
 import { setStyleValue, textToStyle } from './style-utils'
 
 type SourceKind = 'sample' | 'html' | 'url'
 type StreamStats = { bytes: number; chunks: number; ms: number }
+type SchemaEntry = { node: SchemaNode; parent: SchemaNode | null }
 
 const EMPTY_ROOT: HtmlRoot = { type: 'root', id: 'root', children: [], open: false }
 const SPEEDS = [
@@ -20,6 +23,7 @@ const SPEEDS = [
   { label: 'Fast', cps: 6000 },
   { label: 'Instant', cps: 0 },
 ]
+const INLINE = /^(a|b|i|em|strong|span|small|code|mark|u|s|sub|sup|br|abbr|cite|kbd|time)$/i
 
 function isTypingTarget(target: EventTarget | null) {
   // Duck-typed: events forwarded from the canvas iframe come from another realm.
@@ -28,28 +32,24 @@ function isTypingTarget(target: EventTarget | null) {
   return Boolean(el.isContentEditable) || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)
 }
 
-function countNodes(nodes: HtmlNode[]): number {
-  let count = 0
-  for (const node of nodes) count += 1 + (node.type === 'element' ? countNodes(node.children) : 0)
-  return count
-}
-
 function parentOf(root: HtmlRoot, id: string) {
   const nodes = pathTo(root, id)
   const parent = nodes[nodes.length - 2]
   return parent && parent.type === 'element' ? parent : undefined
 }
 
-function countSchema(nodes: SchemaNode[]) {
-  let blocks = 0
-  let collections = 0
-  const visit = (node: SchemaNode) => {
-    blocks++
-    if (node.collection) collections++
-    node.children.forEach(visit)
+function indexSchema(nodes: SchemaNode[]) {
+  const map = new Map<string, SchemaEntry>()
+  const visit = (node: SchemaNode, parent: SchemaNode | null) => {
+    map.set(node.id, { node, parent })
+    node.children.forEach(child => visit(child, node))
   }
-  nodes.forEach(visit)
-  return { blocks, collections }
+  nodes.forEach(node => visit(node, null))
+  return map
+}
+
+function inlineOnly(node: HtmlElement): boolean {
+  return node.children.every(c => c.type === 'text' || (INLINE.test(c.name) && inlineOnly(c)))
 }
 
 export default function Editor() {
@@ -58,14 +58,19 @@ export default function Editor() {
   const [streaming, setStreaming] = useState(false)
   const [stats, setStats] = useState<StreamStats>({ bytes: 0, chunks: 0, ms: 0 })
   const [selected, setSelected] = useState<string | null>(null)
+  const selectedRef = useRef(selected)
+  selectedRef.current = selected
   const [hovered, setHovered] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [baseUrl, setBaseUrl] = useState('')
   const [device, setDevice] = useState<Device>('desktop')
+  const [structureOpen, setStructureOpen] = useState(false)
+  const [propsOpen, setPropsOpen] = useState(false)
   const [computed, setComputed] = useState<ComputedStyles>({})
   const [size, setSize] = useState<{ width: number; height: number } | null>(null)
   const [toast, setToast] = useState<{ text: string; tone?: 'error' } | null>(null)
   const [sourceOpen, setSourceOpen] = useState(false)
+  const [exportOpen, setExportOpen] = useState(false)
   const [sourceKind, setSourceKind] = useState<SourceKind>('sample')
   const [pasted, setPasted] = useState('')
   const [url, setUrl] = useState('')
@@ -123,6 +128,7 @@ export default function Editor() {
     setHistoryVersion(v => v + 1)
   }, [setRoot])
 
+  // Streaming: keep the text received so far and parse it; parse() continues incrementally.
   const startStream = useCallback(async (kind: SourceKind, payload: { html?: string; url?: string }, cps: number) => {
     abortRef.current?.abort()
     const controller = new AbortController()
@@ -131,22 +137,22 @@ export default function Editor() {
     setSourceOpen(false)
     setSelected(null)
     setHovered(null)
+    setPropsOpen(false)
     history.current = { past: [], future: [], lastKey: '', lastAt: 0 }
     setHistoryVersion(v => v + 1)
     setRoot(EMPTY_ROOT)
     setStreaming(true)
     setStats({ bytes: 0, chunks: 0, ms: 0 })
 
-    const parser = stream()
     const started = performance.now()
-    let bytes = 0
+    let text = ''
     let chunks = 0
     let frame = 0
     const flush = () => {
       frame = 0
       if (controller.signal.aborted) return
-      setRoot(parser.tree)
-      setStats({ bytes, chunks, ms: performance.now() - started })
+      setRoot(parse(text))
+      setStats({ bytes: text.length, chunks, ms: performance.now() - started })
     }
 
     try {
@@ -165,8 +171,7 @@ export default function Editor() {
       while (true) {
         const { done, value } = await reader.read()
         if (done) break
-        parser.write(value)
-        bytes += value.length
+        text += value
         chunks++
         if (!frame) frame = requestAnimationFrame(flush)
       }
@@ -175,9 +180,9 @@ export default function Editor() {
     } finally {
       if (frame) cancelAnimationFrame(frame)
       if (abortRef.current === controller) {
-        const final = parser.end()
-        setRoot(final)
-        setStats({ bytes, chunks, ms: performance.now() - started })
+        // Stopped or finished: close whatever is still open.
+        setRoot(parse(text, { done: true }))
+        setStats({ bytes: text.length, chunks, ms: performance.now() - started })
         setStreaming(false)
         abortRef.current = null
       }
@@ -185,11 +190,7 @@ export default function Editor() {
   }, [notify, setRoot])
 
   const stopStream = useCallback(() => {
-    const controller = abortRef.current
-    if (!controller) return
-    // Keep what has arrived so far: the parser closes everything that is still open.
-    abortRef.current = controller
-    controller.abort()
+    abortRef.current?.abort()
   }, [])
 
   useEffect(() => {
@@ -199,7 +200,8 @@ export default function Editor() {
 
   // Derived data
   const page = useMemo(() => schema(root), [root])
-  const outlineText = useMemo(() => outline(root), [root])
+  const blocks = useMemo(() => indexSchema(page.children), [page])
+  const outlineText = useMemo(() => (structureOpen ? outline(root) : ''), [root, structureOpen])
   const selectedNode = useMemo(() => {
     if (!selected) return null
     const node = find(root, selected)
@@ -209,17 +211,50 @@ export default function Editor() {
     if (!selected) return []
     return pathTo(root, selected).filter((n): n is HtmlElement => n.type === 'element' && !/^(html)$/i.test(n.name))
   }, [root, selected])
-  const pageInfo = useMemo(() => {
-    return { title: page.title, nodes: countNodes(root.children), bytes: stats.bytes, ...countSchema(page.children) }
-  }, [root, page, stats.bytes])
 
-  // Selection that disappeared (undo, delete, new stream) is cleared.
+  const selectedKind: SchemaKind = useMemo(() => {
+    if (!selectedNode) return 'container'
+    return blocks.get(selectedNode.id)?.node.kind ?? kindOf(selectedNode)
+  }, [selectedNode, blocks])
+
+  /** A card, tier, list item, FAQ entry... — one of several siblings with the same shape. */
+  const isItem = useCallback((id: string) => {
+    const entry = blocks.get(id)
+    const collection = entry?.parent?.collection
+    if (!entry || !collection || entry.node.kind === 'section') return false
+    const cls = entry.node.classes[0]
+    return collection.item === entry.node.tag + (cls ? `.${cls}` : '')
+  }, [blocks])
+
+  const collectionItem = useMemo(() => (selectedNode ? isItem(selectedNode.id) : false), [selectedNode, isItem])
+
   useEffect(() => {
     if (selected && !streaming && !find(root, selected)) setSelected(null)
   }, [root, selected, streaming])
 
+  useEffect(() => {
+    if (!selected) setPropsOpen(false)
+  }, [selected])
+
+  /**
+   * Click picks a block (a schema node), not the deepest element: the nearest repeated item
+   * (card, tier, list item) if there is one, otherwise the nearest block. Clicking inside the
+   * current selection again drills one level in, preferring the next block.
+   */
+  const pick = useCallback((chain: string[], clicks: number): string | null => {
+    if (!chain.length) return null
+    const current = selectedRef.current
+    const at = current ? chain.indexOf(current) : -1
+    if (at === 0) return current
+    if (at > 0 && clicks === 1) {
+      for (let i = at - 1; i >= 0; i--) if (blocks.has(chain[i])) return chain[i]
+      return chain[at - 1]
+    }
+    return chain.find(isItem) ?? chain.find(id => blocks.has(id)) ?? chain[0]
+  }, [blocks, isItem])
+
   const readComputed = useCallback(() => {
-    const id = selected
+    const id = selectedRef.current
     const el = id ? rendererRef.current?.getElement(id) : null
     if (!el) {
       setComputed({})
@@ -234,56 +269,57 @@ export default function Editor() {
     setComputed(next)
     const rect = el.getBoundingClientRect()
     setSize({ width: rect.width, height: rect.height })
-  }, [selected])
+  }, [])
 
   useEffect(() => {
     readComputed()
-  }, [readComputed])
+  }, [selected, readComputed])
 
-  // Editing operations
   const canEditText = useMemo(() => {
-    if (!selectedNode) return false
-    const lower = selectedNode.name.toLowerCase()
-    if (/^(svg|img|input|select|textarea|style|script|body|html|head)$/.test(lower)) return false
-    const inlineOnly = (n: HtmlElement): boolean =>
-      n.children.every(c => c.type === 'text' || (/^(a|b|i|em|strong|span|small|code|mark|u|s|sub|sup|br|abbr|cite|kbd|time)$/i.test(c.name) && inlineOnly(c)))
+    if (!selectedNode || streaming) return false
+    if (/^(svg|img|input|select|textarea|style|script|body|html|head)$/i.test(selectedNode.name)) return false
     return inlineOnly(selectedNode)
-  }, [selectedNode])
+  }, [selectedNode, streaming])
 
+  // Edits
   const setStyle = useCallback((prop: string, value: string) => {
-    if (!selected) return
-    const node = find(rootRef.current, selected)
+    const id = selectedRef.current
+    if (!id) return
+    const node = find(rootRef.current, id)
     if (!node || node.type !== 'element') return
     const next = setStyleValue(node.attributes.style || '', prop, value)
-    commit(setAttr(rootRef.current, selected, 'style', next || null), `style:${selected}:${prop}`)
-  }, [selected, commit])
+    commit(setAttr(rootRef.current, id, 'style', next || null), `style:${id}:${prop}`)
+  }, [commit])
 
   const setStyleText = useCallback((text: string) => {
-    if (!selected) return
-    const next = textToStyle(text)
-    commit(setAttr(rootRef.current, selected, 'style', next || null))
-  }, [selected, commit])
+    const id = selectedRef.current
+    if (!id) return
+    commit(setAttr(rootRef.current, id, 'style', textToStyle(text) || null))
+  }, [commit])
 
   const changeAttr = useCallback((name: string, value: string | null) => {
-    if (!selected) return
-    commit(setAttr(rootRef.current, selected, name, value), value === null ? '' : `attr:${selected}:${name}`)
-  }, [selected, commit])
+    const id = selectedRef.current
+    if (!id) return
+    commit(setAttr(rootRef.current, id, name, value), value === null ? '' : `attr:${id}:${name}`)
+  }, [commit])
 
-  const action = useCallback((kind: 'edit' | 'parent' | 'duplicate' | 'delete' | 'up' | 'down') => {
-    if (!selected || streaming) return
+  const action = useCallback((kind: BarAction) => {
+    const id = selectedRef.current
+    if (!id || streaming) return
     const current = rootRef.current
+    const node = find(current, id)
+    const name = node && node.type === 'element' ? node.name : ''
     switch (kind) {
       case 'edit':
-        rendererRef.current?.startEditing(selected)
+        rendererRef.current?.startEditing(id)
         break
       case 'parent': {
-        const parent = parentOf(current, selected)
-        if (parent && !/^(html)$/i.test(parent.name)) setSelected(parent.id)
-        else setSelected(null)
+        const parent = parentOf(current, id)
+        setSelected(parent && !/^(html)$/i.test(parent.name) ? parent.id : null)
         break
       }
       case 'duplicate': {
-        const result = duplicate(current, selected)
+        const result = duplicate(current, id)
         if (result.id) {
           commit(result.root)
           setSelected(result.id)
@@ -291,18 +327,18 @@ export default function Editor() {
         break
       }
       case 'delete': {
-        const parent = parentOf(current, selected)
-        if (/^(body|html|head)$/i.test(selectedNode?.name || '')) return
-        commit(remove(current, selected))
+        if (/^(body|html|head)$/i.test(name)) return
+        const parent = parentOf(current, id)
+        commit(remove(current, id))
         setSelected(parent && !/^(body|html)$/i.test(parent.name) ? parent.id : null)
         break
       }
       case 'up':
       case 'down':
-        commit(move(current, selected, kind === 'up' ? -1 : 1))
+        commit(move(current, id, kind === 'up' ? -1 : 1))
         break
     }
-  }, [selected, streaming, commit, selectedNode])
+  }, [streaming, commit])
 
   const commitText = useCallback((id: string, source: string) => {
     commit(setHTML(rootRef.current, id, source))
@@ -310,12 +346,15 @@ export default function Editor() {
 
   const applyStructure = useCallback((text: string) => {
     const result = apply(rootRef.current, text)
-    commit(result.root)
-    if (result.root !== rootRef.current) notify('Structure applied')
+    if (result.root !== rootRef.current) {
+      commit(result.root)
+      notify('Structure applied')
+    }
     return result.errors
   }, [commit, notify])
 
   const exportHtml = useCallback(async (mode: 'dist' | 'download') => {
+    setExportOpen(false)
     const output = html(rootRef.current, { document: true, title: page.title || 'Untitled' })
     if (mode === 'download') {
       const blob = new Blob([output], { type: 'text/html' })
@@ -355,8 +394,14 @@ export default function Editor() {
     } else if (mod && key === 's') {
       event.preventDefault()
       exportHtml('dist')
-    } else if (!selected) {
+    } else if (mod && event.key === '\\') {
+      event.preventDefault()
+      setStructureOpen(open => !open)
+    } else if (!selectedRef.current) {
       return
+    } else if (mod && key === 'i') {
+      event.preventDefault()
+      setPropsOpen(open => !open)
     } else if (mod && key === 'd') {
       event.preventDefault()
       action('duplicate')
@@ -373,28 +418,24 @@ export default function Editor() {
       event.preventDefault()
       action(event.key === 'ArrowUp' ? 'up' : 'down')
     }
-  }, [undo, redo, exportHtml, selected, action, canEditText])
+  }, [undo, redo, exportHtml, action, canEditText])
 
   useEffect(() => {
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [onKeyDown])
 
-  const labelFor = useCallback((id: string) => {
-    const node = find(rootRef.current, id)
-    if (!node || node.type !== 'element') return ''
-    const cls = (node.attributes.class || '').trim().split(/\s+/)[0]
-    return `${node.name}${cls ? '.' + cls : ''}`
-  }, [])
-
   const canvasCallbacks = useMemo(() => ({
-    onSelect: (id: string | null) => setSelected(id),
-    onHover: (id: string | null) => setHovered(id),
+    onSelect: (chain: string[], clicks: number) => setSelected(pick(chain, clicks)),
+    onHover: (chain: string[]) => {
+      const id = pick(chain, 1)
+      setHovered(id === selectedRef.current ? null : id)
+    },
     onCommitText: commitText,
     onEditingChange: (id: string | null) => setEditingId(id),
     onKeyDown,
     onViewportChange: () => {},
-  }), [commitText, onKeyDown])
+  }), [pick, commitText, onKeyDown])
 
   const submitSource = () => {
     const cps = SPEEDS[speed].cps
@@ -412,14 +453,25 @@ export default function Editor() {
   const canUndo = history.current.past.length > 0
   const canRedo = history.current.future.length > 0
   const kb = (stats.bytes / 1024).toFixed(1)
+  const showBar = Boolean(selectedNode && !streaming && !editingId)
 
   return (
     <div className="h2e">
       <header className="h2e-bar">
-        <div className="h2e-brand">
-          <span className="h2e-logo">h2</span>
-          <span>html2any</span>
-          <span className="h2e-muted">editor</span>
+        <div className="h2e-bar-group">
+          <div className="h2e-brand">
+            <span className="h2e-logo">h2</span>
+            <span>html2any</span>
+          </div>
+          <button
+            className={`h2e-btn is-ghost${structureOpen ? ' is-on' : ''}`}
+            onClick={() => setStructureOpen(open => !open)}
+            aria-pressed={structureOpen}
+            title="Structure (⌘\)"
+          >
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" aria-hidden="true"><path d="M3 3.5h6M5 8h6M5 12.5h8M3 3.5v9" /></svg>
+            Structure
+          </button>
         </div>
 
         <div className="h2e-bar-group">
@@ -455,10 +507,9 @@ export default function Editor() {
               </div>
             ) : null}
           </div>
-
           <div className={`h2e-status${streaming ? ' is-live' : ''}`}>
             <span className="h2e-dot" />
-            {streaming ? `Streaming · ${kb} KB · ${stats.chunks} chunks` : stats.chunks ? `Parsed ${kb} KB · ${stats.chunks} chunks · ${(stats.ms / 1000).toFixed(1)}s` : 'Idle'}
+            {streaming ? `Streaming · ${kb} KB` : stats.chunks ? `${kb} KB · ${stats.chunks} chunks · ${(stats.ms / 1000).toFixed(1)}s` : 'Idle'}
             {streaming ? <button className="h2e-link" onClick={stopStream}>Stop</button> : null}
           </div>
         </div>
@@ -466,7 +517,7 @@ export default function Editor() {
         <div className="h2e-bar-group">
           <div className="h2e-segmented is-icons" role="group" aria-label="Device width">
             {(['desktop', 'tablet', 'mobile'] as Device[]).map(d => (
-              <button key={d} className={device === d ? 'is-on' : ''} onClick={() => setDevice(d)} title={d}>
+              <button key={d} className={device === d ? 'is-on' : ''} onClick={() => setDevice(d)} title={d} aria-label={d}>
                 <DeviceIcon kind={d} />
               </button>
             ))}
@@ -477,25 +528,38 @@ export default function Editor() {
           <button className="h2e-icon" title="Redo (⇧⌘Z)" aria-label="Redo" disabled={!canRedo || streaming} onClick={redo}>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"><path d="M10.5 3l3 3-3 3" /><path d="M13.5 6h-7a4 4 0 0 0 0 8H9" /></svg>
           </button>
-          <button className="h2e-btn" disabled={streaming} onClick={() => exportHtml('download')}>Download</button>
-          <button className="h2e-btn is-primary" disabled={streaming} onClick={() => exportHtml('dist')} title="Write web/dist/index.html (⌘S)">
-            Export to dist
-          </button>
+          <div className="h2e-popover-anchor">
+            <div className="h2e-split">
+              <button className="h2e-btn is-primary" disabled={streaming} onClick={() => exportHtml('dist')} title="Write web/dist/index.html (⌘S)">Export</button>
+              <button className="h2e-btn is-primary is-caret" disabled={streaming} onClick={() => setExportOpen(open => !open)} aria-label="More export options" aria-expanded={exportOpen}>
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M4 6l4 4 4-4" /></svg>
+              </button>
+            </div>
+            {exportOpen ? (
+              <div className="h2e-popover is-menu is-right" role="menu">
+                <button role="menuitem" onClick={() => exportHtml('dist')}>Export to <code>web/dist/index.html</code></button>
+                <button role="menuitem" onClick={() => exportHtml('download')}>Download index.html</button>
+              </div>
+            ) : null}
+          </div>
         </div>
       </header>
 
-      <div className="h2e-body">
-        <StructurePanel
-          outline={outlineText}
-          streaming={streaming}
-          selected={selected}
-          hovered={hovered}
-          onSelect={setSelected}
-          onHover={setHovered}
-          onApply={applyStructure}
-        />
+      <div className={`h2e-body${structureOpen ? ' has-structure' : ''}`}>
+        {structureOpen ? (
+          <StructurePanel
+            outline={outlineText}
+            streaming={streaming}
+            selected={selected}
+            hovered={hovered}
+            onSelect={setSelected}
+            onHover={setHovered}
+            onApply={applyStructure}
+            onClose={() => setStructureOpen(false)}
+          />
+        ) : null}
 
-        <main className="h2e-center">
+        <main className={`h2e-center${propsOpen && selectedNode ? ' has-props' : ''}`}>
           <Canvas
             root={root}
             streaming={streaming}
@@ -503,35 +567,51 @@ export default function Editor() {
             hovered={hovered}
             baseUrl={baseUrl}
             device={device}
-            labelFor={labelFor}
             rendererRef={rendererRef}
             callbacks={canvasCallbacks}
             onRendered={readComputed}
+            toolbar={showBar && selectedNode ? (
+              <FloatingBar
+                node={selectedNode}
+                kind={selectedKind}
+                collectionItem={collectionItem}
+                canEditText={canEditText}
+                computed={computed}
+                ancestors={path.slice(0, -1)}
+                propsOpen={propsOpen}
+                onStyle={setStyle}
+                onAttr={changeAttr}
+                onAction={action}
+                onSelect={setSelected}
+                onToggleProps={() => setPropsOpen(open => !open)}
+              />
+            ) : null}
           />
+          {propsOpen && selectedNode ? (
+            <Inspector
+              node={selectedNode}
+              path={path}
+              computed={computed}
+              size={size}
+              onStyle={setStyle}
+              onStyleText={setStyleText}
+              onAttribute={changeAttr}
+              onSelect={setSelected}
+              onClose={() => setPropsOpen(false)}
+            />
+          ) : null}
           <div className="h2e-canvas-foot">
             {editingId ? (
               <span><b>Editing text</b> · <kbd>↵</kbd> save · <kbd>⇧</kbd><kbd>↵</kbd> line break · <kbd>esc</kbd> cancel</span>
+            ) : streaming ? (
+              <span>Rendering while the HTML streams in…</span>
             ) : selected ? (
-              <span>Double-click text to edit · <kbd>⌘</kbd><kbd>D</kbd> duplicate · <kbd>⌫</kbd> delete · <kbd>esc</kbd> parent</span>
+              <span>Click again to go deeper · double-click to edit text · <kbd>esc</kbd> parent · <kbd>⌘</kbd><kbd>I</kbd> all properties</span>
             ) : (
-              <span>{streaming ? 'Rendering while the HTML streams in…' : 'Click any element to inspect it.'}</span>
+              <span>Click any block to edit it · <kbd>⌘</kbd><kbd>\</kbd> structure</span>
             )}
           </div>
         </main>
-
-        <Inspector
-          node={selectedNode}
-          path={path}
-          computed={computed}
-          size={size}
-          canEditText={canEditText && !streaming}
-          page={pageInfo}
-          onStyle={setStyle}
-          onStyleText={setStyleText}
-          onAttribute={changeAttr}
-          onSelect={setSelected}
-          onAction={action}
-        />
       </div>
 
       {toast ? <div className={`h2e-toast${toast.tone === 'error' ? ' is-error' : ''}`} role="status">{toast.text}</div> : null}

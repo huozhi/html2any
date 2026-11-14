@@ -12,59 +12,25 @@ export const COMPUTED_PROPS = [
   'text-transform', 'display', 'flex-direction', 'justify-content', 'align-items', 'gap',
   'grid-template-columns', 'width', 'max-width', 'height', 'min-height', 'margin-top', 'margin-right',
   'margin-bottom', 'margin-left', 'padding-top', 'padding-right', 'padding-bottom', 'padding-left',
-  'background-color', 'border-radius', 'border-top-width', 'border-top-style', 'border-top-color',
-  'box-shadow', 'opacity',
+  'background-color', 'border-radius', 'border-top-left-radius', 'border-top-width', 'border-top-style',
+  'border-top-color', 'box-shadow', 'opacity', 'row-gap',
 ]
 
 type InspectorProps = {
-  node: HtmlElement | null
+  node: HtmlElement
   path: HtmlElement[]
   computed: ComputedStyles
   size: { width: number; height: number } | null
-  canEditText: boolean
-  page: { title: string; nodes: number; bytes: number; blocks: number; collections: number }
   onStyle: (prop: string, value: string) => void
   onStyleText: (text: string) => void
   onAttribute: (name: string, value: string | null) => void
   onSelect: (id: string) => void
-  onAction: (action: 'edit' | 'parent' | 'duplicate' | 'delete' | 'up' | 'down') => void
+  onClose: () => void
 }
 
+/** All properties of the selected element, opened from the floating toolbar. */
 export function Inspector(props: InspectorProps) {
-  const { node, computed, size, onStyle, onAction, page } = props
-
-  if (!node) {
-    return (
-      <aside className="h2e-panel h2e-right">
-        <div className="h2e-panel-head"><div className="h2e-file">Inspector</div></div>
-        <div className="h2e-scroll">
-          <Section title="Page">
-            <div className="h2e-page-title">{page.title || 'Untitled page'}</div>
-            <div className="h2e-stats">
-              <Stat label="nodes" value={page.nodes} />
-              <Stat label="blocks" value={page.blocks} />
-              <Stat label="collections" value={page.collections} />
-              <Stat label="KB" value={(page.bytes / 1024).toFixed(1)} />
-            </div>
-          </Section>
-          <Section title="Shortcuts">
-            <ul className="h2e-keys">
-              <li><span>Select</span><span>click</span></li>
-              <li><span>Edit text</span><span>double-click · <kbd>↵</kbd></span></li>
-              <li><span>Line break while editing</span><span><kbd>⇧</kbd><kbd>↵</kbd></span></li>
-              <li><span>Parent</span><span><kbd>esc</kbd></span></li>
-              <li><span>Move up / down</span><span><kbd>⌥</kbd><kbd>↑</kbd> <kbd>⌥</kbd><kbd>↓</kbd></span></li>
-              <li><span>Duplicate</span><span><kbd>⌘</kbd><kbd>D</kbd></span></li>
-              <li><span>Delete</span><span><kbd>⌫</kbd></span></li>
-              <li><span>Undo / redo</span><span><kbd>⌘</kbd><kbd>Z</kbd> · <kbd>⇧</kbd><kbd>⌘</kbd><kbd>Z</kbd></span></li>
-              <li><span>Nudge a value</span><span><kbd>↑</kbd> <kbd>↓</kbd> · <kbd>⇧</kbd> ×10</span></li>
-            </ul>
-          </Section>
-        </div>
-      </aside>
-    )
-  }
-
+  const { node, computed, size, onStyle } = props
   const style = node.attributes.style || ''
   const value = (prop: string) => getStyleValue(style, prop)
   const display = value('display') || computed.display || ''
@@ -75,27 +41,15 @@ export function Inspector(props: InspectorProps) {
   )
 
   return (
-    <aside className="h2e-panel h2e-right">
+    <aside className="h2e-panel h2e-props" aria-label="Properties">
       <div className="h2e-panel-head">
         <div className="h2e-file">
           <span className="h2e-tag">&lt;{node.name}&gt;</span>
           <span className="h2e-muted">#{node.id}</span>
         </div>
         <div className="h2e-head-actions">
-          <IconButton title="Select parent (esc)" onClick={() => onAction('parent')}>
-            <path d="M8 13V3M3.5 7.5 8 3l4.5 4.5" />
-          </IconButton>
-          <IconButton title="Move up (⌥↑)" onClick={() => onAction('up')}>
-            <path d="M4 10l4-4 4 4" />
-          </IconButton>
-          <IconButton title="Move down (⌥↓)" onClick={() => onAction('down')}>
-            <path d="M4 6l4 4 4-4" />
-          </IconButton>
-          <IconButton title="Duplicate (⌘D)" onClick={() => onAction('duplicate')}>
-            <rect x="5.5" y="5.5" width="8" height="8" rx="1.5" /><path d="M10.5 5.5V3.5a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2" />
-          </IconButton>
-          <IconButton title="Delete (⌫)" danger onClick={() => onAction('delete')}>
-            <path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.6 8.5h5.8l.6-8.5" />
+          <IconButton title="Close (⌘I)" onClick={props.onClose}>
+            <path d="M4 4l8 8M12 4l-8 8" />
           </IconButton>
         </div>
       </div>
@@ -110,14 +64,6 @@ export function Inspector(props: InspectorProps) {
             </button>
           ))}
         </div>
-
-        {props.canEditText ? (
-          <button className="h2e-edit-text" onClick={() => onAction('edit')}>
-            <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 13h2.5L13 5.5 10.5 3 3 10.5z" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" /></svg>
-            Edit text on canvas
-            <span className="h2e-muted">double-click</span>
-          </button>
-        ) : null}
 
         <Section title="Typography">
           <div className="h2e-grid2">
@@ -199,15 +145,6 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
       <h3>{title}</h3>
       {children}
     </section>
-  )
-}
-
-function Stat({ label, value }: { label: string; value: ReactNode }) {
-  return (
-    <div className="h2e-stat">
-      <strong>{value}</strong>
-      <span>{label}</span>
-    </div>
   )
 }
 

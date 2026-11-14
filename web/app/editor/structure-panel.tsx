@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
+import type * as React from 'react'
 import type { KeyboardEvent, MouseEvent } from 'react'
 
 const LINE_HEIGHT = 20
@@ -15,13 +16,14 @@ type StructurePanelProps = {
   onSelect: (id: string | null) => void
   onHover: (id: string | null) => void
   onApply: (text: string) => string[]
+  onClose: () => void
 }
 
 function lineIds(text: string) {
   return text.split('\n').map(line => ID_IN_LINE.exec(line)?.[1] ?? null)
 }
 
-export function StructurePanel({ outline, streaming, selected, hovered, onSelect, onHover, onApply }: StructurePanelProps) {
+export function StructurePanel({ outline, streaming, selected, hovered, onSelect, onHover, onApply, onClose }: StructurePanelProps) {
   const [draft, setDraft] = useState<string | null>(null)
   const [errors, setErrors] = useState<string[]>([])
   const areaRef = useRef<HTMLTextAreaElement>(null)
@@ -148,6 +150,9 @@ export function StructurePanel({ outline, streaming, selected, hovered, onSelect
         <div className="h2e-head-actions">
           <button className="h2e-btn is-small" disabled={!dirty} onClick={revert}>Revert</button>
           <button className="h2e-btn is-small is-primary" disabled={!dirty} onClick={apply} title="Apply (⌘↵)">Apply</button>
+          <button className="h2e-icon is-tiny" title="Close structure (⌘\)" aria-label="Close structure" onClick={onClose}>
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"><path d="M4 4l8 8M12 4l-8 8" /></svg>
+          </button>
         </div>
       </div>
       <div className="h2e-code">
@@ -194,27 +199,38 @@ export function StructurePanel({ outline, streaming, selected, hovered, onSelect
           {errors.length > 4 ? <div>…and {errors.length - 4} more</div> : null}
         </div>
       ) : (
-        <div className="h2e-hint">Reorder, indent, duplicate or delete lines, then <kbd>⌘</kbd><kbd>↵</kbd> to apply.</div>
+        <div className="h2e-hint">Edit structure, <code>{'{ style }'}</code>, attributes or <code>"text"</code>, then <kbd>⌘</kbd><kbd>↵</kbd>.</div>
       )}
     </aside>
   )
 }
 
-const TOKEN = /^(\s*)([a-zA-Z][\w:-]*)((?:\.[\w-]+)*)(\s+#[\w-]+)?(.*)$/
+const HEAD = /^(\s*)([a-zA-Z][\w:-]*)((?:\.[\w-]+)*)(\s+#[\w-]+)?(.*)$/
+const REST = /(\{[^}]*\}?)|(\[[^\]]*\]?)|([^\s="{[]+)(=)("(?:[^"\\]|\\.)*"?|[^\s{[]*)|("(?:[^"\\]|\\.)*"?)|(\s+)|(.)/g
 
 function OutlineLine({ line }: { line: string }) {
-  const match = TOKEN.exec(line)
+  const match = HEAD.exec(line)
   if (!match) return <>{line}</>
   const [, indent, tag, classes, id, rest] = match
-  const guides = indent.length / 2
+  const parts: React.ReactNode[] = []
+  let m: RegExpExecArray | null
+  let k = 0
+  REST.lastIndex = 0
+  while ((m = REST.exec(rest))) {
+    if (m[1]) parts.push(<span className="tok-style" key={k++}>{m[1]}</span>)
+    else if (m[2]) parts.push(<span className="tok-collection" key={k++}>{m[2]}</span>)
+    else if (m[3]) parts.push(<span className="tok-attr" key={k++}>{m[3]}</span>, m[4], <span className="tok-string" key={k++}>{m[5]}</span>)
+    else if (m[6]) parts.push(<span className="tok-label" key={k++}>{m[6]}</span>)
+    else parts.push(m[7] ?? m[8])
+  }
   return (
     <>
-      {Array.from({ length: Math.floor(guides) }, (_, i) => <span className="tok-guide" key={i}>{'  '}</span>)}
+      {Array.from({ length: Math.floor(indent.length / 2) }, (_, i) => <span className="tok-guide" key={`g${i}`}>{'  '}</span>)}
       {indent.length % 2 ? ' ' : ''}
       <span className="tok-tag">{tag}</span>
       {classes ? <span className="tok-class">{classes}</span> : null}
       {id ? <span className="tok-id">{id}</span> : null}
-      {rest ? <span className={rest.trim().startsWith('[') ? 'tok-collection' : 'tok-label'}>{rest}</span> : null}
+      {parts}
     </>
   )
 }
