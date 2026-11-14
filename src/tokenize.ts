@@ -9,7 +9,7 @@ function extraAttrs(str: string) {
 
   while (i < str.length) {
     while (/\s/.test(str[i])) i++
-    if (!str[i] || str[i] === '/') {
+    if (!str[i] || str[i] === '/' || str[i] === '>') {
       break
     }
 
@@ -105,7 +105,7 @@ function getStartTagName(tag: string) {
 function splitTokens(html: string) {
   let i = 0
   let j = 0
-  const tokens: string[] = []
+  const tokens: { value: string; rawText?: boolean }[] = []
   while (i < html.length) {
     const curr = html[i]
     if (curr === '<') {
@@ -113,15 +113,15 @@ function splitTokens(html: string) {
         const k = html.indexOf('-->', i + 4)
         if (k === -1) break
         if (j < i) {
-          tokens.push(html.slice(j, i))
+          tokens.push({ value: html.slice(j, i) })
         }
-        tokens.push(html.slice(i, k + 3))
+        tokens.push({ value: html.slice(i, k + 3) })
         i = j = k + 3
         continue
       }
 
       if (j < i) {
-        tokens.push(html.slice(j, i))
+        tokens.push({ value: html.slice(j, i) })
         j = i
       }
 
@@ -130,22 +130,27 @@ function splitTokens(html: string) {
         break
       }
 
-      tokens.push(html.slice(i, k + 1))
+      tokens.push({ value: html.slice(i, k + 1) })
 
       const tagName = getStartTagName(html.slice(i, k + 1))
       if (tagName && RAW_TEXT_TAGS.indexOf(tagName.toLowerCase()) > -1) {
-        const closeTagStart = html.toLowerCase().indexOf(`</${tagName.toLowerCase()}`, k + 1)
+        const closeTagPattern = new RegExp(`</${tagName}(?=[\\t\\n\\f\\r />])`, 'ig')
+        closeTagPattern.lastIndex = k + 1
+        const closeTagStart = closeTagPattern.exec(html)?.index ?? -1
         if (closeTagStart > -1) {
           const closeTagEnd = findTagEnd(html, closeTagStart)
           if (closeTagEnd > -1) {
             if (k + 1 < closeTagStart) {
-              tokens.push(html.slice(k + 1, closeTagStart))
+              tokens.push({ value: html.slice(k + 1, closeTagStart), rawText: true })
             }
-            tokens.push(html.slice(closeTagStart, closeTagEnd + 1))
+            tokens.push({ value: html.slice(closeTagStart, closeTagEnd + 1) })
             i = j = closeTagEnd + 1
             continue
           }
         }
+        tokens.push({ value: html.slice(k + 1), rawText: true })
+        i = j = html.length
+        continue
       }
 
       i = j = k + 1
@@ -154,17 +159,19 @@ function splitTokens(html: string) {
     i++
   }
   if (j < html.length) {
-    tokens.push(html.slice(j))
+    tokens.push({ value: html.slice(j) })
   }
   return tokens
 }
 
 function tokenize(html: string) {
   return splitTokens(html)
-    .map(s => s.replace(/^\n+$/g, ''))
-    .map(s => s.trim())
-    .filter(Boolean)
-    .map(makeToken)
+    .map(({ value, rawText }): Token | null => {
+      const text = value.trim()
+      if (!text) return null
+      // Raw-text bodies remain text even when they look like complete tags.
+      return rawText ? { type: 'string', value: text } : makeToken(text)
+    })
     .filter((token): token is Token => Boolean(token))
 }
 

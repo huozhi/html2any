@@ -74,3 +74,30 @@ it('keeps raw text contents intact for script and style tags', () => {
     },
   ])
 })
+
+it.each(['script', 'style', 'textarea', 'title'])('keeps markup inside %s as a single text token', (name) => {
+  for (const value of ['<p>', '<b>raw</b>', '<!-- raw -->', '</div>', '<script>nested</script>']) {
+    // A matching end tag still terminates the enclosing raw-text element.
+    if (name === 'script' && value.includes('</script>')) continue
+    expect(tokenize(`<${name}>  ${value}  </${name}>`)).toEqual([
+      { type: 'start', name, attributes: {} },
+      { type: 'string', value },
+      { type: 'end', name },
+    ])
+  }
+})
+
+it.each(['script', 'style', 'textarea', 'title'])('keeps unclosed %s contents as text', (name) => {
+  expect(tokenize(`<${name}><b>raw</b>`)).toEqual([
+    { type: 'start', name, attributes: {} },
+    { type: 'string', value: '<b>raw</b>' },
+  ])
+})
+
+it('requires a complete raw-text closing tag name and matches it case-insensitively', () => {
+  expect(tokenize('<SCRIPT><b>raw</b></script-extra><i>more</i></sCrIpT >')).toEqual([
+    { type: 'start', name: 'SCRIPT', attributes: {} },
+    { type: 'string', value: '<b>raw</b></script-extra><i>more</i>' },
+    { type: 'end', name: 'sCrIpT' },
+  ])
+})

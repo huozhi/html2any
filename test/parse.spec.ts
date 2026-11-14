@@ -3,6 +3,23 @@ import parse from '../src/parse'
 
 import { html1, html2, xml1 } from './fixtures'
 
+it.each([
+  ['style', '<p>', ''],
+  ['script', '<x>', ''],
+  ['textarea', '<b>raw</b>', ''],
+  ['script', '<div>hi</div>', ' type="text/template"'],
+  ['title', '<i>t</i>', ''],
+])('preserves the raw body of %s and following siblings', (name, body, attrs) => {
+  expect(parse(`<${name}${attrs}>${body}</${name}><p>z</p>`)).toEqual([
+    {
+      name,
+      attributes: attrs ? { type: 'text/template' } : {},
+      children: [body],
+    },
+    { name: 'p', attributes: {}, children: ['z'] },
+  ])
+})
+
 it('parse correctly', () => {
   expect(parse(html1)).toMatchSnapshot()
 })
