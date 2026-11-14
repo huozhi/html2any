@@ -8,3 +8,5 @@ function html2any<Result = unknown>(html: string, rule: TransformRule<Result>) {
 
 export { parse, transform }
 export default html2any
+
+export * from './stream'
