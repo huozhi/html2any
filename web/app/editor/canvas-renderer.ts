@@ -1,4 +1,4 @@
-import { documentParts } from '../../../src/stream'
+import { documentParts } from '../../../src/stream/serialize'
 import type { HtmlElement, HtmlNode, HtmlRoot } from '../../../src/stream'
 
 const SVG_NS = 'http://www.w3.org/2000/svg'

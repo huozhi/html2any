@@ -2,10 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
-  applyOutline, createIdGenerator, createStreamParser, duplicateNode, findPath, getNode, getParent,
-  inferSchema, moveSibling, parseHTML, removeNode, setAttribute, toDocument, toOutline, updateNode, walk,
+  apply, duplicate, find, html, move, outline, path as pathTo, remove, schema, setAttr, setHTML, stream,
 } from '../../../src/stream'
-import type { HtmlElement, HtmlRoot, IdGenerator, SchemaNode } from '../../../src/stream'
+import type { HtmlElement, HtmlNode, HtmlRoot, SchemaNode } from '../../../src/stream'
 import { Canvas, type Device } from './canvas'
 import type { CanvasRenderer } from './canvas-renderer'
 import { COMPUTED_PROPS, Inspector, type ComputedStyles } from './inspector'
@@ -27,6 +26,18 @@ function isTypingTarget(target: EventTarget | null) {
   const el = target as HTMLElement | null
   if (!el || typeof el.tagName !== 'string') return false
   return Boolean(el.isContentEditable) || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)
+}
+
+function countNodes(nodes: HtmlNode[]): number {
+  let count = 0
+  for (const node of nodes) count += 1 + (node.type === 'element' ? countNodes(node.children) : 0)
+  return count
+}
+
+function parentOf(root: HtmlRoot, id: string) {
+  const nodes = pathTo(root, id)
+  const parent = nodes[nodes.length - 2]
+  return parent && parent.type === 'element' ? parent : undefined
 }
 
 function countSchema(nodes: SchemaNode[]) {
@@ -61,7 +72,6 @@ export default function Editor() {
   const [speed, setSpeed] = useState(1)
   const [, setHistoryVersion] = useState(0)
   const history = useRef({ past: [] as HtmlRoot[], future: [] as HtmlRoot[], lastKey: '', lastAt: 0 })
-  const genRef = useRef<IdGenerator>(() => `x${Date.now()}`)
   const abortRef = useRef<AbortController | null>(null)
   const rendererRef = useRef<CanvasRenderer | null>(null)
   const toastTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
@@ -127,7 +137,7 @@ export default function Editor() {
     setStreaming(true)
     setStats({ bytes: 0, chunks: 0, ms: 0 })
 
-    const parser = createStreamParser()
+    const parser = stream()
     const started = performance.now()
     let bytes = 0
     let chunks = 0
@@ -135,7 +145,7 @@ export default function Editor() {
     const flush = () => {
       frame = 0
       if (controller.signal.aborted) return
-      setRoot(parser.snapshot())
+      setRoot(parser.tree)
       setStats({ bytes, chunks, ms: performance.now() - started })
     }
 
@@ -166,7 +176,6 @@ export default function Editor() {
       if (frame) cancelAnimationFrame(frame)
       if (abortRef.current === controller) {
         const final = parser.end()
-        genRef.current = createIdGenerator(final)
         setRoot(final)
         setStats({ bytes, chunks, ms: performance.now() - started })
         setStreaming(false)
@@ -189,29 +198,24 @@ export default function Editor() {
   }, [startStream])
 
   // Derived data
-  const schema = useMemo(() => inferSchema(root), [root])
-  const outline = useMemo(() => toOutline(schema), [schema])
+  const page = useMemo(() => schema(root), [root])
+  const outlineText = useMemo(() => outline(root), [root])
   const selectedNode = useMemo(() => {
     if (!selected) return null
-    const node = getNode(root, selected)
+    const node = find(root, selected)
     return node && node.type === 'element' ? node : null
   }, [root, selected])
   const path = useMemo(() => {
     if (!selected) return []
-    const entries = findPath(root, selected) || []
-    return entries.map(e => e.node).filter((n): n is HtmlElement => n.type === 'element' && !/^(html)$/i.test(n.name))
+    return pathTo(root, selected).filter((n): n is HtmlElement => n.type === 'element' && !/^(html)$/i.test(n.name))
   }, [root, selected])
   const pageInfo = useMemo(() => {
-    let nodes = 0
-    walk(root, () => {
-      nodes++
-    })
-    return { title: schema.title, nodes, bytes: stats.bytes, ...countSchema(schema.children) }
-  }, [root, schema, stats.bytes])
+    return { title: page.title, nodes: countNodes(root.children), bytes: stats.bytes, ...countSchema(page.children) }
+  }, [root, page, stats.bytes])
 
   // Selection that disappeared (undo, delete, new stream) is cleared.
   useEffect(() => {
-    if (selected && !streaming && !getNode(root, selected)) setSelected(null)
+    if (selected && !streaming && !find(root, selected)) setSelected(null)
   }, [root, selected, streaming])
 
   const readComputed = useCallback(() => {
@@ -248,21 +252,21 @@ export default function Editor() {
 
   const setStyle = useCallback((prop: string, value: string) => {
     if (!selected) return
-    const node = getNode(rootRef.current, selected)
+    const node = find(rootRef.current, selected)
     if (!node || node.type !== 'element') return
     const next = setStyleValue(node.attributes.style || '', prop, value)
-    commit(setAttribute(rootRef.current, selected, 'style', next || null), `style:${selected}:${prop}`)
+    commit(setAttr(rootRef.current, selected, 'style', next || null), `style:${selected}:${prop}`)
   }, [selected, commit])
 
   const setStyleText = useCallback((text: string) => {
     if (!selected) return
     const next = textToStyle(text)
-    commit(setAttribute(rootRef.current, selected, 'style', next || null))
+    commit(setAttr(rootRef.current, selected, 'style', next || null))
   }, [selected, commit])
 
-  const setAttr = useCallback((name: string, value: string | null) => {
+  const changeAttr = useCallback((name: string, value: string | null) => {
     if (!selected) return
-    commit(setAttribute(rootRef.current, selected, name, value), value === null ? '' : `attr:${selected}:${name}`)
+    commit(setAttr(rootRef.current, selected, name, value), value === null ? '' : `attr:${selected}:${name}`)
   }, [selected, commit])
 
   const action = useCallback((kind: 'edit' | 'parent' | 'duplicate' | 'delete' | 'up' | 'down') => {
@@ -273,13 +277,13 @@ export default function Editor() {
         rendererRef.current?.startEditing(selected)
         break
       case 'parent': {
-        const parent = getParent(current, selected)
-        if (parent && parent.type === 'element' && !/^(html)$/i.test(parent.name)) setSelected(parent.id)
+        const parent = parentOf(current, selected)
+        if (parent && !/^(html)$/i.test(parent.name)) setSelected(parent.id)
         else setSelected(null)
         break
       }
       case 'duplicate': {
-        const result = duplicateNode(current, selected, genRef.current)
+        const result = duplicate(current, selected)
         if (result.id) {
           commit(result.root)
           setSelected(result.id)
@@ -287,35 +291,34 @@ export default function Editor() {
         break
       }
       case 'delete': {
-        const parent = getParent(current, selected)
+        const parent = parentOf(current, selected)
         if (/^(body|html|head)$/i.test(selectedNode?.name || '')) return
-        commit(removeNode(current, selected))
-        setSelected(parent && parent.type === 'element' && !/^(body|html)$/i.test(parent.name) ? parent.id : null)
+        commit(remove(current, selected))
+        setSelected(parent && !/^(body|html)$/i.test(parent.name) ? parent.id : null)
         break
       }
       case 'up':
       case 'down':
-        commit(moveSibling(current, selected, kind === 'up' ? -1 : 1))
+        commit(move(current, selected, kind === 'up' ? -1 : 1))
         break
     }
   }, [selected, streaming, commit, selectedNode])
 
-  const commitText = useCallback((id: string, html: string) => {
-    const children = parseHTML(html, { createId: genRef.current, stripCodeFence: false }).children
-    commit(updateNode<HtmlElement>(rootRef.current, id, node => ({ ...node, children })))
+  const commitText = useCallback((id: string, source: string) => {
+    commit(setHTML(rootRef.current, id, source))
   }, [commit])
 
   const applyStructure = useCallback((text: string) => {
-    const result = applyOutline(rootRef.current, text, genRef.current)
+    const result = apply(rootRef.current, text)
     commit(result.root)
     if (result.root !== rootRef.current) notify('Structure applied')
     return result.errors
   }, [commit, notify])
 
   const exportHtml = useCallback(async (mode: 'dist' | 'download') => {
-    const html = toDocument(rootRef.current, { title: schema.title || 'Untitled' })
+    const output = html(rootRef.current, { document: true, title: page.title || 'Untitled' })
     if (mode === 'download') {
-      const blob = new Blob([html], { type: 'text/html' })
+      const blob = new Blob([output], { type: 'text/html' })
       const href = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = href
@@ -328,7 +331,7 @@ export default function Editor() {
       const res = await fetch('/api/editor/export', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ html }),
+        body: JSON.stringify({ html: output }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Export failed')
@@ -336,7 +339,7 @@ export default function Editor() {
     } catch (error) {
       notify(error instanceof Error ? error.message : 'Export failed', 'error')
     }
-  }, [schema.title, notify])
+  }, [page.title, notify])
 
   const onKeyDown = useCallback((event: KeyboardEvent) => {
     if (isTypingTarget(event.target)) return
@@ -378,7 +381,7 @@ export default function Editor() {
   }, [onKeyDown])
 
   const labelFor = useCallback((id: string) => {
-    const node = getNode(rootRef.current, id)
+    const node = find(rootRef.current, id)
     if (!node || node.type !== 'element') return ''
     const cls = (node.attributes.class || '').trim().split(/\s+/)[0]
     return `${node.name}${cls ? '.' + cls : ''}`
@@ -483,7 +486,7 @@ export default function Editor() {
 
       <div className="h2e-body">
         <StructurePanel
-          outline={outline}
+          outline={outlineText}
           streaming={streaming}
           selected={selected}
           hovered={hovered}
@@ -525,7 +528,7 @@ export default function Editor() {
           page={pageInfo}
           onStyle={setStyle}
           onStyleText={setStyleText}
-          onAttribute={setAttr}
+          onAttribute={changeAttr}
           onSelect={setSelected}
           onAction={action}
         />

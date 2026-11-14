@@ -20,6 +20,16 @@
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./stream": {
+      "types": "./dist/stream.d.ts",
+      "default": "./dist/stream.js"
+    }
+  },
   "bin": {
     "html2any": "dist/bin/html2any.js",
     "html2": "dist/bin/html2.js"
