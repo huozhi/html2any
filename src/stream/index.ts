@@ -7,7 +7,7 @@
  */
 import { createStreamParser, parseHTML, type StreamParser } from './parser'
 import { applyOutline, inferSchema, toOutline, type PageSchema } from './schema'
-import { toDocument, toHTML } from './serialize'
+import { documentParts, toDocument, toHTML } from './serialize'
 import {
   createIdGenerator, duplicateNode, findPath, moveSibling, removeNode, setAttribute, textContent,
   updateNode,
@@ -189,6 +189,7 @@ export function setAttr(root: HtmlRoot, id: string, name: string, value: string 
 
 /** Replace an element's children with parsed HTML (like `innerHTML =`). */
 export function setHTML(root: HtmlRoot, id: string, source: string): HtmlRoot {
-  const children = parseHTML(source, { createId: createIdGenerator(root), stripCodeFence: false }).children
+  const parts = documentParts(parseHTML(source, { createId: createIdGenerator(root), stripCodeFence: false }))
+  const children = [...parts.headNodes, ...parts.bodyNodes]
   return updateNode<HtmlParent>(root, id, node => ({ ...node, children }) as HtmlElement)
 }

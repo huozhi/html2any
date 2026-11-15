@@ -13,11 +13,15 @@ export function createIdGenerator(root: HtmlRoot, prefix = 'n'): IdGenerator {
   return () => `${prefix}${++max}`
 }
 
+/** Visit descendants in document order; return false from `visit` to skip a subtree. Iterative. */
 export function walk(node: HtmlParent | HtmlNode, visit: (node: HtmlNode, parent: HtmlParent) => void | false) {
-  if (node.type === 'text') return
-  for (const child of node.children) {
-    if (visit(child, node) === false) continue
-    walk(child, visit)
+  if (node.type !== 'element' && node.type !== 'root') return
+  const stack: [HtmlNode, HtmlParent][] = []
+  for (let k = node.children.length - 1; k >= 0; k--) stack.push([node.children[k], node])
+  while (stack.length) {
+    const [child, parent] = stack.pop()!
+    if (visit(child, parent) === false || child.type !== 'element') continue
+    for (let k = child.children.length - 1; k >= 0; k--) stack.push([child.children[k], child])
   }
 }
 
@@ -26,18 +30,29 @@ type PathEntry = { node: HtmlParent | HtmlNode; index: number }
 /** Path from the root to the node with `id`, each entry carrying its index in the parent. */
 export function findPath(root: HtmlRoot, id: string): PathEntry[] | null {
   if (root.id === id) return [{ node: root, index: -1 }]
+  // Depth-first search with an explicit stack of [parent, next child index].
   const path: PathEntry[] = [{ node: root, index: -1 }]
-  function visit(parent: HtmlParent): boolean {
-    for (let i = 0; i < parent.children.length; i++) {
-      const child = parent.children[i]
-      path.push({ node: child, index: i })
-      if (child.id === id) return true
-      if (child.type === 'element' && visit(child)) return true
+  const cursor: number[] = [0]
+  while (path.length) {
+    const parent = path[path.length - 1].node as HtmlParent
+    const i = cursor[cursor.length - 1]
+    if (i >= parent.children.length) {
       path.pop()
+      cursor.pop()
+      continue
     }
-    return false
+    cursor[cursor.length - 1] = i + 1
+    const child = parent.children[i]
+    if (child.id === id) {
+      path.push({ node: child, index: i })
+      return path
+    }
+    if (child.type === 'element' && child.children.length) {
+      path.push({ node: child, index: i })
+      cursor.push(0)
+    }
   }
-  return visit(root) ? path : null
+  return null
 }
 
 export function getNode(root: HtmlRoot, id: string): HtmlParent | HtmlNode | undefined {
@@ -100,7 +115,7 @@ export function setAttribute(root: HtmlRoot, id: string, name: string, value: st
 }
 
 export function cloneNode<T extends HtmlNode>(node: T, createId: IdGenerator): T {
-  if (node.type === 'text') return { ...node, id: createId() }
+  if (node.type !== 'element') return { ...node, id: createId() }
   return {
     ...node,
     id: createId(),
@@ -138,15 +153,17 @@ export function moveSibling(root: HtmlRoot, id: string, direction: -1 | 1): Html
   })
 }
 
+/** Text content, without scripts, styles and comments. Iterative. */
 export function textContent(node: HtmlNode | HtmlParent): string {
   if (node.type === 'text') return node.value
+  if (node.type === 'comment') return ''
   let out = ''
-  for (const child of node.children) {
-    if (child.type === 'element') {
+  walk(node, child => {
+    if (child.type === 'text') out += child.value
+    else if (child.type === 'element') {
       const lower = child.name.toLowerCase()
-      if (lower === 'script' || lower === 'style') continue
+      if (lower === 'script' || lower === 'style' || lower === 'template') return false
     }
-    out += textContent(child)
-  }
+  })
   return out
 }

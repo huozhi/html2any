@@ -37,6 +37,8 @@ const TEXTS = new Set(['p', 'span', 'small', 'strong', 'em', 'b', 'i', 'label', 
 const SHOWN_ATTRIBUTES = ['id', 'href', 'src', 'alt', 'type', 'name', 'placeholder', 'value', 'target', 'action', 'method', 'for']
 const SIMPLE_CLASS = /^[\w-]+$/
 const MAX_LABEL = 48
+/** Blocks nested deeper than this are shown (and kept) as one leaf. */
+const MAX_DEPTH = 200
 
 function hasDirectText(node: HtmlParent) {
   return node.children.some(child => child.type === 'text' && /\S/.test(child.value))
@@ -112,8 +114,8 @@ function shownAttributes(node: HtmlElement) {
   return out
 }
 
-function schemaNode(node: HtmlElement): SchemaNode {
-  const kids = structuralChildren(node)
+function schemaNode(node: HtmlElement, depth = 0): SchemaNode {
+  const kids = depth < MAX_DEPTH ? structuralChildren(node) : []
   const result: SchemaNode = {
     id: node.id,
     tag: node.name,
@@ -123,7 +125,7 @@ function schemaNode(node: HtmlElement): SchemaNode {
     style: (node.attributes.style || '').trim(),
     label: labelOf(node),
     open: node.open,
-    children: kids.map(schemaNode),
+    children: kids.map(kid => schemaNode(kid, depth + 1)),
   }
   if (kids.length >= 2) {
     const counts = new Map<string, number>()
@@ -150,7 +152,7 @@ export function inferSchema(root: HtmlRoot): PageSchema {
   return {
     title: title ? textContent(title).trim() : '',
     contentRoot: content.id,
-    children: structuralChildren(content).map(schemaNode),
+    children: structuralChildren(content).map(node => schemaNode(node)),
   }
 }
 
@@ -343,12 +345,17 @@ export function applyOutline(root: HtmlRoot, outline: string, createId: IdGenera
   const { items, errors } = parseOutline(outline)
   const content = getContentRoot(root)
   const index = new Map<string, HtmlElement>()
-  ;(function collect(parent: HtmlParent) {
+  const depthOf = new Map<string, number>()
+  const pending: [HtmlParent, number][] = [[content, -1]]
+  while (pending.length) {
+    const [parent, depth] = pending.pop()!
+    if (depth >= MAX_DEPTH) continue
     for (const child of structuralChildren(parent)) {
       index.set(child.id, child)
-      collect(child)
+      depthOf.set(child.id, depth + 1)
+      pending.push([child, depth + 1])
     }
-  })(content)
+  }
 
   const used = new Set<string>()
 
@@ -381,7 +388,8 @@ export function applyOutline(root: HtmlRoot, outline: string, createId: IdGenera
       base = { type: 'element', id: createId(), name: item.tag, attributes: {}, children: [], open: false }
     }
     base = applyLine(base, item, createId)
-    if (LEAVES.has(base.name.toLowerCase())) return base
+    // Leaves and blocks below the depth limit keep their content untouched.
+    if (LEAVES.has(base.name.toLowerCase()) || (existing && (depthOf.get(existing.id) ?? 0) >= MAX_DEPTH)) return base
     const blocks = item.children.map(build)
     const children = fillSlots(base, blocks)
     const same = children.length === base.children.length && children.every((c, i) => c === base.children[i])
