@@ -6,6 +6,7 @@
  * updates and edits.
  */
 import { createStreamParser, parseHTML, type StreamParser } from './parser'
+import { extractContent, fillContent, type ContentData } from './content'
 import { applyOutline, inferSchema, toOutline, type PageSchema } from './schema'
 import { documentParts, toDocument, toHTML } from './serialize'
 import {
@@ -14,8 +15,9 @@ import {
 } from './tree'
 import type { HtmlElement, HtmlNode, HtmlParent, HtmlRoot } from './types'
 
-export type { HtmlElement, HtmlNode, HtmlRoot, HtmlText } from './types'
+export type { HtmlComment, HtmlElement, HtmlNode, HtmlRoot, HtmlText } from './types'
 export type { SchemaKind, SchemaNode } from './schema'
+export type { ContentData, ContentSchema, ContentValue, FieldType, ImageValue, LinkValue } from './content'
 export type Schema = PageSchema
 
 export type ParseOptions = {
@@ -192,4 +194,21 @@ export function setHTML(root: HtmlRoot, id: string, source: string): HtmlRoot {
   const parts = documentParts(parseHTML(source, { createId: createIdGenerator(root), stripCodeFence: false }))
   const children = [...parts.headNodes, ...parts.bodyNodes]
   return updateNode<HtmlParent>(root, id, node => ({ ...node, children }) as HtmlElement)
+}
+
+/**
+ * The page's content as typed JSON fields, separate from its template:
+ * text, richtext (inner HTML), link { label, href }, image { src, alt }, lists and groups.
+ */
+export function content(root: HtmlRoot) {
+  return extractContent(root)
+}
+
+/**
+ * Write content back into the page. Lists grow by copying their last item and shrink from the
+ * end; fields that did not change keep their subtrees. `fill(tree, content(tree).data)` returns
+ * the same tree.
+ */
+export function fill(root: HtmlRoot, data: ContentData): HtmlRoot {
+  return fillContent(root, data)
 }

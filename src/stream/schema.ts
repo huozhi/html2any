@@ -114,7 +114,7 @@ function shownAttributes(node: HtmlElement) {
   return out
 }
 
-function schemaNode(node: HtmlElement, depth = 0): SchemaNode {
+export function schemaNode(node: HtmlElement, depth = 0): SchemaNode {
   const kids = depth < MAX_DEPTH ? structuralChildren(node) : []
   const result: SchemaNode = {
     id: node.id,

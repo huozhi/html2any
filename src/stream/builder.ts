@@ -1797,7 +1797,7 @@ const QUIRKS_PUBLIC_PREFIXES = [
 
 /** Quirks mode from the doctype (HTML spec, "the initial insertion mode"). */
 function isQuirksDoctype(raw: string) {
-  const match = /^doctype\s*([^\s>]*)\s*(.*)$/is.exec(raw.trim())
+  const match = /^doctype\s*([^\s>]*)\s*([\s\S]*)$/i.exec(raw.trim())
   if (!match || match[1].toLowerCase() !== 'html') return true
   const ids = /^(public|system)\s*(?:"([^"]*)"|'([^']*)')?\s*(?:"([^"]*)"|'([^']*)')?/i.exec(match[2])
   if (!ids) return false
