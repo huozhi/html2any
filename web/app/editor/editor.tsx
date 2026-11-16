@@ -49,7 +49,7 @@ function indexSchema(nodes: SchemaNode[]) {
 }
 
 function inlineOnly(node: HtmlElement): boolean {
-  return node.children.every(c => c.type === 'text' || (INLINE.test(c.name) && inlineOnly(c)))
+  return node.children.every(c => c.type !== 'element' || (INLINE.test(c.name) && inlineOnly(c)))
 }
 
 export default function Editor() {

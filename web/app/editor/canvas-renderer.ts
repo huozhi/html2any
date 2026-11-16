@@ -2,6 +2,11 @@ import { documentParts } from '../../../src/stream/serialize'
 import type { HtmlElement, HtmlNode, HtmlRoot } from '../../../src/stream'
 
 const SVG_NS = 'http://www.w3.org/2000/svg'
+const MATH_NS = 'http://www.w3.org/1998/Math/MathML'
+
+function namespaceOf(el: Element): 'html' | 'svg' | 'math' {
+  return el.namespaceURI === SVG_NS ? 'svg' : el.namespaceURI === MATH_NS ? 'math' : 'html'
+}
 // Never rendered on the canvas (kept in the document and in the export).
 const INERT = new Set(['script', 'noscript', 'object', 'embed', 'base', 'applet'])
 const URL_ATTRS = new Set(['href', 'src', 'action', 'formaction', 'xlink:href', 'poster', 'data'])
@@ -33,7 +38,7 @@ export type RendererCallbacks = {
   onViewportChange(): void
 }
 
-type Namespace = 'html' | 'svg'
+type Namespace = 'html' | 'svg' | 'math'
 
 function isSafeAttribute(name: string, value: string) {
   if (/^on/i.test(name)) return false
@@ -358,6 +363,17 @@ export class CanvasRenderer {
       return dom
     }
 
+    if (node.type === 'comment') {
+      if (dom && dom.nodeType === 8) {
+        if ((dom as Comment).data !== node.value) (dom as Comment).data = node.value
+      } else {
+        dom = this.doc.createComment(node.value)
+      }
+      this.lastById.set(node.id, node)
+      this.domById.set(node.id, dom)
+      return dom
+    }
+
     const lower = node.name.toLowerCase()
     if (INERT.has(lower) || (lower === 'meta' && 'http-equiv' in node.attributes)) {
       if (!dom || dom.nodeType !== 8) dom = this.doc.createComment(lower)
@@ -365,11 +381,15 @@ export class CanvasRenderer {
       return dom
     }
 
-    const nextNs: Namespace = ns === 'svg' || lower === 'svg' ? 'svg' : 'html'
+    // Parsed nodes carry their namespace; hand-made ones (outline edits) inherit SVG from the parent.
+    const nextNs: Namespace = node.namespace === 'svg' || (!node.namespace && (lower === 'svg' || (ns === 'svg' && lower !== 'foreignobject'))) ? 'svg'
+      : node.namespace === 'math' ? 'math' : 'html'
     let el = dom as Element | undefined
     let prevAttrs = prev && prev.type === 'element' ? prev.attributes : {}
-    if (!el || el.nodeType !== 1 || el.nodeName.toLowerCase() !== lower) {
-      el = nextNs === 'svg' ? this.doc.createElementNS(SVG_NS, node.name) : this.doc.createElement(node.name)
+    if (!el || el.nodeType !== 1 || el.nodeName.toLowerCase() !== lower || namespaceOf(el) !== nextNs) {
+      el = nextNs === 'svg' ? this.doc.createElementNS(SVG_NS, node.name)
+        : nextNs === 'math' ? this.doc.createElementNS(MATH_NS, node.name)
+        : this.doc.createElement(node.name)
       prevAttrs = {}
     }
     this.syncAttributes(el, prevAttrs, node.attributes, prevAttrs === node.attributes && el === dom)
@@ -381,7 +401,7 @@ export class CanvasRenderer {
       if (el.textContent !== text) el.textContent = text
       for (const child of node.children) this.lastById.set(child.id, child)
     } else {
-      const childNs: Namespace = nextNs === 'svg' && lower !== 'foreignobject' ? 'svg' : 'html'
+      const childNs: Namespace = nextNs === 'svg' && lower !== 'foreignobject' ? 'svg' : nextNs === 'math' ? 'math' : 'html'
       this.syncChildren(el, node.children, childNs)
     }
     return el
@@ -431,7 +451,7 @@ function hasDirectText(node: HtmlElement) {
 
 function onlyInline(node: HtmlElement): boolean {
   return node.children.every(child => {
-    if (child.type === 'text') return true
+    if (child.type !== 'element') return true
     const lower = child.name.toLowerCase()
     return PHRASING.has(lower) && onlyInline(child)
   })

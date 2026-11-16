@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test'
 import {
-  apply, find, html, outline, parse, schema, setHTML, text, type HtmlNode, type HtmlRoot,
+  apply, find, html, outline, parse, schema, setHTML, text, type HtmlElement, type HtmlNode, type HtmlRoot,
 } from '../src/stream'
 import { createStreamParser } from '../src/stream/parser'
 
@@ -35,8 +35,15 @@ const PAGE = `<!doctype html>
 </body>
 </html>`
 
+/** The <body> element of a parsed tree. */
+function body(root: HtmlRoot) {
+  const htmlEl = root.children.find(n => n.type === 'element') as HtmlElement
+  return htmlEl.children.find(n => n.type === 'element' && n.name === 'body') as HtmlElement
+}
+
 function strip(node: HtmlRoot | HtmlNode): unknown {
   if (node.type === 'text') return node.value
+  if (node.type === 'comment') return `<!--${node.value}-->`
   const base: Record<string, unknown> = { children: node.children.map(strip) }
   if (node.type === 'element') {
     base.name = node.name
@@ -47,7 +54,7 @@ function strip(node: HtmlRoot | HtmlNode): unknown {
 
 function allClosed(node: HtmlRoot | HtmlNode): boolean {
   if (node.open) return false
-  return node.type === 'text' || node.children.every(allClosed)
+  return node.type !== 'element' && node.type !== 'root' ? true : node.children.every(allClosed)
 }
 
 function chunked(source: string, sizes: number[]) {
@@ -76,7 +83,7 @@ describe('stream parser', () => {
     expect(out).toContain('<b>Hello</b> <i>world</i>')
     expect(out).toContain('href="/about?a=1&amp;b=2"')
     expect(out).toContain('Fresh leaves — every week.')
-    expect(out).not.toContain('hero -->')
+    expect(out).toContain('<!-- hero -->')
     expect(allClosed(root)).toBe(true)
   })
 
@@ -106,7 +113,7 @@ describe('stream parser', () => {
     root = parser.write('f="/x">link</a><!-- thinking')
     expect(html(root)).toBe('<div><p>Hello</p><a href="/x">link</a></div>')
     root = parser.write(' --><p>a &am')
-    expect(html(root)).toBe('<div><p>Hello</p><a href="/x">link</a><p>a </p></div>')
+    expect(html(root)).toBe('<div><p>Hello</p><a href="/x">link</a><!-- thinking --><p>a </p></div>')
     root = parser.write('p; b')
     expect(text(root)).toBe('Hellolinka & b')
   })
@@ -114,7 +121,7 @@ describe('stream parser', () => {
   it('marks open nodes while streaming and closes them at the end', () => {
     const parser = stream()
     const root = parser.write('<section><p>typing')
-    const section = root.children[0]
+    const section = body(root).children[0]
     expect(section.type === 'element' && section.open).toBe(true)
     const p = section.type === 'element' ? section.children[0] : null
     expect(p && p.open).toBe(true)
@@ -124,7 +131,11 @@ describe('stream parser', () => {
   it('recovers from mismatched and implied end tags', () => {
     expect(html(parseHTML('<div><p>text</div><span>after</span>'))).toBe('<div><p>text</p></div><span>after</span>')
     expect(html(parseHTML('<p>one<p>two<div>three</div>'))).toBe('<p>one</p><p>two</p><div>three</div>')
-    expect(html(parseHTML('<p>a <b>bold<div>x</div>'))).toBe('<p>a <b>bold</b></p><div>x</div>')
+    // Like browsers: the open <b> is reconstructed inside the <div>.
+    expect(html(parseHTML('<p>a <b>bold<div>x</div>'))).toBe('<p>a <b>bold</b></p><div><b>x</b></div>')
+    expect(html(parseHTML('<b>1<i>2</b>3</i>4'))).toBe('<b>1<i>2</i></b><i>3</i>4')
+    expect(html(parseHTML('<!doctype html><table>x<tr><td>1</td></tr></table>'))).toBe('x<table><tr><td>1</td></tr></table>')
+    expect(html(parseHTML('<a href=1>a<a href=2>b</a>'))).toBe('<a href="1">a</a><a href="2">b</a>')
     expect(html(parseHTML('<dl><dt>a<dd>b<dt>c</dl>'))).toBe('<dl><dt>a</dt><dd>b</dd><dt>c</dt></dl>')
     expect(html(parseHTML('<h2>Title<h3>Sub</h3>'))).toBe('<h2>Title</h2><h3>Sub</h3>')
     expect(html(parseHTML('</div>stray<br/>ok'))).toBe('stray<br>ok')
@@ -147,8 +158,12 @@ describe('stream parser', () => {
     expect(html(parser.end())).toBe('<p>hi</p>\n')
   })
 
-  it('recovers from a stray quote inside a tag at the end of the stream', () => {
-    expect(html(parseHTML('<div class="a>text</div>'))).toContain('text')
+  it('treats a stray quote inside a tag like browsers do', () => {
+    // The attribute value runs to the next quote; a tag still open at the end is dropped.
+    expect(html(parseHTML('<div class="a>text</div>'))).toBe('')
+    const recovered = parseHTML('<div class="a>text</div><p class="b">x</p>')
+    expect((body(recovered).children[0] as HtmlElement).attributes.class).toBe('a>text</div><p class=')
+    expect(text(recovered)).toBe('x')
   })
 
   it('keeps identity of finished subtrees between writes', () => {
@@ -156,8 +171,8 @@ describe('stream parser', () => {
     const first = parser.write('<section><h1>Done</h1></section><section><p>Stre')
     const second = parser.write('aming</p>')
     expect(second).not.toBe(first)
-    expect(second.children[0]).toBe(first.children[0])
-    expect(second.children[1]).not.toBe(first.children[1])
+    expect(body(second).children[0]).toBe(body(first).children[0])
+    expect(body(second).children[1]).not.toBe(body(first).children[1])
     const third = parser.write('')
     expect(third).toBe(second)
   })
@@ -281,7 +296,7 @@ describe('streaming schema', () => {
 describe('edits', () => {
   it('replaces children with parsed HTML using fresh ids', () => {
     const root = parseHTML('<main><p id="a">old</p></main>')
-    const p = (root.children[0] as any).children[0]
+    const p = (body(root).children[0] as HtmlElement).children[0]
     const next = setHTML(root, p.id, 'new <b>bold</b>')
     expect(html(next)).toBe('<main><p id="a">new <b>bold</b></p></main>')
     const ids = new Set<string>()
